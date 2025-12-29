@@ -1,11 +1,11 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useProject } from "@/hooks/use-projects";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -14,6 +14,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +24,17 @@ const ProjectDetail = () => {
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [totalSlides, setTotalSlides] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  
+  // Autoplay plugin with pause on hover
+  const autoplayPlugin = useRef(
+    Autoplay({ 
+      delay: 4000, 
+      stopOnInteraction: false,
+      stopOnMouseEnter: true,
+      stopOnFocusIn: true,
+    })
+  );
 
   // Sync carousel with state
   useEffect(() => {
@@ -42,6 +54,18 @@ const ProjectDetail = () => {
     setSelectedImage(index);
     carouselApi?.scrollTo(index);
   }, [carouselApi]);
+
+  // Toggle autoplay
+  const toggleAutoplay = useCallback(() => {
+    const autoplay = autoplayPlugin.current;
+    if (autoplay.isPlaying()) {
+      autoplay.stop();
+      setIsPlaying(false);
+    } else {
+      autoplay.play();
+      setIsPlaying(true);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -182,8 +206,14 @@ const ProjectDetail = () => {
               <Carousel
                 setApi={setCarouselApi}
                 className="w-full"
+                plugins={[autoplayPlugin.current]}
                 opts={{
                   loop: true,
+                }}
+                onMouseEnter={() => setIsPlaying(false)}
+                onMouseLeave={() => {
+                  autoplayPlugin.current.play();
+                  setIsPlaying(true);
                 }}
               >
                 <CarouselContent>
@@ -221,10 +251,21 @@ const ProjectDetail = () => {
                   <ChevronRight className="h-6 w-6" />
                 </Button>
 
-                {/* Photo Counter */}
-                <div className="absolute bottom-4 right-4 bg-charcoal/70 backdrop-blur-sm text-cream px-4 py-2 rounded-sm text-sm font-medium flex items-center gap-2">
-                  <Images className="w-4 h-4" />
-                  {currentSlide + 1} / {allImages.length}
+                {/* Photo Counter & Autoplay Toggle */}
+                <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 rounded-full bg-charcoal/70 backdrop-blur-sm text-cream hover:bg-charcoal/90"
+                    onClick={toggleAutoplay}
+                    title={isPlaying ? "Pause" : "Lecture"}
+                  >
+                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  </Button>
+                  <div className="bg-charcoal/70 backdrop-blur-sm text-cream px-4 py-2 rounded-sm text-sm font-medium flex items-center gap-2">
+                    <Images className="w-4 h-4" />
+                    {currentSlide + 1} / {allImages.length}
+                  </div>
                 </div>
               </Carousel>
             </div>
