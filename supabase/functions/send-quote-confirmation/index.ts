@@ -263,7 +263,7 @@ const handler = async (req: Request): Promise<Response> => {
     const safeEmail = escapeHtml(data.email);
     const safePhone = escapeHtml(data.phone);
 
-    // Email to client (confirmation)
+    // Email to client (confirmation) - Design cohérent avec le site
     const clientEmailResponse = await resend.emails.send({
       from: "Qualirenovation <contact@qualiconcept.fr>",
       to: [data.email],
@@ -275,76 +275,114 @@ const handler = async (req: Request): Promise<Response> => {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #000000; margin: 0; padding: 0; background-color: #f5f5f5; }
-            .wrapper { background-color: #f5f5f5; padding: 20px; }
-            .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-            .header { background: #114a65; padding: 30px; text-align: center; }
-            .logo-svg { width: 280px; height: auto; margin: 0 auto; display: block; }
+            body { font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.7; color: #1a1a1a; margin: 0; padding: 0; background-color: #f8f6f3; }
+            .wrapper { background-color: #f8f6f3; padding: 40px 20px; }
+            .container { max-width: 600px; margin: 0 auto; background: #ffffff; overflow: hidden; }
+            .header { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 40px 30px; text-align: center; }
+            .logo-container { margin-bottom: 10px; }
+            .logo-quali { font-family: 'Georgia', serif; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #c9a961; display: inline; }
+            .logo-renovation { font-family: 'Georgia', serif; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #ffffff; display: inline; }
+            .logo-tagline { font-family: Arial, sans-serif; font-size: 10px; color: rgba(255,255,255,0.7); letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; }
+            .hero-section { position: relative; }
             .hero-image { width: 100%; height: auto; display: block; }
-            .content { padding: 30px; }
-            .greeting { font-size: 20px; color: #114a65; margin-bottom: 20px; }
-            .text { color: #000000; margin: 15px 0; }
-            .highlight { color: #ba8c1c; font-weight: 600; }
-            .recap { background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%); padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #ba8c1c; }
-            .recap-title { margin: 0 0 20px 0; color: #114a65; font-size: 18px; display: flex; align-items: center; }
-            .recap-title::before { content: ""; display: inline-block; width: 8px; height: 8px; background: #ba8c1c; border-radius: 50%; margin-right: 10px; }
-            .recap-item { margin: 12px 0; display: flex; }
-            .recap-label { font-weight: 600; color: #114a65; min-width: 140px; }
-            .recap-value { color: #000000; }
-            .cta-section { text-align: center; margin: 30px 0; padding: 25px; background: #114a65; border-radius: 8px; }
-            .cta-text { color: #ffffff; margin: 0 0 15px 0; }
-            .cta-button { display: inline-block; padding: 12px 30px; background: #ba8c1c; color: #ffffff; text-decoration: none; font-weight: 600; border-radius: 4px; }
-            .signature { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-            .signature-name { color: #114a65; font-weight: 600; }
-            .footer { background: #114a65; padding: 25px; text-align: center; }
-            .footer-logo-svg { width: 200px; height: auto; margin: 0 auto 15px auto; display: block; }
-            .footer-info { color: #ffffff; font-size: 11px; line-height: 1.8; opacity: 0.9; }
-            .footer-link { color: #ba8c1c; text-decoration: none; }
+            .content { padding: 40px 35px; }
+            .greeting { font-size: 22px; color: #1a1a1a; margin-bottom: 25px; font-weight: 400; }
+            .greeting strong { color: #c9a961; }
+            .text { color: #4a4a4a; margin: 18px 0; font-size: 15px; }
+            .highlight { color: #c9a961; font-weight: 600; }
+            .divider { width: 60px; height: 2px; background: linear-gradient(90deg, #c9a961, #e8d5a3); margin: 30px 0; }
+            .recap { background: #faf9f7; padding: 30px; margin: 30px 0; border-left: 3px solid #c9a961; }
+            .recap-title { margin: 0 0 25px 0; color: #1a1a1a; font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+            .recap-item { margin: 14px 0; display: flex; font-size: 14px; }
+            .recap-label { font-weight: 600; color: #1a1a1a; min-width: 150px; }
+            .recap-value { color: #4a4a4a; }
+            .cta-section { text-align: center; margin: 35px 0; padding: 30px; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); }
+            .cta-text { color: #ffffff; margin: 0 0 20px 0; font-size: 16px; font-style: italic; }
+            .cta-button { display: inline-block; padding: 14px 35px; background: linear-gradient(135deg, #c9a961 0%, #e8d5a3 100%); color: #1a1a1a; text-decoration: none; font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; }
+            .signature-section { margin-top: 35px; padding: 30px; background: #faf9f7; display: table; width: 100%; box-sizing: border-box; }
+            .signature-photo { display: table-cell; vertical-align: top; width: 90px; padding-right: 25px; }
+            .signature-photo img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #c9a961; }
+            .signature-content { display: table-cell; vertical-align: middle; }
+            .signature-greeting { color: #4a4a4a; font-size: 15px; margin: 0 0 8px 0; font-style: italic; }
+            .signature-name { color: #1a1a1a; font-size: 18px; font-weight: 600; margin: 0 0 5px 0; }
+            .signature-role { color: #c9a961; font-size: 13px; margin: 0 0 12px 0; letter-spacing: 1px; }
+            .signature-phone { color: #1a1a1a; font-size: 14px; margin: 0; }
+            .signature-phone a { color: #1a1a1a; text-decoration: none; font-weight: 600; }
+            .footer { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 35px; text-align: center; }
+            .footer-logo-quali { font-family: 'Georgia', serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #c9a961; display: inline; }
+            .footer-logo-renovation { font-family: 'Georgia', serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #ffffff; display: inline; }
+            .footer-divider { width: 40px; height: 1px; background: #c9a961; margin: 20px auto; }
+            .footer-info { color: rgba(255,255,255,0.8); font-size: 12px; line-height: 2; font-family: Arial, sans-serif; }
+            .footer-link { color: #c9a961; text-decoration: none; }
+            .social-links { margin: 20px 0; }
+            .social-link { display: inline-block; width: 40px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 8px; text-align: center; line-height: 40px; color: #ffffff; text-decoration: none; font-size: 18px; }
           </style>
         </head>
         <body>
           <div class="wrapper">
             <div class="container">
+              <!-- Header avec logo HTML -->
               <div class="header">
-                <img src="${logoBase64}" alt="Qualirénovation by Qualiconcept" class="logo-svg" style="width: 260px; height: auto;" />
+                <div class="logo-container">
+                  <span class="logo-quali">QUALI</span><span class="logo-renovation">RÉNOVATION</span>
+                </div>
+                <div class="logo-tagline">by Qualiconcept</div>
               </div>
               
-              <img src="https://st.hzcdn.com/simgs/7461361a0ab3ba4b_8-2381/salons-hotel-particulier-saint-mande-olivier-berni-interieurs.jpg" alt="Rénovation d'intérieur de qualité" class="hero-image" />
+              <!-- Image hero -->
+              <div class="hero-section">
+                <img src="https://st.hzcdn.com/simgs/7461361a0ab3ba4b_8-2381/salons-hotel-particulier-saint-mande-olivier-berni-interieurs.jpg" alt="Rénovation d'intérieur de qualité" class="hero-image" />
+              </div>
               
+              <!-- Contenu principal -->
               <div class="content">
-                <h2 class="greeting">Bonjour ${safeName},</h2>
+                <h2 class="greeting">Bonjour <strong>${safeName}</strong>,</h2>
+                
+                <div class="divider"></div>
                 
                 <p class="text">Nous avons bien reçu votre demande de devis et nous vous en remercions chaleureusement.</p>
                 
                 <p class="text">Notre équipe d'experts étudie votre projet avec attention et vous recontactera <span class="highlight">sous 48 heures</span> avec une proposition personnalisée.</p>
                 
+                <!-- Récapitulatif -->
                 <div class="recap">
-                  <h3 class="recap-title">Récapitulatif de votre demande</h3>
-                  <div class="recap-item"><span class="recap-label">Ville du bien :</span> <span class="recap-value">${safeCity}</span></div>
-                  <div class="recap-item"><span class="recap-label">Surface :</span> <span class="recap-value">${safeSurface} m²</span></div>
-                  <div class="recap-item"><span class="recap-label">Budget envisagé :</span> <span class="recap-value">${budgetLabel}</span></div>
-                  <div class="recap-item"><span class="recap-label">Démarrage :</span> <span class="recap-value">${timelineLabel}</span></div>
-                  <div class="recap-item"><span class="recap-label">Description :</span> <span class="recap-value">${safeMessage}</span></div>
+                  <h3 class="recap-title">RÉCAPITULATIF DE VOTRE DEMANDE</h3>
+                  <div class="recap-item"><span class="recap-label">Ville du bien</span> <span class="recap-value">${safeCity}</span></div>
+                  <div class="recap-item"><span class="recap-label">Surface</span> <span class="recap-value">${safeSurface} m²</span></div>
+                  <div class="recap-item"><span class="recap-label">Budget envisagé</span> <span class="recap-value">${budgetLabel}</span></div>
+                  <div class="recap-item"><span class="recap-label">Démarrage souhaité</span> <span class="recap-value">${timelineLabel}</span></div>
+                  <div class="recap-item"><span class="recap-label">Votre projet</span> <span class="recap-value">${safeMessage}</span></div>
                 </div>
 
+                <!-- CTA -->
                 <div class="cta-section">
                   <p class="cta-text">Découvrez nos réalisations en attendant notre réponse</p>
                   <a href="https://qualirenovation.fr/#realisations" class="cta-button">Voir nos projets</a>
                 </div>
                 
-                <div class="signature">
-                  <p class="text">À très bientôt,</p>
-                  <p class="signature-name">L'équipe Qualirénovation</p>
+                <!-- Signature Carina -->
+                <div class="signature-section">
+                  <div class="signature-photo">
+                    <img src="https://sktxyflbvfhxkaeaebnr.supabase.co/storage/v1/object/public/assets/carina.jpg" alt="Carina" />
+                  </div>
+                  <div class="signature-content">
+                    <p class="signature-greeting">À très bientôt,</p>
+                    <p class="signature-name">Carina</p>
+                    <p class="signature-role">Fondatrice de Qualirénovation</p>
+                    <p class="signature-phone">📞 <a href="tel:+33659764685">+33 6 59 76 46 85</a></p>
+                  </div>
                 </div>
               </div>
               
+              <!-- Footer -->
               <div class="footer">
-                <img src="${logoBase64}" alt="Qualirénovation by Qualiconcept" class="footer-logo-svg" style="width: 180px; height: auto; margin-bottom: 15px;" />
-                <div style="margin-bottom: 20px;">
-                  <a href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px;">
-                    <img src="https://st.hzcdn.com/static/econ/icon/houzz-icon-white.svg" alt="Houzz" style="width: 18px; height: 18px; vertical-align: middle;" />
-                  </a>
-                  <a href="https://www.instagram.com/qualirenovation__travaux/" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px; color: #fff; text-decoration: none; font-size: 16px;">📷</a>
+                <div>
+                  <span class="footer-logo-quali">QUALI</span><span class="footer-logo-renovation">RÉNOVATION</span>
+                </div>
+                <div class="footer-divider"></div>
+                <div class="social-links">
+                  <a href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept" target="_blank" class="social-link">🏠</a>
+                  <a href="https://www.instagram.com/qualirenovation__travaux/" target="_blank" class="social-link">📷</a>
                 </div>
                 <p class="footer-info">
                   QUALIRÉNOVATION BY QUALICONCEPT<br>
