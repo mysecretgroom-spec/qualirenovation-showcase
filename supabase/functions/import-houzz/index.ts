@@ -86,11 +86,66 @@ function extractLocation(content: string): string {
   return 'Paris'
 }
 
-// Scrape a single project page with waitFor for dynamic content
-async function scrapeProjectPage(url: string, apiKey: string): Promise<{ description: string, images: string[], category: string, location: string, year: string, cost: string }> {
+// ============ HOUZZ INTERNAL API APPROACH ============
+// Use multiple discovery methods including Map API and direct pattern matching
+
+async function discoverAllProjectsViaMap(apiKey: string, profileUrl: string): Promise<string[]> {
+  console.log('Using Firecrawl Map API to discover ALL project URLs...')
+  
+  const allUrls: string[] = []
+  
+  try {
+    // Map the professional profile page - this should discover all linked project URLs
+    const mapResponse = await fetch('https://api.firecrawl.dev/v1/map', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: profileUrl,
+        search: 'projets',
+        limit: 500,
+        includeSubdomains: false,
+      }),
+    })
+
+    if (mapResponse.ok) {
+      const mapData = await mapResponse.json()
+      console.log('Map API response:', JSON.stringify(mapData).substring(0, 500))
+      
+      const links = mapData.links || mapData.data?.links || []
+      console.log(`Map found ${links.length} total links`)
+      
+      for (const link of links) {
+        const url = typeof link === 'string' ? link : link.url
+        if (url && url.includes('/hznb/projets/') && url.includes('pj-vj~')) {
+          allUrls.push(url)
+        }
+      }
+    } else {
+      console.error('Map API failed:', mapResponse.status, await mapResponse.text())
+    }
+  } catch (error) {
+    console.error('Map API error:', error)
+  }
+  
+  console.log(`Map discovered ${allUrls.length} project URLs`)
+  return allUrls
+}
+
+// Scrape project page with multiple image extraction strategies
+async function scrapeProjectPage(url: string, apiKey: string): Promise<{ 
+  description: string, 
+  images: string[], 
+  category: string, 
+  location: string, 
+  year: string 
+}> {
   console.log('Scraping project page:', url)
   
   try {
+    // Strategy 1: Get full HTML with long wait time
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -99,101 +154,137 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
       },
       body: JSON.stringify({
         url,
-        formats: ['markdown', 'html'],
-        onlyMainContent: false, // Get full page to extract images
-        waitFor: 5000, // Wait longer for images to load
+        formats: ['markdown', 'html', 'links'],
+        onlyMainContent: false,
+        waitFor: 8000, // Wait 8 seconds for all images to load
       }),
     })
 
     if (!response.ok) {
       console.error('Failed to scrape project page:', response.status)
-      return { description: '', images: [], category: 'Rénovation', location: 'Paris', year: '', cost: '' }
+      return { description: '', images: [], category: 'Rénovation', location: 'Paris', year: '' }
     }
 
     const data = await response.json()
     const html = data.data?.html || ''
     const markdown = data.data?.markdown || ''
+    const links = data.data?.links || []
     
-    // ============ EXTRACT IMAGES FROM MARKDOWN ============
-    // Images are in markdown format: ![...](https://st.hzcdn.com/fimgs/XXXX-w312-h312-...)
-    // Pattern: https://st.hzcdn.com/fimgs/HASH-wXXX-hXXX-...jpg
-    const markdownImagePattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+-w\d+-h\d+[^)\s"']+\.jpg/gi
-    const markdownMatches = markdown.match(markdownImagePattern) || []
+    console.log(`Got HTML: ${html.length} chars, Markdown: ${markdown.length} chars, Links: ${links.length}`)
     
-    // Also check HTML for additional images
-    const htmlImagePattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+-w\d+-h\d+[^"'\s>]+\.(?:jpg|jpeg|png|webp)/gi
-    const htmlMatches = html.match(htmlImagePattern) || []
+    // ============ MULTI-STRATEGY IMAGE EXTRACTION ============
+    const imageUrls = new Set<string>()
     
-    // Combine all image sources
-    let allImages = [...markdownMatches, ...htmlMatches]
+    // Pattern 1: Standard Houzz image URLs from fimgs
+    const fimsPattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+[^"'\s<>)]+/gi
+    const fimsMatches = (html + markdown).match(fimsPattern) || []
+    fimsMatches.forEach((url: string) => imageUrls.add(url))
     
-    console.log(`Raw image matches: markdown=${markdownMatches.length}, html=${htmlMatches.length}`)
+    // Pattern 2: simgs pattern (another Houzz image format)
+    const simgsPattern = /https:\/\/st\.hzcdn\.com\/simgs\/[a-f0-9]+[^"'\s<>)]+/gi
+    const simgsMatches = (html + markdown).match(simgsPattern) || []
+    simgsMatches.forEach((url: string) => imageUrls.add(url))
     
-    // Filter and deduplicate by unique hash
-    const seenHashes = new Set<string>()
-    const uniqueImages: string[] = []
+    // Pattern 3: Look for data-src or srcset attributes with hzcdn URLs
+    const dataSrcPattern = /(?:data-src|srcset)=["']([^"']*st\.hzcdn\.com[^"'\s,]+)/gi
+    let match
+    while ((match = dataSrcPattern.exec(html)) !== null) {
+      const imgUrl = match[1]
+      if (imgUrl.includes('fimgs') || imgUrl.includes('simgs')) {
+        imageUrls.add(imgUrl)
+      }
+    }
     
-    for (const img of allImages) {
-      // Extract the unique hash from URL (e.g., 6a01b17209285e76_3364)
-      const hashMatch = img.match(/fimgs\/([a-f0-9]+_\d+)-/)
+    // Pattern 4: Check links array for image URLs
+    for (const link of links) {
+      const linkUrl = typeof link === 'string' ? link : link.url || link.href
+      if (linkUrl && linkUrl.includes('st.hzcdn.com') && (linkUrl.includes('fimgs') || linkUrl.includes('simgs'))) {
+        imageUrls.add(linkUrl)
+      }
+    }
+    
+    // Pattern 5: Extract from picture and img elements
+    const imgSrcPattern = /<img[^>]+src=["']([^"']+st\.hzcdn\.com[^"']+)["']/gi
+    while ((match = imgSrcPattern.exec(html)) !== null) {
+      imageUrls.add(match[1])
+    }
+    
+    console.log(`Raw image matches: ${imageUrls.size}`)
+    
+    // Process and deduplicate by hash
+    const seenHashes = new Map<string, string>()
+    
+    for (const imgUrl of imageUrls) {
+      // Skip tiny thumbnails (navigation, avatars)
+      if (/-w(?:40|48|60|80|100)-/.test(imgUrl)) continue
+      if (/w40-h40|w48-h48|w80-h80/.test(imgUrl)) continue
+      
+      // Extract unique hash
+      const hashMatch = imgUrl.match(/(?:fimgs|simgs)\/([a-f0-9]+(?:_\d+)?)/i)
       if (hashMatch) {
         const hash = hashMatch[1]
         if (!seenHashes.has(hash)) {
-          seenHashes.add(hash)
-          // Skip small thumbnails (w40, w48, w80, w100)
-          if (/-w(?:40|48|80|100)-/.test(img)) {
-            continue
+          // Convert to high resolution
+          let hdUrl = imgUrl
+            .replace(/-w\d+-h\d+/, '-w1920-h1440')
+            .replace(/\?.*$/, '') // Remove query params
+          
+          // Ensure it's a proper HD image
+          if (!hdUrl.includes('-w1920')) {
+            hdUrl = hdUrl.replace(/\.jpg/i, '-w1920-h1440.jpg')
           }
-          // Convert to high-res version: replace wXXX-hXXX with w1920-h1440
-          const hdImage = img.replace(/-w\d+-h\d+/, '-w1920-h1440')
-          uniqueImages.push(hdImage)
+          
+          seenHashes.set(hash, hdUrl)
         }
       }
     }
     
-    console.log(`Found ${uniqueImages.length} unique HD images from ${allImages.length} total matches`)
+    const uniqueImages = Array.from(seenHashes.values()).slice(0, 50)
+    console.log(`Found ${uniqueImages.length} unique HD images`)
     
     // ============ EXTRACT DESCRIPTION ============
-    // Find the project content section - skip navigation completely
     let description = ''
     const lines = markdown.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0)
     
-    // Find where actual content starts (after "PROJET..." or project title)
     let contentStarted = false
     const descriptionLines: string[] = []
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
       
-      // Skip known navigation patterns
-      if (line.includes('Passer au contenu') || line.includes('Page d\'accueil') || line.includes('ACCUEIL')) continue
-      if (line.includes('Se connecter') || line.includes('S\'inscrire') || line.includes('Cancel')) continue
-      if (line.startsWith('[') && (line.includes('Photos') || line.includes('Magazine') || line.includes('Trouver des pros'))) continue
+      // Skip navigation and UI elements
+      if (line.includes('Passer au contenu') || line.includes('Page d\'accueil')) continue
+      if (line.includes('Se connecter') || line.includes('S\'inscrire')) continue
+      if (line.startsWith('[') && line.includes('Photos')) continue
+      if (line.startsWith('[') && line.includes('Magazine')) continue
       if (line.startsWith('![') && line.includes('Logo')) continue
+      if (line.includes('Charger plus') || line.includes('Afficher')) continue
       
-      // Look for project title pattern to start content
+      // Start capturing after project title patterns
       if (!contentStarted) {
-        // Project titles often start with "PROJET" or are substantial titles
-        if (line.match(/^PROJET\s/i) || line.match(/^[A-Z][^a-z]*$/)) {
+        if (line.match(/^PROJET\s/i) || line.match(/^#+ /)) {
           contentStarted = true
         }
-        // Also check for the long descriptive lines that start with "Dans ce" or similar
         if (line.startsWith('Dans ') || line.startsWith('Ce ') || line.startsWith('Notre ') || line.startsWith('Projet ')) {
+          contentStarted = true
+        }
+        if (line.startsWith('Rénovation') || line.startsWith('Transformation')) {
           contentStarted = true
         }
       }
       
       if (contentStarted) {
-        // Stop at certain markers
-        if (line === 'Lire plus' || line === 'Partager le projet' || line.startsWith('Année du projet')) break
-        if (line.startsWith('[Avant') || line.startsWith('![PROJET')) break
+        // Stop markers
+        if (line === 'Lire plus' || line === 'Partager le projet') break
+        if (line.startsWith('Année du projet')) break
+        if (line.includes('Best of Houzz')) break
         
-        // Skip links and images
+        // Skip links and small images
         if (line.startsWith('[') && line.includes('](http')) continue
-        if (line.startsWith('![')) continue
+        if (line.startsWith('![') && line.includes('-w40-')) continue
         
-        // Add content lines
-        if (line.length > 20) {
+        // Add substantial content
+        if (line.length > 30) {
           descriptionLines.push(line)
           if (descriptionLines.join(' ').length > 1500) break
         }
@@ -201,178 +292,51 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
     }
     
     description = descriptionLines.join('\n\n').substring(0, 2000)
-    console.log('Extracted description:', description.substring(0, 150))
     
     // ============ EXTRACT METADATA ============
     let year = ''
-    let cost = ''
     let location = 'Paris'
     
-    const yearMatch = markdown.match(/Année du projet\s*:\s*(\d{4})/i)
+    const yearMatch = markdown.match(/Année du projet\s*[:\s]*(\d{4})/i) || 
+                      markdown.match(/(\d{4})\s*$/m)
     if (yearMatch) year = yearMatch[1]
     
-    const costMatch = markdown.match(/Coût du projet\s*:\s*([^€\n]+€?)/i)
-    if (costMatch) cost = costMatch[1].trim()
-    
-    const postalMatch = markdown.match(/Code postal\s*:\s*(\d{5})/i)
+    const postalMatch = markdown.match(/Code postal\s*[:\s]*(\d{5})/i) ||
+                        markdown.match(/(\d{5})\s*Paris/i)
     if (postalMatch) {
       const postal = postalMatch[1]
       if (postal.startsWith('75')) {
-        const arrondissement = postal.substring(3)
-        location = `Paris ${parseInt(arrondissement, 10)}e`
-      } else if (postal.startsWith('92')) {
-        location = 'Hauts-de-Seine'
-      } else if (postal.startsWith('93')) {
-        location = 'Seine-Saint-Denis'
-      } else if (postal.startsWith('94')) {
-        location = 'Val-de-Marne'
-      } else {
-        location = `Île-de-France`
+        const arr = parseInt(postal.substring(3), 10)
+        location = `Paris ${arr}e`
       }
     }
     
-    const category = extractCategory(url, description)
+    if (location === 'Paris') {
+      location = extractLocation(markdown)
+    }
+    
+    const category = extractCategory(url, description || markdown)
 
     return { 
       description: description || 'Projet de rénovation réalisé par QualiRénovation.', 
-      images: uniqueImages.slice(0, 50), // Max 50 images 
+      images: uniqueImages, 
       category, 
       location,
       year,
-      cost,
     }
   } catch (error) {
     console.error('Error scraping project page:', error)
-    return { description: '', images: [], category: 'Rénovation', location: 'Paris', year: '', cost: '' }
+    return { description: '', images: [], category: 'Rénovation', location: 'Paris', year: '' }
   }
 }
 
-// Use Firecrawl Crawl API to discover ALL project URLs by crawling the website
-async function discoverProjectUrls(apiKey: string, baseUrl: string): Promise<string[]> {
-  console.log('Using Crawl API to discover ALL project URLs...')
+// Scrape profile page with pagination to get ALL project URLs
+async function scrapeProfileWithPagination(apiKey: string, profileUrl: string): Promise<string[]> {
+  console.log('Scraping profile page for all projects...')
   
   const allProjectUrls: string[] = []
   
-  // Method 1: Use Crawl API to crawl the projects section
-  try {
-    console.log('Starting crawl of projects section...')
-    const crawlResponse = await fetch('https://api.firecrawl.dev/v1/crawl', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: `${baseUrl}/projets`,
-        limit: 200, // Get up to 200 pages
-        maxDepth: 2,
-        includePaths: ['/hznb/projets/', '/projets/'],
-        scrapeOptions: {
-          formats: ['links'],
-        },
-      }),
-    })
-
-    if (crawlResponse.ok) {
-      const crawlData = await crawlResponse.json()
-      console.log('Crawl initiated, ID:', crawlData.id)
-      
-      // Wait for crawl to complete (poll status)
-      if (crawlData.id) {
-        let attempts = 0
-        const maxAttempts = 30 // 30 seconds max wait
-        
-        while (attempts < maxAttempts) {
-          await new Promise(r => setTimeout(r, 1000))
-          attempts++
-          
-          const statusResponse = await fetch(`https://api.firecrawl.dev/v1/crawl/${crawlData.id}`, {
-            headers: { 'Authorization': `Bearer ${apiKey}` },
-          })
-          
-          if (statusResponse.ok) {
-            const statusData = await statusResponse.json()
-            console.log(`Crawl status: ${statusData.status}, pages: ${statusData.completed || 0}/${statusData.total || '?'}`)
-            
-            if (statusData.status === 'completed' || statusData.status === 'failed') {
-              // Extract project URLs from crawled data
-              const crawledPages = statusData.data || []
-              for (const page of crawledPages) {
-                const links = page.links || []
-                for (const link of links) {
-                  if (link.includes('/hznb/projets/') && link.includes('pj-vj~')) {
-                    allProjectUrls.push(link)
-                  }
-                }
-                // Also check if the page URL itself is a project
-                if (page.metadata?.sourceURL?.includes('/hznb/projets/')) {
-                  allProjectUrls.push(page.metadata.sourceURL)
-                }
-              }
-              break
-            }
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Crawl API error:', error)
-  }
-  
-  console.log(`Crawl found ${allProjectUrls.length} project URLs`)
-  
-  // Method 2: Also scrape the main projects page multiple times with different offsets
-  // Houzz uses JavaScript pagination, we need to try direct scraping
-  try {
-    console.log('Scraping projects page for additional links...')
-    const scrapeResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: `${baseUrl}/projets`,
-        formats: ['html', 'links'],
-        onlyMainContent: false,
-        waitFor: 5000, // Wait for JS to load more projects
-      }),
-    })
-
-    if (scrapeResponse.ok) {
-      const scrapeData = await scrapeResponse.json()
-      const html = scrapeData.data?.html || ''
-      const links = scrapeData.data?.links || []
-      
-      // Extract from links array
-      for (const link of links) {
-        if (link.includes('/hznb/projets/') && link.includes('pj-vj~')) {
-          allProjectUrls.push(link)
-        }
-      }
-      
-      // Extract from HTML using regex - look for all project URLs
-      const projectUrlPattern = /https:\/\/www\.houzz\.fr\/hznb\/projets\/[^"'\s<>)]+pj-vj~\d+/gi
-      const htmlMatches = html.match(projectUrlPattern) || []
-      allProjectUrls.push(...htmlMatches)
-      
-      console.log(`Scrape found ${htmlMatches.length} additional URLs from HTML`)
-    }
-  } catch (error) {
-    console.error('Scrape error:', error)
-  }
-  
-  // Deduplicate
-  const uniqueUrls = [...new Set(allProjectUrls)]
-  console.log(`Total unique project URLs found: ${uniqueUrls.length}`)
-  
-  return uniqueUrls
-}
-
-// Fallback: Scrape the profile page to find project URLs
-async function scrapeProfileForProjects(apiKey: string, profileUrl: string): Promise<string[]> {
-  console.log('Scraping profile page for projects:', profileUrl)
-  
+  // Scrape the main projects page
   try {
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
@@ -381,38 +345,134 @@ async function scrapeProfileForProjects(apiKey: string, profileUrl: string): Pro
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: profileUrl,
+        url: `${profileUrl}/projets`,
         formats: ['html', 'links'],
         onlyMainContent: false,
-        waitFor: 5000,
+        waitFor: 10000, // Wait 10 seconds for JavaScript to load
       }),
     })
 
-    if (!response.ok) {
-      console.error('Failed to scrape profile:', response.status)
-      return []
+    if (response.ok) {
+      const data = await response.json()
+      const html = data.data?.html || ''
+      const links = data.data?.links || []
+      
+      console.log(`Profile page: HTML ${html.length} chars, ${links.length} links`)
+      
+      // Extract from links array
+      for (const link of links) {
+        const url = typeof link === 'string' ? link : link.url || link.href
+        if (url && url.includes('/hznb/projets/') && url.includes('pj-vj~')) {
+          allProjectUrls.push(url)
+        }
+      }
+      
+      // Also extract from HTML using multiple patterns
+      const patterns = [
+        /https:\/\/www\.houzz\.fr\/hznb\/projets\/[^"'\s<>]+pj-vj~\d+/gi,
+        /href=["']([^"']*\/hznb\/projets\/[^"']*pj-vj~\d+)/gi,
+        /data-href=["']([^"']*projets[^"']*pj-vj~\d+)/gi,
+      ]
+      
+      for (const pattern of patterns) {
+        const matches = html.matchAll(pattern)
+        for (const match of matches) {
+          let url = match[1] || match[0]
+          if (!url.startsWith('http')) {
+            url = `https://www.houzz.fr${url.startsWith('/') ? '' : '/'}${url}`
+          }
+          if (url.includes('pj-vj~')) {
+            allProjectUrls.push(url)
+          }
+        }
+      }
     }
-
-    const data = await response.json()
-    const html = data.data?.html || ''
-    const links = data.data?.links || []
-    
-    // Extract project URLs from links
-    let projectUrls: string[] = links.filter((link: string) => 
-      link.includes('/hznb/projets/') && link.includes('pj-vj~')
-    )
-    
-    // Also extract from HTML directly
-    const projectUrlPattern = /https:\/\/www\.houzz\.fr\/hznb\/projets\/[^"'\s<>)]+pj-vj~\d+/gi
-    const htmlProjectUrls = html.match(projectUrlPattern) || []
-    projectUrls = [...new Set([...projectUrls, ...htmlProjectUrls])]
-    
-    console.log(`Found ${projectUrls.length} project URLs from profile`)
-    return projectUrls
   } catch (error) {
     console.error('Error scraping profile:', error)
-    return []
   }
+  
+  // Deduplicate
+  const uniqueUrls = [...new Set(allProjectUrls)]
+  console.log(`Profile scrape found ${uniqueUrls.length} project URLs`)
+  
+  return uniqueUrls
+}
+
+// Use Search API to find projects
+async function searchForProjects(apiKey: string): Promise<string[]> {
+  console.log('Searching for QualiRenovation projects...')
+  
+  const projectUrls: string[] = []
+  
+  try {
+    // Multiple search queries to cover more projects
+    const queries = [
+      'site:houzz.fr qualirenovation projets',
+      'site:houzz.fr "qualirenovation" "pj-vj"',
+      'site:houzz.fr qualirenovation rénovation',
+    ]
+    
+    for (const query of queries) {
+      const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          limit: 50,
+        }),
+      })
+      
+      if (searchResponse.ok) {
+        const searchData = await searchResponse.json()
+        const results = searchData.data || searchData.results || []
+        
+        for (const result of results) {
+          const url = result.url || result.link
+          if (url && url.includes('/hznb/projets/') && url.includes('pj-vj~')) {
+            projectUrls.push(url)
+          }
+        }
+      }
+      
+      // Small delay between searches
+      await new Promise(r => setTimeout(r, 500))
+    }
+  } catch (error) {
+    console.error('Search error:', error)
+  }
+  
+  const uniqueUrls = [...new Set(projectUrls)]
+  console.log(`Search found ${uniqueUrls.length} project URLs`)
+  
+  return uniqueUrls
+}
+
+// Main discovery function combining all methods
+async function discoverAllProjects(apiKey: string, profileUrl: string): Promise<string[]> {
+  console.log('Starting comprehensive project discovery...')
+  
+  const allUrls: string[] = []
+  
+  // Method 1: Map API
+  const mapUrls = await discoverAllProjectsViaMap(apiKey, profileUrl)
+  allUrls.push(...mapUrls)
+  
+  // Method 2: Profile scraping with wait
+  const profileUrls = await scrapeProfileWithPagination(apiKey, profileUrl)
+  allUrls.push(...profileUrls)
+  
+  // Method 3: Search API
+  const searchUrls = await searchForProjects(apiKey)
+  allUrls.push(...searchUrls)
+  
+  // Deduplicate
+  const uniqueUrls = [...new Set(allUrls)]
+  console.log(`Total discovered: ${uniqueUrls.length} unique project URLs`)
+  
+  return uniqueUrls
 }
 
 // Scrape testimonials from reviews page
@@ -430,9 +490,9 @@ async function scrapeTestimonials(apiKey: string): Promise<HouzzTestimonial[]> {
       },
       body: JSON.stringify({
         url: reviewsUrl,
-        formats: ['html', 'markdown'],
+        formats: ['markdown'],
         onlyMainContent: false,
-        waitFor: 3000,
+        waitFor: 5000,
       }),
     })
 
@@ -442,26 +502,18 @@ async function scrapeTestimonials(apiKey: string): Promise<HouzzTestimonial[]> {
     }
 
     const data = await response.json()
-    const html = data.data?.html || ''
     const markdown = data.data?.markdown || ''
     
     const testimonials: HouzzTestimonial[] = []
     
-    // Parse testimonials from HTML structure
-    // Look for review blocks
-    const reviewPattern = /<div[^>]*class="[^"]*review[^"]*"[^>]*>([\s\S]*?)<\/div>/gi
-    const ratingPattern = /(\d)\s*(?:étoiles?|stars?)/gi
-    const datePattern = /(\d{1,2})\s*(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s*(\d{4})/gi
-    const namePattern = /<[^>]*class="[^"]*(?:author|reviewer|name)[^"]*"[^>]*>([^<]+)</gi
-    
-    // Alternative: parse from markdown
+    // Parse testimonials from markdown
     const lines = markdown.split('\n')
     let currentTestimonial: Partial<HouzzTestimonial> = {}
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim()
       
-      // Look for ratings (5 stars, etc.)
+      // Look for ratings
       const ratingMatch = line.match(/(\d)\s*(?:étoiles?|stars?|★)/i)
       if (ratingMatch) {
         if (currentTestimonial.text && currentTestimonial.name) {
@@ -479,17 +531,17 @@ async function scrapeTestimonials(apiKey: string): Promise<HouzzTestimonial[]> {
       }
       
       // Look for dates
-      const dateMatch = line.match(/(\d{1,2})\s*(janv|févr|mars|avr|mai|juin|juil|août|sept|oct|nov|déc)/i)
+      const dateMatch = line.match(/(\d{1,2})\s*(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s*(\d{4})/i)
       if (dateMatch) {
         currentTestimonial.date = line
       }
       
-      // Look for review text (longer lines)
+      // Look for review text
       if (line.length > 50 && !line.startsWith('#') && !line.startsWith('[')) {
         currentTestimonial.text = line.substring(0, 1000)
       }
       
-      // Look for names (shorter lines after review text)
+      // Look for names
       if (line.length > 3 && line.length < 50 && currentTestimonial.text && !currentTestimonial.name) {
         if (!line.includes('Houzz') && !line.includes('avis') && !line.match(/^\d/)) {
           currentTestimonial.name = line
@@ -498,7 +550,7 @@ async function scrapeTestimonials(apiKey: string): Promise<HouzzTestimonial[]> {
     }
     
     // Add last testimonial
-    if (currentTestimonial.text) {
+    if (currentTestimonial.text && currentTestimonial.name) {
       testimonials.push({
         name: currentTestimonial.name || 'Client',
         text: currentTestimonial.text || '',
@@ -517,22 +569,6 @@ async function scrapeTestimonials(apiKey: string): Promise<HouzzTestimonial[]> {
     return []
   }
 }
-
-// Known project URLs as fallback
-const KNOWN_PROJECT_URLS = [
-  'https://www.houzz.fr/hznb/projets/un-appartement-transforme-pour-mieux-louer-confort-et-dpe-ameliore-pj-vj~7739460',
-  'https://www.houzz.fr/hznb/projets/reinventer-un-appartement-parisien-pour-des-clients-en-province-pj-vj~7738195',
-  'https://www.houzz.fr/hznb/projets/au-gobelins-cet-ancien-f4-a-ete-entierement-reorchestre-pour-offrir-une-nouvel-pj-vj~7738188',
-  'https://www.houzz.fr/hznb/projets/vous-voulez-ouvrir-deux-pieces-mais-zut-il-y-a-un-mur-porteur-pj-vj~7738106',
-  'https://www.houzz.fr/hznb/projets/paris-19-de-l-ancien-au-contemporain-une-renovation-sur-mesure-pj-vj~7704321',
-  'https://www.houzz.fr/hznb/projets/projet-la-muette-pj-vj~7738134',
-  'https://www.houzz.fr/hznb/projets/vue-d-ensemble-d-une-renovation-complete-pj-vj~7738171',
-  'https://www.houzz.fr/hznb/projets/renovation-maison-clamart-pj-vj~7738150',
-  'https://www.houzz.fr/hznb/projets/une-salle-de-bain-xxl-pj-vj~3112605',
-  'https://www.houzz.fr/hznb/projets/paris-13-pj-vj~4411193',
-  'https://www.houzz.fr/hznb/projets/avant-apres-renovation-salle-de-bain-pj-vj~3112613',
-  'https://www.houzz.fr/hznb/projets/parlons-de-votre-projet-pj-vj~3112601',
-]
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -559,57 +595,14 @@ Deno.serve(async (req) => {
 
     // ==================== DISCOVER PROJECTS ====================
     if (action === 'discover-projects') {
-      console.log('Discovering project URLs...')
+      console.log('Discovering project URLs using all methods...')
       
       // Clear existing queue
       await supabase.from('import_queue').delete().eq('type', 'project')
       
-      let allProjectUrls: string[] = []
+      // Discover all projects
+      const projectUrls = await discoverAllProjects(firecrawlApiKey, baseProfileUrl)
       
-      // Method 1: Crawl the projects section
-      const crawledUrls = await discoverProjectUrls(firecrawlApiKey, baseProfileUrl)
-      allProjectUrls.push(...crawledUrls)
-      console.log(`Crawl discovered ${crawledUrls.length} URLs`)
-      
-      // Method 2: Scrape the profile page
-      const profileUrls = await scrapeProfileForProjects(firecrawlApiKey, `${baseProfileUrl}/projets`)
-      allProjectUrls.push(...profileUrls)
-      console.log(`Profile scrape discovered ${profileUrls.length} URLs`)
-      
-      // Method 3: Use Firecrawl Search to find more projects
-      try {
-        console.log('Searching for additional QualiRenovation projects...')
-        const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${firecrawlApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            query: 'site:houzz.fr qualirenovation projets',
-            limit: 100,
-          }),
-        })
-        
-        if (searchResponse.ok) {
-          const searchData = await searchResponse.json()
-          const searchResults = searchData.data || []
-          for (const result of searchResults) {
-            if (result.url && result.url.includes('/hznb/projets/') && result.url.includes('pj-vj~')) {
-              allProjectUrls.push(result.url)
-            }
-          }
-          console.log(`Search found ${searchResults.length} results`)
-        }
-      } catch (error) {
-        console.error('Search error:', error)
-      }
-      
-      // Add known URLs as baseline
-      allProjectUrls.push(...KNOWN_PROJECT_URLS)
-      
-      // Deduplicate
-      const projectUrls = [...new Set(allProjectUrls)]
       console.log(`Total unique project URLs: ${projectUrls.length}`)
       
       // Insert URLs into queue
@@ -620,12 +613,14 @@ Deno.serve(async (req) => {
         title: url.split('/').pop()?.replace(/pj-vj~\d+$/, '').replace(/-/g, ' ') || 'Projet',
       }))
       
-      const { error: insertError } = await supabase
-        .from('import_queue')
-        .insert(queueRecords)
-      
-      if (insertError) {
-        console.error('Error inserting queue:', insertError)
+      if (queueRecords.length > 0) {
+        const { error: insertError } = await supabase
+          .from('import_queue')
+          .insert(queueRecords)
+        
+        if (insertError) {
+          console.error('Error inserting queue:', insertError)
+        }
       }
       
       return new Response(
@@ -633,7 +628,7 @@ Deno.serve(async (req) => {
           success: true, 
           message: `Discovered ${projectUrls.length} projects`,
           discovered: projectUrls.length,
-          urls: projectUrls.slice(0, 10), // Return first 10 for preview
+          urls: projectUrls.slice(0, 20),
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
@@ -641,7 +636,7 @@ Deno.serve(async (req) => {
 
     // ==================== IMPORT BATCH ====================
     if (action === 'import-batch') {
-      console.log(`Importing batch of ${batchSize} projects starting at index ${startIndex}...`)
+      console.log(`Importing batch of ${batchSize} projects...`)
       
       // Get pending projects from queue
       const { data: pendingProjects, error: fetchError } = await supabase
@@ -650,7 +645,7 @@ Deno.serve(async (req) => {
         .eq('type', 'project')
         .eq('status', 'pending')
         .order('created_at')
-        .range(startIndex, startIndex + batchSize - 1)
+        .limit(batchSize)
       
       if (fetchError) {
         throw fetchError
@@ -811,128 +806,6 @@ Deno.serve(async (req) => {
       )
     }
 
-    // ==================== IMPORT ALL PROJECTS (Original action) ====================
-    if (action === 'import-projects') {
-      console.log('Starting full projects import...')
-      
-      // Discover URLs
-      let projectUrls = await discoverProjectUrls(firecrawlApiKey, baseProfileUrl)
-      if (projectUrls.length === 0) {
-        projectUrls = await scrapeProfileForProjects(firecrawlApiKey, `${baseProfileUrl}/projets`)
-      }
-      if (projectUrls.length === 0) {
-        projectUrls = KNOWN_PROJECT_URLS
-      }
-      
-      console.log(`Found ${projectUrls.length} project URLs to import`)
-      
-      let imported = 0
-      let errors = 0
-      const maxProjects = Math.min(projectUrls.length, 30) // Limit to avoid timeout
-      
-      for (let i = 0; i < maxProjects; i++) {
-        const url = projectUrls[i]
-        console.log(`Processing ${i + 1}/${maxProjects}: ${url}`)
-        
-        try {
-          const { description, images, category, location, year } = await scrapeProjectPage(url, firecrawlApiKey)
-          
-          const urlParts = url.split('/')
-          let lastPart = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2]
-          lastPart = lastPart.split('?')[0]
-          
-          const title = lastPart
-            .replace(/pj-vj~\d+$/, '')
-            .replace(/-/g, ' ')
-            .trim()
-          
-          const slug = slugify(title) || `projet-${i + 1}`
-          
-          // Check if exists
-          const { data: existing } = await supabase
-            .from('houzz_projects')
-            .select('id')
-            .eq('slug', slug)
-            .maybeSingle()
-          
-          let projectId: string
-          
-          if (existing) {
-            const { error: updateError } = await supabase
-              .from('houzz_projects')
-              .update({
-                title: title.charAt(0).toUpperCase() + title.slice(1),
-                description: description || 'Projet de rénovation réalisé par QualiRénovation.',
-                location,
-                category,
-                image_count: images.length,
-                houzz_url: url,
-                year: year || null,
-              })
-              .eq('id', existing.id)
-            
-            if (updateError) throw updateError
-            projectId = existing.id
-            
-            await supabase
-              .from('houzz_project_images')
-              .delete()
-              .eq('project_id', projectId)
-          } else {
-            const { data: newProject, error: insertError } = await supabase
-              .from('houzz_projects')
-              .insert({
-                slug,
-                title: title.charAt(0).toUpperCase() + title.slice(1),
-                description: description || 'Projet de rénovation réalisé par QualiRénovation.',
-                location,
-                category,
-                image_count: images.length,
-                houzz_url: url,
-                year: year || null,
-              })
-              .select()
-              .single()
-            
-            if (insertError) throw insertError
-            projectId = newProject.id
-          }
-          
-          if (images.length > 0) {
-            const imageRecords = images.map((imgUrl, index) => ({
-              project_id: projectId,
-              image_url: imgUrl,
-              image_order: index,
-            }))
-            
-            await supabase
-              .from('houzz_project_images')
-              .insert(imageRecords)
-          }
-          
-          imported++
-          
-          // Rate limiting
-          await new Promise(resolve => setTimeout(resolve, 2000))
-          
-        } catch (error) {
-          console.error(`Error importing ${url}:`, error)
-          errors++
-        }
-      }
-      
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: `Imported ${imported} projects with ${errors} errors`,
-          imported,
-          errors,
-          total: maxProjects,
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
     // ==================== IMPORT TESTIMONIALS ====================
     if (action === 'import-testimonials') {
       console.log('Starting testimonials import...')
@@ -957,7 +830,6 @@ Deno.serve(async (req) => {
             })
           
           if (insertError) {
-            // Might be duplicate, try update
             console.log('Insert failed, might be duplicate:', insertError.message)
           } else {
             imported++
@@ -1012,7 +884,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: false, error: 'Invalid action. Use "discover-projects", "import-batch", "import-projects", "import-testimonials", or "queue-status"' }),
+      JSON.stringify({ success: false, error: 'Invalid action. Use "discover-projects", "import-batch", "import-testimonials", or "queue-status"' }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
