@@ -305,37 +305,27 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const { action, limit = 10 } = await req.json();
-    console.log('[Handler] Action:', action, 'Limit:', limit);
+    const { action, urls } = await req.json();
+    console.log('[Handler] Action:', action);
 
     switch (action) {
-      case 'import-latest': {
-        // Step 1: Scrape the projects page to get URLs
-        console.log('[Handler] Step 1: Discovering project URLs...');
-        const profileData = await scrapeWithFirecrawl(HOUZZ_PROJECTS_URL, FIRECRAWL_API_KEY);
-        
-        const projectUrls = extractProjectUrls(
-          profileData.html || '', 
-          profileData.links || []
-        );
-        
-        if (projectUrls.length === 0) {
+      case 'import-urls': {
+        // Import specific URLs provided by user
+        if (!urls || !Array.isArray(urls) || urls.length === 0) {
           return new Response(
             JSON.stringify({
               success: false,
-              error: 'Aucun projet trouvé sur la page Houzz',
+              error: 'Aucune URL fournie',
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
         
-        // Take only the first N projects
-        const urlsToImport = projectUrls.slice(0, limit);
-        console.log('[Handler] Will import', urlsToImport.length, 'projects');
+        console.log('[Handler] Importing', urls.length, 'projects from provided URLs');
         
-        // Step 2: Scrape each project page
+        // Scrape each project page
         const projects: HouzzProject[] = [];
-        for (const url of urlsToImport) {
+        for (const url of urls) {
           try {
             console.log('[Handler] Scraping project:', url);
             const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
@@ -343,24 +333,25 @@ Deno.serve(async (req) => {
             projects.push(project);
             
             // Small delay between requests
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 1000));
           } catch (error) {
             console.error('[Handler] Error scraping project:', url, error);
           }
         }
         
-        // Step 3: Save to database
+        // Save to database
         console.log('[Handler] Saving', projects.length, 'projects to database...');
         const result = await saveProjectsToDatabase(supabase, projects);
 
         return new Response(
           JSON.stringify({
             success: true,
-            discovered: projectUrls.length,
+            total: urls.length,
+            scraped: projects.length,
             imported: result.imported,
             errors: result.errors,
             houzzProfileUrl: HOUZZ_PROFILE_URL,
-            message: `${result.imported} projets importés sur ${urlsToImport.length}`,
+            message: `${result.imported} projets importés sur ${urls.length}`,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -389,7 +380,7 @@ Deno.serve(async (req) => {
       default:
         return new Response(
           JSON.stringify({ 
-            error: 'Action inconnue. Disponibles: import-latest, queue-status' 
+            error: 'Action inconnue. Disponibles: import-urls, queue-status' 
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
