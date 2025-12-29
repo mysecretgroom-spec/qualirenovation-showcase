@@ -148,8 +148,12 @@ const AdminImport = () => {
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container max-w-4xl mx-auto px-4">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <Link to="/" className="text-accent hover:underline">← Retour au site</Link>
+          <nav className="flex gap-4 text-sm">
+            <Link to="/admin/avis" className="text-muted-foreground hover:text-foreground">Avis</Link>
+            <Link to="/admin/devis" className="text-muted-foreground hover:text-foreground">Devis</Link>
+          </nav>
         </div>
         
         <h1 className="text-3xl font-display font-bold mb-2">Administration - Import Houzz</h1>

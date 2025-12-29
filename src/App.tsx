@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import ProjectDetail from "./pages/ProjectDetail";
 import AdminImport from "./pages/AdminImport";
 import AdminQuotes from "./pages/AdminQuotes";
+import AdminTestimonials from "./pages/AdminTestimonials";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin/import" element={<AdminImport />} />
             <Route path="/admin/devis" element={<AdminQuotes />} />
+            <Route path="/admin/avis" element={<AdminTestimonials />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
