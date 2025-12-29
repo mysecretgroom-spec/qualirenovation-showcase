@@ -363,7 +363,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <!-- Signature Carina -->
                 <div class="signature-section">
                   <div class="signature-photo">
-                    <img src="https://sktxyflbvfhxkaeaebnr.supabase.co/storage/v1/object/public/assets/carina.jpg" alt="Carina" />
+                    <img src="https://qualirenovation.fr/carina-profile.jpg" alt="Carina" />
                   </div>
                   <div class="signature-content">
                     <p class="signature-greeting">À très bientôt,</p>
