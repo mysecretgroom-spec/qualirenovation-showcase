@@ -30,8 +30,8 @@ const Header = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? "bg-background/95 backdrop-blur-md shadow-elegant py-3"
-            : "bg-transparent py-6"
+            ? "bg-primary/90 backdrop-blur-md shadow-elegant py-3"
+            : "bg-primary/70 backdrop-blur-sm py-6"
         }`}
       >
         <div className="container-tight flex items-center justify-between">
@@ -50,9 +50,7 @@ const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className={`text-sm font-medium transition-colors duration-300 hover:text-accent ${
-                  isScrolled ? "text-foreground" : "text-background"
-                }`}
+                className="text-sm font-medium transition-colors duration-300 text-primary-foreground/90 hover:text-gold"
               >
                 {link.label}
               </a>
@@ -63,16 +61,15 @@ const Header = () => {
           <div className="hidden lg:flex items-center gap-4">
             <a 
               href="tel:+33XXXXXXXXX" 
-              className={`flex items-center gap-2 text-sm font-medium transition-colors duration-300 ${
-                isScrolled ? "text-foreground" : "text-background"
-              }`}
+              className="flex items-center gap-2 text-sm font-medium transition-colors duration-300 text-primary-foreground/90 hover:text-gold"
             >
               <Phone className="w-4 h-4" />
               <span>Nous appeler</span>
             </a>
             <Button 
-              variant={isScrolled ? "default" : "heroSolid"} 
+              variant="outline" 
               size="sm"
+              className="border-gold text-gold hover:bg-gold hover:text-primary"
               onClick={() => setIsQuoteModalOpen(true)}
             >
               Devis gratuit
@@ -86,9 +83,9 @@ const Header = () => {
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
-              <X className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-background"}`} />
+              <X className="w-6 h-6 text-primary-foreground" />
             ) : (
-              <Menu className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-background"}`} />
+              <Menu className="w-6 h-6 text-primary-foreground" />
             )}
           </button>
         </div>
