@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Download, CheckCircle, AlertCircle, Search, Play, RefreshCw } from "lucide-react";
+import { Loader2, Download, CheckCircle, AlertCircle, Search, Play, RefreshCw, Zap, Square } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 
@@ -32,6 +32,11 @@ const AdminImport = () => {
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
   const [batchResult, setBatchResult] = useState<any>(null);
   
+  // Auto import state
+  const [isAutoImporting, setIsAutoImporting] = useState(false);
+  const [autoImportStats, setAutoImportStats] = useState({ imported: 0, errors: 0 });
+  const autoImportRef = useRef(false);
+  
   // Legacy full import state
   const [isImportingProjects, setIsImportingProjects] = useState(false);
   const [projectsResult, setProjectsResult] = useState<any>(null);
@@ -49,8 +54,10 @@ const AdminImport = () => {
 
       if (error) throw error;
       setQueueStatus(data);
+      return data;
     } catch (error) {
       console.error('Error fetching queue status:', error);
+      return null;
     }
   }, []);
 
@@ -91,7 +98,7 @@ const AdminImport = () => {
   };
 
   // Step 2: Import batch
-  const handleImportBatch = async () => {
+  const handleImportBatch = async (): Promise<{ remaining: number; imported: number; errors: number }> => {
     setIsImporting(true);
     setBatchResult(null);
 
@@ -116,6 +123,8 @@ const AdminImport = () => {
           description: `Tous les projets ont été importés`,
         });
       }
+      
+      return { remaining: data.remaining, imported: data.imported, errors: data.errors };
     } catch (error: any) {
       console.error('Error importing batch:', error);
       toast({
@@ -123,8 +132,62 @@ const AdminImport = () => {
         description: error.message || "Échec de l'import du lot",
         variant: "destructive",
       });
+      return { remaining: 0, imported: 0, errors: 1 };
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  // Auto import: continuously import batches
+  const handleAutoImport = async () => {
+    if (isAutoImporting) {
+      // Stop auto import
+      autoImportRef.current = false;
+      setIsAutoImporting(false);
+      toast({
+        title: "Import automatique arrêté",
+        description: `${autoImportStats.imported} projets importés au total`,
+      });
+      return;
+    }
+
+    // Start auto import
+    autoImportRef.current = true;
+    setIsAutoImporting(true);
+    setAutoImportStats({ imported: 0, errors: 0 });
+
+    // First, discover if queue is empty
+    const status = await fetchQueueStatus();
+    if (!status || status.pending === 0) {
+      toast({
+        title: "Découverte des projets...",
+        description: "La file d'attente est vide, lancement de la découverte",
+      });
+      await handleDiscoverProjects();
+    }
+
+    // Now import batches continuously
+    let totalImported = 0;
+    let totalErrors = 0;
+    
+    while (autoImportRef.current) {
+      const result = await handleImportBatch();
+      totalImported += result.imported;
+      totalErrors += result.errors;
+      setAutoImportStats({ imported: totalImported, errors: totalErrors });
+      
+      if (result.remaining === 0) {
+        autoImportRef.current = false;
+        setIsAutoImporting(false);
+        toast({
+          title: "Import automatique terminé ! 🎉",
+          description: `${totalImported} projets importés avec ${totalErrors} erreurs`,
+        });
+        break;
+      }
+      
+      // Small delay between batches
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   };
 
@@ -307,6 +370,49 @@ const AdminImport = () => {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Auto Import Section */}
+            <div className="border-t pt-6 mt-2">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-500" />
+                    Import automatique continu
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Lance la découverte et importe tous les projets automatiquement sans intervention.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4 items-center">
+                <Button 
+                  onClick={handleAutoImport} 
+                  disabled={isDiscovering || (isImporting && !isAutoImporting)}
+                  variant={isAutoImporting ? "destructive" : "default"}
+                  className="flex-1"
+                >
+                  {isAutoImporting ? (
+                    <>
+                      <Square className="w-4 h-4 mr-2" />
+                      Arrêter l'import ({autoImportStats.imported} importés)
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Lancer l'import automatique
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              {isAutoImporting && (
+                <div className="mt-3 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-sm">
+                  <Loader2 className="w-4 h-4 text-yellow-500 inline mr-2 animate-spin" />
+                  Import en cours... {autoImportStats.imported} projets importés, {autoImportStats.errors} erreurs
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
