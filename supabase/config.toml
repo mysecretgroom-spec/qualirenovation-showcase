@@ -1,1 +1,4 @@
 project_id = "sktxyflbvfhxkaeaebnr"
+
+[functions.import-houzz]
+verify_jwt = false
