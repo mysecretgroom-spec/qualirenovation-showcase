@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const HOUZZ_PROFILE_URL = "https://www.houzz.fr/pro/qualirenovation";
-const APIFY_ACTOR_ID = "easyapi/houzz-professional-scraper";
+const APIFY_ACTOR_ID = "tSgB4G9FxoDTuiaWh";
 
 interface ApifyRunResult {
   id: string;
