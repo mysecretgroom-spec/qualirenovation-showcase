@@ -4,8 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Download, CheckCircle, AlertCircle, Database, ExternalLink } from "lucide-react";
+import { Loader2, Download, CheckCircle, AlertCircle, Database, ExternalLink, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface QueueStatus {
   projects: number;
@@ -36,6 +46,7 @@ const AdminImport = () => {
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [urlsInput, setUrlsInput] = useState(DEFAULT_URLS);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Fetch database stats
   const fetchQueueStatus = useCallback(async () => {
@@ -65,8 +76,7 @@ const AdminImport = () => {
       .filter(url => url.length > 0 && url.startsWith('http'));
   };
 
-  // Import URLs
-  const handleImportUrls = async () => {
+  const handleImportClick = () => {
     const urls = parseUrls();
     
     if (urls.length === 0) {
@@ -77,6 +87,19 @@ const AdminImport = () => {
       });
       return;
     }
+
+    // Show confirmation dialog if there are existing projects
+    if (queueStatus && queueStatus.projects > 0) {
+      setShowConfirmDialog(true);
+    } else {
+      handleImportUrls();
+    }
+  };
+
+  // Import URLs
+  const handleImportUrls = async () => {
+    setShowConfirmDialog(false);
+    const urls = parseUrls();
 
     setIsImporting(true);
     setImportResult(null);
@@ -192,7 +215,7 @@ const AdminImport = () => {
             </div>
 
             <Button 
-              onClick={handleImportUrls} 
+              onClick={handleImportClick} 
               disabled={isImporting || urlCount === 0}
               size="lg"
               className="w-full"
@@ -209,6 +232,30 @@ const AdminImport = () => {
                 </>
               )}
             </Button>
+
+            {/* Confirmation Dialog */}
+            <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-500" />
+                    Confirmer le remplacement
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-2">
+                    <p>
+                      Cette action va <strong>supprimer les {queueStatus?.projects} projets existants</strong> et leurs {queueStatus?.images} images avant d'importer les nouveaux.
+                    </p>
+                    <p>Cette action est irréversible.</p>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleImportUrls} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Supprimer et importer
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             {/* Import Result */}
             {importResult && (
