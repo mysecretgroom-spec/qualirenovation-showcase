@@ -10,7 +10,7 @@ import { Link, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const AdminTestimonials = () => {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, loading, adminLoading } = useAuth();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
 
@@ -47,7 +47,7 @@ const AdminTestimonials = () => {
     },
   });
 
-  if (loading) {
+  if (loading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
