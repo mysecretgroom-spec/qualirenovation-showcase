@@ -1,4 +1,5 @@
 import { CheckCircle2, Users, Clock, Shield } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const features = [
   {
@@ -26,12 +27,14 @@ const certifications = [
 ];
 
 const About = () => {
+  const { ref, animationClasses } = useScrollAnimation();
+
   return (
-    <section id="about" className="section-padding bg-background">
+    <section ref={ref} id="about" className={`section-padding bg-background ${animationClasses}`}>
       <div className="container-tight">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Text Content */}
-          <div className="animate-fade-in-up">
+          <div>
             <span className="text-accent font-medium text-sm tracking-widest uppercase mb-4 block">
               À propos
             </span>
@@ -74,8 +77,8 @@ const About = () => {
             {features.map((feature, index) => (
               <div
                 key={feature.title}
-                className={`bg-card p-6 rounded-sm shadow-elegant hover:shadow-card transition-all duration-300 animate-fade-in-up`}
-                style={{ animationDelay: `${index * 150}ms` }}
+                className="bg-card p-6 rounded-sm shadow-elegant hover:shadow-card transition-all duration-300"
+                style={{ transitionDelay: `${index * 150}ms` }}
               >
                 <div className="flex items-start gap-5">
                   <div className="w-12 h-12 rounded-sm bg-secondary flex items-center justify-center flex-shrink-0">

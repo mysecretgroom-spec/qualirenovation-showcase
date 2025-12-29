@@ -8,6 +8,7 @@ import {
   Layers,
   Wrench
 } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const services = [
   {
@@ -53,11 +54,13 @@ const services = [
 ];
 
 const Services = () => {
+  const { ref, animationClasses } = useScrollAnimation();
+
   return (
-    <section id="services" className="section-padding bg-background">
+    <section ref={ref} id="services" className={`section-padding bg-background ${animationClasses}`}>
       <div className="container-tight">
         {/* Header */}
-        <div className="text-center mb-16 animate-fade-in-up">
+        <div className="text-center mb-16">
           <span className="text-accent font-medium text-sm tracking-widest uppercase mb-4 block">
             Services
           </span>
@@ -75,8 +78,8 @@ const Services = () => {
           {services.map((service, index) => (
             <div
               key={service.title}
-              className="group bg-card p-6 rounded-sm shadow-elegant hover:shadow-card hover:-translate-y-1 transition-all duration-300 animate-fade-in-up"
-              style={{ animationDelay: `${index * 75}ms` }}
+              className="group bg-card p-6 rounded-sm shadow-elegant hover:shadow-card hover:-translate-y-1 transition-all duration-300"
+              style={{ transitionDelay: `${index * 75}ms` }}
             >
               <div className="w-14 h-14 rounded-sm bg-secondary flex items-center justify-center mb-5 group-hover:bg-accent transition-colors duration-300">
                 <service.icon className="w-7 h-7 text-accent group-hover:text-accent-foreground transition-colors duration-300" />
@@ -92,7 +95,7 @@ const Services = () => {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 bg-primary rounded-sm p-8 md:p-12 text-center animate-fade-in-up">
+        <div className="mt-16 bg-primary rounded-sm p-8 md:p-12 text-center">
           <h3 className="font-display text-2xl md:text-3xl font-semibold text-primary-foreground mb-4">
             Vous avez un projet en tête ?
           </h3>
