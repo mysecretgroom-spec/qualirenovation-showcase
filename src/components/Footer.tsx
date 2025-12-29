@@ -28,11 +28,16 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-sm bg-primary-foreground flex items-center justify-center">
-                <span className="font-display font-bold text-lg text-primary">QR</span>
+            <div className="flex items-center gap-2 mb-6">
+              {/* Logo QR */}
+              <div className="flex flex-col items-center justify-center w-11 h-11 rounded bg-[#1e3a5f]">
+                <span className="font-display font-bold text-xl text-white leading-none">QR</span>
+                <span className="text-[6px] text-white/90 font-medium tracking-wide">QualiRénovation</span>
               </div>
-              <span className="font-display font-semibold text-lg">QUALIRENOVATION</span>
+              <div className="flex flex-col">
+                <span className="font-display font-bold text-base tracking-wide">QUALIRÉNOVATION</span>
+                <span className="text-[10px] font-medium text-primary-foreground/70">by Qualiconcept</span>
+              </div>
             </div>
             <p className="text-primary-foreground/70 text-sm leading-relaxed mb-6">
               Rénovation, décoration et aménagement d'intérieur à Paris et en Île-de-France. 
