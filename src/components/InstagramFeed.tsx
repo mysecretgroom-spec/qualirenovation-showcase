@@ -49,21 +49,20 @@ const InstagramFeed = () => {
 
         {/* CTA */}
         <div className="text-center mt-10">
-          <Button 
-            variant="default" 
-            size="lg"
-            asChild
+          <a 
+            href="https://www.instagram.com/qualirenovation__travaux/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-white font-semibold text-lg
+              bg-gradient-to-r from-[#833AB4] via-[#E1306C] to-[#F77737]
+              hover:from-[#7232a0] hover:via-[#c9295f] hover:to-[#e06830]
+              shadow-lg hover:shadow-xl hover:shadow-pink-500/25
+              transform transition-all duration-300 ease-out
+              hover:scale-105 hover:-translate-y-1"
           >
-            <a 
-              href="https://www.instagram.com/qualirenovation__travaux/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
-            >
-              <Instagram className="w-5 h-5" />
-              Suivre sur Instagram
-            </a>
-          </Button>
+            <Instagram className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" />
+            <span>Suivre sur Instagram</span>
+          </a>
         </div>
       </div>
     </section>
