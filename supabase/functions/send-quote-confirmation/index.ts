@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -48,6 +49,32 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const data: QuoteRequestData = await req.json();
     console.log("[send-quote-confirmation] Processing quote request for:", data.email);
+
+    // Save to database using service role
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { data: savedQuote, error: dbError } = await supabase
+      .from("quote_requests")
+      .insert({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        city: data.city,
+        surface: data.surface,
+        budget: data.budget,
+        timeline: data.timeline,
+        message: data.message,
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error("[send-quote-confirmation] Database error:", dbError);
+    } else {
+      console.log("[send-quote-confirmation] Quote saved to database:", savedQuote.id);
+    }
 
     const budgetLabel = budgetLabels[data.budget] || data.budget;
     const timelineLabel = timelineLabels[data.timeline] || data.timeline;

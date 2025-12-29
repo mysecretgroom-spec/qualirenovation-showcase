@@ -169,6 +169,51 @@ export type Database = {
         }
         Relationships: []
       }
+      quote_requests: {
+        Row: {
+          budget: string
+          city: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string
+          status: string
+          surface: string
+          timeline: string
+          updated_at: string
+        }
+        Insert: {
+          budget: string
+          city: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone: string
+          status?: string
+          surface: string
+          timeline: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: string
+          city?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string
+          status?: string
+          surface?: string
+          timeline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
