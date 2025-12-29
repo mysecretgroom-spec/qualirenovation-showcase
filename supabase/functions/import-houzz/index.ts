@@ -6,7 +6,8 @@ const corsHeaders = {
 };
 
 const HOUZZ_PROFILE_URL = "https://www.houzz.fr/pro/qualirenovation";
-const APIFY_ACTOR_ID = "tSgB4G9FxoDTuiaWh";
+// Using free pay-per-usage actor instead of subscription-based one
+const APIFY_ACTOR_ID = "qolqXcRChALisdsES"; // jungle_synthesizer/houzz-scraper
 
 interface ApifyRunResult {
   id: string;
@@ -39,20 +40,23 @@ function generateSlug(title: string): string {
 async function startApifyScraper(apiKey: string): Promise<ApifyRunResult> {
   console.log('[Apify] Starting Houzz scraper actor...');
   
+  // This actor uses searchQuery parameter for the professional profile URL
   const response = await fetch(`https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/runs?token=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      startUrls: [{ url: HOUZZ_PROFILE_URL }],
-      maxRequestsPerCrawl: 200,
+      searchQuery: "qualirenovation",
+      maxItems: 200,
+      sp_intended_usage: "Import renovation projects for company portfolio website",
+      sp_improvement_suggestions: "Works great",
       proxyConfiguration: { useApifyProxy: true },
     }),
   });
 
   if (!response.ok) {
     const error = await response.text();
-    console.error('[Apify] Failed to start actor:', error);
-    throw new Error(`Apify actor start failed: ${response.status}`);
+    console.error('[Apify] Failed to start actor:', error, 'Status:', response.status);
+    throw new Error(`Apify actor start failed: ${response.status} - ${error}`);
   }
 
   const result = await response.json();
