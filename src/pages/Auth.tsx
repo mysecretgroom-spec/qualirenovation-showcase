@@ -8,13 +8,12 @@ import { Lock, Mail, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, signIn, signUp, loading } = useAuth();
+  const { user, signIn, loading } = useAuth();
 
   useEffect(() => {
     if (!loading && user) {
@@ -27,46 +26,21 @@ const Auth = () => {
     setIsSubmitting(true);
 
     try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
-        if (error) {
-          toast({
-            title: "Erreur de connexion",
-            description: error.message === "Invalid login credentials" 
-              ? "Email ou mot de passe incorrect" 
-              : error.message,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Connexion réussie",
-            description: "Bienvenue !",
-          });
-          navigate("/admin/devis");
-        }
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({
+          title: "Erreur de connexion",
+          description: error.message === "Invalid login credentials" 
+            ? "Email ou mot de passe incorrect" 
+            : error.message,
+          variant: "destructive",
+        });
       } else {
-        const { error } = await signUp(email, password);
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast({
-              title: "Compte existant",
-              description: "Cet email est déjà utilisé. Essayez de vous connecter.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Erreur d'inscription",
-              description: error.message,
-              variant: "destructive",
-            });
-          }
-        } else {
-          toast({
-            title: "Inscription réussie",
-            description: "Vous pouvez maintenant vous connecter.",
-          });
-          setIsLogin(true);
-        }
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue !",
+        });
+        navigate("/admin/devis");
       }
     } finally {
       setIsSubmitting(false);
@@ -95,12 +69,10 @@ const Auth = () => {
         <div className="bg-card p-8 rounded-sm shadow-card border border-border">
           <div className="text-center mb-8">
             <h1 className="font-display text-2xl font-semibold text-foreground mb-2">
-              {isLogin ? "Connexion Admin" : "Créer un compte"}
+              Connexion Admin
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isLogin 
-                ? "Accédez à votre espace d'administration" 
-                : "Créez votre compte administrateur"}
+              Accédez à votre espace d'administration
             </p>
           </div>
 
@@ -143,25 +115,9 @@ const Auth = () => {
             </div>
 
             <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-              {isSubmitting 
-                ? "Chargement..." 
-                : isLogin 
-                  ? "Se connecter" 
-                  : "Créer le compte"}
+              {isSubmitting ? "Chargement..." : "Se connecter"}
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-accent hover:underline"
-            >
-              {isLogin 
-                ? "Pas encore de compte ? Créer un compte" 
-                : "Déjà un compte ? Se connecter"}
-            </button>
-          </div>
         </div>
       </div>
     </div>

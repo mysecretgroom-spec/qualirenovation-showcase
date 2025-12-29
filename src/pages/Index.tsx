@@ -8,8 +8,33 @@ import Testimonials from "@/components/Testimonials";
 import InstagramFeed from "@/components/InstagramFeed";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  // Fetch testimonials stats for schema.org
+  const { data: testimonialStats } = useQuery({
+    queryKey: ["testimonials-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("houzz_testimonials")
+        .select("rating")
+        .eq("hidden", false);
+
+      if (error) throw error;
+      
+      const count = data?.length || 0;
+      const avgRating = count > 0 
+        ? Math.round((data.reduce((sum, t) => sum + t.rating, 0) / count) * 10) / 10
+        : 5;
+      
+      return { count, avgRating };
+    },
+  });
+
+  const reviewCount = testimonialStats?.count || 45;
+  const avgRating = testimonialStats?.avgRating || 4.9;
+
   return (
     <>
       <Helmet>
@@ -43,8 +68,8 @@ const Index = () => {
             "areaServed": ["Paris", "Neuilly-sur-Seine", "Boulogne-Billancourt", "Levallois-Perret"],
             "aggregateRating": {
               "@type": "AggregateRating",
-              "ratingValue": "4.5",
-              "reviewCount": "53"
+              "ratingValue": String(avgRating),
+              "reviewCount": String(reviewCount)
             },
             "sameAs": ["https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"]
           })}

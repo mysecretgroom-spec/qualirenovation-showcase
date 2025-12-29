@@ -173,6 +173,36 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Verify hCaptcha token first
+    const captchaToken = (rawData as Record<string, unknown>)?.captchaToken;
+    if (!captchaToken || typeof captchaToken !== 'string') {
+      console.error("[send-quote-confirmation] Missing captcha token");
+      return new Response(
+        JSON.stringify({ error: "Captcha verification required" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const hcaptchaSecret = Deno.env.get("HCAPTCHA_SECRET_KEY");
+    if (hcaptchaSecret) {
+      const captchaResponse = await fetch("https://api.hcaptcha.com/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `response=${captchaToken}&secret=${hcaptchaSecret}`,
+      });
+      
+      const captchaResult = await captchaResponse.json();
+      console.log("[send-quote-confirmation] hCaptcha verification result:", captchaResult.success);
+      
+      if (!captchaResult.success) {
+        console.error("[send-quote-confirmation] hCaptcha verification failed:", captchaResult);
+        return new Response(
+          JSON.stringify({ error: "Captcha verification failed" }),
+          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+    }
+
     const validationResult = validateQuoteData(rawData);
     
     if (!validationResult.valid) {
