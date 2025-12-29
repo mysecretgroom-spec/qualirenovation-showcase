@@ -9,6 +9,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// =============================================
+// INPUT VALIDATION
+// =============================================
+
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
 interface QuoteRequestData {
   name: string;
   email: string;
@@ -20,8 +29,103 @@ interface QuoteRequestData {
   message: string;
 }
 
-// Logo en base64 - SVG encodé pour compatibilité email
-const logoBase64 = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNjAiPjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNjAiIGZpbGw9IiMxMTRhNjUiLz48dGV4dCB4PSIxMCIgeT0iMzUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjIiPjx0c3BhbiBmaWxsPSIjYmE4YzFjIj5RVUFMSTWVC3Bhbj48dHNwYW4gZmlsbD0iI2ZmZmZmZiI+UsOJTk9WQVRJT048L3RzcGFuPjwvdGV4dD48dGV4dCB4PSIxMCIgeT0iNTIiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjgiIGxldHRlci1zcGFjaW5nPSIyIj5CWSBRVUFMSUNPTkNFUFQ8L3RleHQ+PC9zdmc+`;
+const VALID_BUDGETS = [
+  "2000-10000", "10000-30000", "30000-50000", 
+  "50000-100000", "100000-200000", "200000+"
+];
+
+const VALID_TIMELINES = [
+  "urgent", "1-month", "1-3-months", 
+  "3-6-months", "6-months+", "undetermined"
+];
+
+function sanitizeString(input: unknown, maxLength: number): string {
+  if (typeof input !== 'string') return '';
+  // Remove any HTML tags and trim
+  return input.replace(/<[^>]*>/g, '').trim().substring(0, maxLength);
+}
+
+function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 255;
+}
+
+function validatePhone(phone: string): boolean {
+  // French phone: 10 digits, may have spaces, dots, dashes
+  const cleanPhone = phone.replace(/[\s.\-]/g, '');
+  return /^(?:(?:\+|00)33|0)[1-9](?:[0-9]{8})$/.test(cleanPhone);
+}
+
+function validateQuoteData(data: unknown): { valid: true; data: QuoteRequestData } | { valid: false; errors: ValidationError[] } {
+  const errors: ValidationError[] = [];
+  
+  if (!data || typeof data !== 'object') {
+    return { valid: false, errors: [{ field: 'body', message: 'Invalid request body' }] };
+  }
+
+  const input = data as Record<string, unknown>;
+
+  // Name validation
+  const name = sanitizeString(input.name, 100);
+  if (!name || name.length < 2) {
+    errors.push({ field: 'name', message: 'Le nom doit contenir au moins 2 caractères' });
+  }
+
+  // Email validation
+  const email = sanitizeString(input.email, 255).toLowerCase();
+  if (!email || !validateEmail(email)) {
+    errors.push({ field: 'email', message: 'Adresse email invalide' });
+  }
+
+  // Phone validation
+  const phone = sanitizeString(input.phone, 20);
+  if (!phone || !validatePhone(phone)) {
+    errors.push({ field: 'phone', message: 'Numéro de téléphone invalide (format français attendu)' });
+  }
+
+  // City validation
+  const city = sanitizeString(input.city, 100);
+  if (!city || city.length < 2) {
+    errors.push({ field: 'city', message: 'La ville doit contenir au moins 2 caractères' });
+  }
+
+  // Surface validation
+  const surface = sanitizeString(input.surface, 10);
+  if (!surface || !/^\d+$/.test(surface) || parseInt(surface) < 1 || parseInt(surface) > 10000) {
+    errors.push({ field: 'surface', message: 'Surface invalide (1-10000 m²)' });
+  }
+
+  // Budget validation
+  const budget = sanitizeString(input.budget, 50);
+  if (!budget || !VALID_BUDGETS.includes(budget)) {
+    errors.push({ field: 'budget', message: 'Fourchette de budget invalide' });
+  }
+
+  // Timeline validation
+  const timeline = sanitizeString(input.timeline, 50);
+  if (!timeline || !VALID_TIMELINES.includes(timeline)) {
+    errors.push({ field: 'timeline', message: 'Période de démarrage invalide' });
+  }
+
+  // Message validation
+  const message = sanitizeString(input.message, 2000);
+  if (!message || message.length < 10) {
+    errors.push({ field: 'message', message: 'La description doit contenir au moins 10 caractères' });
+  }
+
+  if (errors.length > 0) {
+    return { valid: false, errors };
+  }
+
+  return {
+    valid: true,
+    data: { name, email, phone, city, surface, budget, timeline, message }
+  };
+}
+
+// =============================================
+// LABELS
+// =============================================
 
 const budgetLabels: Record<string, string> = {
   "2000-10000": "2 000 € - 10 000 €",
@@ -41,6 +145,13 @@ const timelineLabels: Record<string, string> = {
   "undetermined": "Pas encore déterminé",
 };
 
+// Logo en base64 - SVG encodé pour compatibilité email
+const logoBase64 = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMjAgNjAiPjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNjAiIGZpbGw9IiMxMTRhNjUiLz48dGV4dCB4PSIxMCIgeT0iMzUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjcwMCIgbGV0dGVyLXNwYWNpbmc9IjIiPjx0c3BhbiBmaWxsPSIjYmE4YzFjIj5RVUFMSTWVC3Bhbj48dHNwYW4gZmlsbD0iI2ZmZmZmZiI+UsOJTk9WQVRJT048L3RzcGFuPjwvdGV4dD48dGV4dCB4PSIxMCIgeT0iNTIiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjgiIGxldHRlci1zcGFjaW5nPSIyIj5CWSBRVUFMSUNPTkNFUFQ8L3RleHQ+PC9zdmc+`;
+
+// =============================================
+// HANDLER
+// =============================================
+
 const handler = async (req: Request): Promise<Response> => {
   console.log("[send-quote-confirmation] Received request:", req.method);
 
@@ -50,8 +161,33 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const data: QuoteRequestData = await req.json();
-    console.log("[send-quote-confirmation] Processing quote request for:", data.email);
+    // Parse and validate input
+    let rawData: unknown;
+    try {
+      rawData = await req.json();
+    } catch {
+      console.error("[send-quote-confirmation] Invalid JSON in request body");
+      return new Response(
+        JSON.stringify({ error: "Invalid JSON in request body" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const validationResult = validateQuoteData(rawData);
+    
+    if (!validationResult.valid) {
+      console.error("[send-quote-confirmation] Validation errors:", validationResult.errors);
+      return new Response(
+        JSON.stringify({ 
+          error: "Validation failed", 
+          details: validationResult.errors 
+        }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const data = validationResult.data;
+    console.log("[send-quote-confirmation] Processing validated quote request for:", data.email);
 
     // Save to database using service role
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -81,6 +217,21 @@ const handler = async (req: Request): Promise<Response> => {
 
     const budgetLabel = budgetLabels[data.budget] || data.budget;
     const timelineLabel = timelineLabels[data.timeline] || data.timeline;
+
+    // Escape HTML in user-provided content for emails
+    const escapeHtml = (str: string) => 
+      str.replace(/&/g, '&amp;')
+         .replace(/</g, '&lt;')
+         .replace(/>/g, '&gt;')
+         .replace(/"/g, '&quot;')
+         .replace(/'/g, '&#039;');
+
+    const safeName = escapeHtml(data.name);
+    const safeCity = escapeHtml(data.city);
+    const safeSurface = escapeHtml(data.surface);
+    const safeMessage = escapeHtml(data.message);
+    const safeEmail = escapeHtml(data.email);
+    const safePhone = escapeHtml(data.phone);
 
     // Email to client (confirmation)
     const clientEmailResponse = await resend.emails.send({
@@ -131,7 +282,7 @@ const handler = async (req: Request): Promise<Response> => {
               <img src="https://st.hzcdn.com/simgs/7461361a0ab3ba4b_8-2381/salons-hotel-particulier-saint-mande-olivier-berni-interieurs.jpg" alt="Rénovation d'intérieur de qualité" class="hero-image" />
               
               <div class="content">
-                <h2 class="greeting">Bonjour ${data.name},</h2>
+                <h2 class="greeting">Bonjour ${safeName},</h2>
                 
                 <p class="text">Nous avons bien reçu votre demande de devis et nous vous en remercions chaleureusement.</p>
                 
@@ -139,11 +290,11 @@ const handler = async (req: Request): Promise<Response> => {
                 
                 <div class="recap">
                   <h3 class="recap-title">Récapitulatif de votre demande</h3>
-                  <div class="recap-item"><span class="recap-label">Ville du bien :</span> <span class="recap-value">${data.city}</span></div>
-                  <div class="recap-item"><span class="recap-label">Surface :</span> <span class="recap-value">${data.surface} m²</span></div>
+                  <div class="recap-item"><span class="recap-label">Ville du bien :</span> <span class="recap-value">${safeCity}</span></div>
+                  <div class="recap-item"><span class="recap-label">Surface :</span> <span class="recap-value">${safeSurface} m²</span></div>
                   <div class="recap-item"><span class="recap-label">Budget envisagé :</span> <span class="recap-value">${budgetLabel}</span></div>
                   <div class="recap-item"><span class="recap-label">Démarrage :</span> <span class="recap-value">${timelineLabel}</span></div>
-                  <div class="recap-item"><span class="recap-label">Description :</span> <span class="recap-value">${data.message}</span></div>
+                  <div class="recap-item"><span class="recap-label">Description :</span> <span class="recap-value">${safeMessage}</span></div>
                 </div>
 
                 <div class="cta-section">
@@ -185,7 +336,7 @@ const handler = async (req: Request): Promise<Response> => {
     const teamEmailResponse = await resend.emails.send({
       from: "Qualirenovation <contact@qualiconcept.fr>",
       to: ["contact@qualiconcept.fr"],
-      subject: `Nouvelle demande de devis - ${data.name} (${data.city})`,
+      subject: `Nouvelle demande de devis - ${safeName} (${safeCity})`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -212,17 +363,17 @@ const handler = async (req: Request): Promise<Response> => {
               <p><span class="priority">${timelineLabel}</span></p>
               
               <table class="info-table">
-                <tr><td>Nom</td><td><strong>${data.name}</strong></td></tr>
-                <tr><td>Email</td><td><a href="mailto:${data.email}">${data.email}</a></td></tr>
-                <tr><td>Téléphone</td><td><a href="tel:${data.phone}">${data.phone}</a></td></tr>
-                <tr><td>Ville du bien</td><td>${data.city}</td></tr>
-                <tr><td>Surface</td><td>${data.surface} m²</td></tr>
+                <tr><td>Nom</td><td><strong>${safeName}</strong></td></tr>
+                <tr><td>Email</td><td><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
+                <tr><td>Téléphone</td><td><a href="tel:${safePhone}">${safePhone}</a></td></tr>
+                <tr><td>Ville du bien</td><td>${safeCity}</td></tr>
+                <tr><td>Surface</td><td>${safeSurface} m²</td></tr>
                 <tr><td>Budget</td><td><strong>${budgetLabel}</strong></td></tr>
                 <tr><td>Démarrage</td><td>${timelineLabel}</td></tr>
               </table>
               
               <h3>Description du projet :</h3>
-              <div class="message-box">${data.message}</div>
+              <div class="message-box">${safeMessage}</div>
             </div>
           </div>
         </body>
@@ -243,10 +394,11 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
-    console.error("[send-quote-confirmation] Error:", error);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error("[send-quote-confirmation] Error:", errorMessage);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

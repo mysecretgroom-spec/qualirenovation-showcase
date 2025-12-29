@@ -8,6 +8,63 @@ const corsHeaders = {
 const HOUZZ_PROFILE_URL = "https://www.houzz.fr/pro/qualirenovation";
 const HOUZZ_REVIEWS_URL = "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618/avis";
 
+// =============================================
+// URL VALIDATION
+// =============================================
+
+const ALLOWED_HOUZZ_DOMAINS = [
+  'www.houzz.fr',
+  'houzz.fr',
+];
+
+const MAX_URLS_PER_REQUEST = 50;
+
+function isValidHouzzUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    // Check domain is allowed
+    if (!ALLOWED_HOUZZ_DOMAINS.includes(parsed.hostname)) {
+      return false;
+    }
+    // Check it's a project URL
+    if (!parsed.pathname.includes('/projets/')) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function validateAndFilterUrls(urls: unknown): { valid: string[]; invalid: string[] } {
+  const valid: string[] = [];
+  const invalid: string[] = [];
+  
+  if (!Array.isArray(urls)) {
+    return { valid: [], invalid: [] };
+  }
+  
+  for (const url of urls) {
+    if (typeof url !== 'string') {
+      invalid.push(String(url));
+      continue;
+    }
+    
+    const trimmedUrl = url.trim();
+    if (isValidHouzzUrl(trimmedUrl)) {
+      valid.push(trimmedUrl);
+    } else {
+      invalid.push(trimmedUrl);
+    }
+  }
+  
+  return { valid, invalid };
+}
+
+// =============================================
+// INTERFACES
+// =============================================
+
 interface HouzzProject {
   url: string;
   title: string;
@@ -550,8 +607,32 @@ Deno.serve(async (req) => {
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+
+        // Validate URLs - only allow houzz.fr domain
+        const { valid: validUrls, invalid: invalidUrls } = validateAndFilterUrls(urls);
         
-        console.log('[Handler] Importing', urls.length, 'projects from provided URLs');
+        if (validUrls.length === 0) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Aucune URL Houzz valide. Les URLs doivent être du domaine houzz.fr et pointer vers /projets/',
+              invalidUrls,
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (validUrls.length > MAX_URLS_PER_REQUEST) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: `Maximum ${MAX_URLS_PER_REQUEST} URLs par requête.`,
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        console.log('[Handler] Importing', validUrls.length, 'validated projects');
         
         console.log('[Handler] Deleting existing projects and images...');
         await supabase.from('houzz_project_images').delete().neq('id', '00000000-0000-0000-0000-000000000000');
@@ -559,7 +640,7 @@ Deno.serve(async (req) => {
         console.log('[Handler] Existing data deleted');
         
         const projects: HouzzProject[] = [];
-        for (const url of urls) {
+        for (const url of validUrls) {
           try {
             console.log('[Handler] Scraping project:', url);
             const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
@@ -578,12 +659,13 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({
             success: true,
-            total: urls.length,
+            total: validUrls.length,
             scraped: projects.length,
             imported: result.imported,
             errors: result.errors,
+            skippedInvalidUrls: invalidUrls.length,
             houzzProfileUrl: HOUZZ_PROFILE_URL,
-            message: `${result.imported} projets importés sur ${urls.length} (anciens projets supprimés)`,
+            message: `${result.imported} projets importés sur ${validUrls.length}`,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
