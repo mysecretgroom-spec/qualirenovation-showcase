@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      houzz_project_images: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_order: number | null
+          image_url: string
+          project_id: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_order?: number | null
+          image_url: string
+          project_id?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_order?: number | null
+          image_url?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "houzz_project_images_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "houzz_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      houzz_projects: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          houzz_id: string | null
+          houzz_url: string | null
+          id: string
+          image_count: number | null
+          location: string | null
+          slug: string
+          title: string
+          updated_at: string
+          year: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          houzz_id?: string | null
+          houzz_url?: string | null
+          id?: string
+          image_count?: number | null
+          location?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+          year?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          houzz_id?: string | null
+          houzz_url?: string | null
+          id?: string
+          image_count?: number | null
+          location?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
+      houzz_testimonials: {
+        Row: {
+          created_at: string
+          date: string | null
+          has_photos: boolean | null
+          houzz_user_url: string | null
+          id: string
+          name: string
+          photo_urls: string[] | null
+          project_type: string | null
+          rating: number
+          role: string | null
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string | null
+          has_photos?: boolean | null
+          houzz_user_url?: string | null
+          id?: string
+          name: string
+          photo_urls?: string[] | null
+          project_type?: string | null
+          rating?: number
+          role?: string | null
+          text: string
+        }
+        Update: {
+          created_at?: string
+          date?: string | null
+          has_photos?: boolean | null
+          houzz_user_url?: string | null
+          id?: string
+          name?: string
+          photo_urls?: string[] | null
+          project_type?: string | null
+          rating?: number
+          role?: string | null
+          text?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
