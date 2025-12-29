@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Images, Loader2, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProjects } from "@/hooks/use-projects";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Projects = () => {
   const { projects, categories, isLoading, isFromDB } = useProjects();
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [visibleCount, setVisibleCount] = useState(6);
+  const { ref, animationClasses } = useScrollAnimation();
 
   // Reset visible count when projects change
   useEffect(() => {
@@ -32,10 +34,10 @@ const Projects = () => {
   };
 
   return (
-    <section id="projects" className="section-padding bg-secondary/30">
+    <section ref={ref} id="projects" className={`section-padding bg-secondary/30 ${animationClasses}`}>
       <div className="container-tight">
         {/* Header */}
-        <div className="text-center mb-12 animate-fade-in-up">
+        <div className="text-center mb-12">
           <span className="text-accent font-medium text-sm tracking-widest uppercase mb-4 block">
             Portfolio
           </span>
@@ -65,7 +67,7 @@ const Projects = () => {
         {!isLoading && (
           <>
             {/* Category Filter */}
-            <div className="flex flex-wrap justify-center gap-3 mb-12 animate-fade-in-up animation-delay-200">
+            <div className="flex flex-wrap justify-center gap-3 mb-12">
               {categories.map((category) => (
                 <button
                   key={category}
@@ -87,8 +89,8 @@ const Projects = () => {
                 <Link
                   key={project.id}
                   to={`/projet/${project.slug}`}
-                  className="group relative overflow-hidden rounded-sm shadow-elegant hover:shadow-hover transition-all duration-500 animate-fade-in-up block"
-                  style={{ animationDelay: `${(index % 6) * 100}ms` }}
+                  className="group relative overflow-hidden rounded-sm shadow-elegant hover:shadow-hover transition-all duration-500 block"
+                  style={{ transitionDelay: `${(index % 6) * 100}ms` }}
                 >
                   <div className="aspect-[3/2] overflow-hidden bg-muted">
                     <img
@@ -137,7 +139,7 @@ const Projects = () => {
             </div>
 
             {/* Load More / View All on Houzz */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
               {hasMore && (
                 <Button variant="outline" size="lg" onClick={loadMore}>
                   Afficher plus de projets

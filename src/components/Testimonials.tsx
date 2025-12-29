@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Star, ChevronLeft, ChevronRight, Quote, Filter } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { testimonials, testimonialStats } from "@/data/testimonials";
 import { Button } from "./ui/button";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filter, setFilter] = useState<string>("all");
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const { ref, animationClasses } = useScrollAnimation();
 
   // Get unique project types for filtering
   const projectTypes = ["all", ...new Set(testimonials.map(t => t.projectType).filter(Boolean))];
@@ -49,10 +51,10 @@ const Testimonials = () => {
   if (!currentTestimonial) return null;
 
   return (
-    <section id="testimonials" className="section-padding bg-secondary/30">
+    <section ref={ref} id="testimonials" className={`section-padding bg-secondary/30 ${animationClasses}`}>
       <div className="container-tight">
         {/* Header */}
-        <div className="text-center mb-12 animate-fade-in-up">
+        <div className="text-center mb-12">
           <span className="text-accent font-medium text-sm tracking-widest uppercase mb-4 block">
             Témoignages
           </span>
@@ -123,7 +125,7 @@ const Testimonials = () => {
           <Quote className="absolute -top-6 left-0 md:left-8 w-16 h-16 text-accent/20" />
           
           {/* Content */}
-          <div className="bg-background rounded-sm shadow-card p-8 md:p-12 animate-fade-in">
+          <div className="bg-background rounded-sm shadow-card p-8 md:p-12">
             <div className="flex items-center justify-between mb-4">
               <div className="flex">
                 {[...Array(currentTestimonial.rating)].map((_, i) => (

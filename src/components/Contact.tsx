@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail, Clock, ArrowRight } from "lucide-react";
 import QuoteModal from "./QuoteModal";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 const contactInfo = [
   {
@@ -28,14 +29,15 @@ const contactInfo = [
 
 const Contact = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const { ref, animationClasses } = useScrollAnimation();
 
   return (
     <>
-      <section id="contact" className="section-padding bg-background">
+      <section ref={ref} id="contact" className={`section-padding bg-background ${animationClasses}`}>
         <div className="container-tight">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Column - Info */}
-            <div className="animate-fade-in-up">
+            <div>
               <span className="text-accent font-medium text-sm tracking-widest uppercase mb-4 block">
                 Contact
               </span>
@@ -79,7 +81,7 @@ const Contact = () => {
             </div>
 
             {/* Right Column - CTA Card */}
-            <div className="animate-fade-in-up animation-delay-200">
+            <div>
               <div className="bg-card p-8 md:p-12 rounded-sm shadow-card text-center">
                 <h3 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-4">
                   Demande de devis gratuit
