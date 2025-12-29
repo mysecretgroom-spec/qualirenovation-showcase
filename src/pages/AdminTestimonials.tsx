@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Star, Eye, EyeOff, ArrowLeft, MessageSquare } from "lucide-react";
+import { Star, Eye, EyeOff, ArrowLeft, MessageSquare, Download, Loader2 } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ const AdminTestimonials = () => {
   const { user, isAdmin, loading, adminLoading } = useAuth();
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [isImporting, setIsImporting] = useState(false);
 
   const { data: testimonials, isLoading } = useQuery({
     queryKey: ["admin-testimonials"],
@@ -46,6 +47,32 @@ const AdminTestimonials = () => {
       toast.error("Erreur lors de la mise à jour");
     },
   });
+
+  const handleImportTestimonials = async () => {
+    setIsImporting(true);
+    toast.info("Import des avis en cours...");
+
+    try {
+      const { data, error } = await supabase.functions.invoke("import-houzz", {
+        body: { action: "import-testimonials" },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast.success(data.message);
+        queryClient.invalidateQueries({ queryKey: ["admin-testimonials"] });
+        queryClient.invalidateQueries({ queryKey: ["testimonials"] });
+      } else {
+        toast.error(data.error || "Erreur lors de l'import");
+      }
+    } catch (err: any) {
+      console.error("Import error:", err);
+      toast.error(err.message || "Erreur lors de l'import");
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   if (loading || adminLoading) {
     return (
@@ -95,6 +122,27 @@ const AdminTestimonials = () => {
       </header>
 
       <main className="container-tight py-8">
+        {/* Import Button */}
+        <div className="mb-6">
+          <Button
+            onClick={handleImportTestimonials}
+            disabled={isImporting}
+            className="w-full sm:w-auto"
+          >
+            {isImporting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Import en cours...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4 mr-2" />
+                Importer les avis depuis Houzz
+              </>
+            )}
+          </Button>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <Card

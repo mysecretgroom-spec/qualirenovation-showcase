@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const HOUZZ_PROFILE_URL = "https://www.houzz.fr/pro/qualirenovation";
-const HOUZZ_PROJECTS_URL = "https://www.houzz.fr/pro/qualirenovation/projets";
+const HOUZZ_REVIEWS_URL = "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618/avis";
 
 interface HouzzProject {
   url: string;
@@ -16,6 +16,15 @@ interface HouzzProject {
   images: { url: string; caption?: string }[];
   location?: string;
   year?: string;
+}
+
+interface HouzzTestimonial {
+  name: string;
+  role?: string;
+  rating: number;
+  text: string;
+  date?: string;
+  project_type?: string;
 }
 
 // Generate URL-friendly slug
@@ -57,59 +66,161 @@ async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
   return data.data || data;
 }
 
-// Extract project URLs from the profile page
-function extractProjectUrls(html: string, links: string[]): string[] {
-  const projectUrls: string[] = [];
+// Extract testimonials from HTML
+function extractTestimonialsFromHtml(html: string, markdown: string): HouzzTestimonial[] {
+  const testimonials: HouzzTestimonial[] = [];
   
-  // From links array
-  for (const link of links) {
-    if (link.includes('/projets/') && link.includes('houzz.fr')) {
-      projectUrls.push(link);
+  console.log('[Extract] Parsing testimonials from HTML...');
+  
+  // Pattern 1: Look for review blocks in HTML
+  // Houzz reviews typically have reviewer name, rating, date, and review text
+  
+  // Try to find JSON-LD structured data first
+  const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi);
+  if (jsonLdMatch) {
+    for (const match of jsonLdMatch) {
+      try {
+        const jsonContent = match.replace(/<script[^>]*>/, '').replace(/<\/script>/, '');
+        const data = JSON.parse(jsonContent);
+        if (data.review && Array.isArray(data.review)) {
+          for (const review of data.review) {
+            testimonials.push({
+              name: review.author?.name || 'Client',
+              rating: parseInt(review.reviewRating?.ratingValue) || 5,
+              text: review.reviewBody || review.description || '',
+              date: review.datePublished,
+            });
+          }
+        }
+      } catch (e) {
+        // Continue with other patterns
+      }
     }
   }
   
-  // From HTML with regex patterns
-  const patterns = [
-    /href="(https:\/\/www\.houzz\.fr\/pro\/qualirenovation\/projets\/[^"]+)"/g,
-    /href="(\/pro\/qualirenovation\/projets\/[^"]+)"/g,
-    /"url":"(https:\/\/www\.houzz\.fr\/[^"]*projets[^"]*)"/g,
+  // Pattern 2: Parse from markdown format
+  // Reviews on Houzz often appear in a structured format
+  const reviewBlocks = markdown.split(/(?=\*\*\d+ étoiles?\*\*|\*\*5\.0\*\*|\*\*★)/);
+  
+  for (const block of reviewBlocks) {
+    if (block.length < 50) continue;
+    
+    // Try to extract rating
+    const ratingMatch = block.match(/(\d+(?:\.\d+)?)\s*(?:étoiles?|\/5|★)/i);
+    const rating = ratingMatch ? Math.round(parseFloat(ratingMatch[1])) : 5;
+    
+    // Try to extract name - often at the start or after "par" or "by"
+    const nameMatch = block.match(/(?:par|by|—|–)\s*\*?\*?([A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ]\.?)?)/i) ||
+                      block.match(/^\s*\*?\*?([A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ]\.?)?)\s*\*?\*?/m);
+    const name = nameMatch ? nameMatch[1].trim() : null;
+    
+    // Try to extract date
+    const dateMatch = block.match(/(\d{1,2})\s*(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s*(\d{4})/i) ||
+                      block.match(/(\d{4}-\d{2}-\d{2})/);
+    const date = dateMatch ? dateMatch[0] : null;
+    
+    // Try to extract project type
+    const projectTypeMatch = block.match(/(?:projet|type|catégorie)\s*:?\s*([^,\n]+)/i) ||
+                             block.match(/(salle de bain|cuisine|rénovation complète|appartement|maison)/i);
+    const projectType = projectTypeMatch ? projectTypeMatch[1].trim() : null;
+    
+    // Extract the main review text - remove metadata
+    let text = block
+      .replace(/\*\*/g, '')
+      .replace(/\d+(?:\.\d+)?\s*(?:étoiles?|\/5|★)/gi, '')
+      .replace(/(?:par|by)\s+[A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ]\.?)?/gi, '')
+      .replace(/\d{1,2}\s*(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s*\d{4}/gi, '')
+      .replace(/\[.*?\]\(.*?\)/g, '')
+      .replace(/#{1,6}\s*/g, '')
+      .trim();
+    
+    // Clean up and validate
+    if (text.length > 30 && name) {
+      testimonials.push({
+        name,
+        rating: rating > 5 ? 5 : rating,
+        text: text.substring(0, 2000),
+        date: date || undefined,
+        project_type: projectType || undefined,
+      });
+    }
+  }
+  
+  // Pattern 3: Look for specific Houzz review patterns in HTML
+  const reviewPatterns = [
+    /"reviewerName":\s*"([^"]+)"[\s\S]*?"rating":\s*(\d+)[\s\S]*?"text":\s*"([^"]+)"/g,
+    /data-review-author="([^"]+)"[\s\S]*?data-rating="(\d+)"[\s\S]*?<p[^>]*>([^<]+)/g,
   ];
   
-  for (const pattern of patterns) {
-    let match;
+  for (const pattern of reviewPatterns) {
+    let match: RegExpExecArray | null;
     while ((match = pattern.exec(html)) !== null) {
-      let url = match[1];
-      if (url.startsWith('/')) {
-        url = `https://www.houzz.fr${url}`;
-      }
-      if (!projectUrls.includes(url)) {
-        projectUrls.push(url);
+      const exists = testimonials.some(t => t.name === match![1] || t.text.includes(match![3].substring(0, 50)));
+      if (!exists && match[3].length > 30) {
+        testimonials.push({
+          name: match[1],
+          rating: parseInt(match[2]) || 5,
+          text: match[3].substring(0, 2000),
+        });
       }
     }
   }
   
-  console.log('[Extract] Found', projectUrls.length, 'project URLs');
-  return projectUrls;
+  console.log('[Extract] Found', testimonials.length, 'testimonials');
+  return testimonials;
 }
 
-// Extract images from a project page HTML
+// Save testimonials to database
+async function saveTestimonialsToDatabase(supabase: any, testimonials: HouzzTestimonial[]): Promise<{ imported: number; errors: number }> {
+  let imported = 0;
+  let errors = 0;
+
+  for (const testimonial of testimonials) {
+    try {
+      // Check if testimonial already exists (by name and first 100 chars of text)
+      const textPrefix = testimonial.text.substring(0, 100);
+      const { data: existing } = await supabase
+        .from('houzz_testimonials')
+        .select('id')
+        .eq('name', testimonial.name)
+        .ilike('text', `${textPrefix}%`)
+        .maybeSingle();
+
+      if (existing) {
+        console.log('[DB] Testimonial already exists:', testimonial.name);
+        continue;
+      }
+
+      const { error: insertError } = await supabase
+        .from('houzz_testimonials')
+        .insert({
+          name: testimonial.name,
+          role: testimonial.role,
+          rating: testimonial.rating,
+          text: testimonial.text,
+          date: testimonial.date,
+          project_type: testimonial.project_type,
+          hidden: false,
+        });
+
+      if (insertError) throw insertError;
+      imported++;
+      console.log('[DB] Saved testimonial from:', testimonial.name);
+    } catch (error) {
+      console.error('[DB] Error saving testimonial:', testimonial.name, error);
+      errors++;
+    }
+  }
+
+  return { imported, errors };
+}
+
 // Convert Houzz image URL to high resolution
 function toHighResolution(url: string): string {
-  // Extract the base image ID pattern from Houzz URLs
-  // Format: https://st.hzcdn.com/fimgs/XXXX-wWWW-hHHH-bB-pP--.jpg
-  
-  // Remove size parameters and get full resolution
   let highRes = url;
-  
-  // Pattern 1: -wXXX-hXXX- format
   highRes = highRes.replace(/-w\d+-h\d+-[^.]+/, '-w1920-h1440-b1-p0--');
-  
-  // Pattern 2: simgs to fimgs (full images)
   highRes = highRes.replace('/simgs/', '/fimgs/');
-  
-  // Pattern 3: pictures format
   highRes = highRes.replace(/\/pictures\/[^/]+\//, '/fimgs/');
-  
   return highRes;
 }
 
@@ -117,7 +228,6 @@ function extractImagesFromHtml(html: string): { url: string; caption?: string }[
   const images: { url: string; caption?: string }[] = [];
   const seenBaseIds = new Set<string>();
   
-  // Multiple patterns to find Houzz image URLs
   const patterns = [
     /"imageUrl":"([^"]+)"/g,
     /"fullUrl":"([^"]+)"/g,
@@ -131,8 +241,6 @@ function extractImagesFromHtml(html: string): { url: string; caption?: string }[
     let match;
     while ((match = pattern.exec(html)) !== null) {
       let url = match[1];
-      
-      // Clean URL
       url = url.replace(/\\u002F/g, '/').replace(/\\/g, '');
       
       if (!url.startsWith('http')) continue;
@@ -140,34 +248,29 @@ function extractImagesFromHtml(html: string): { url: string; caption?: string }[
       if (url.includes('avatar') || url.includes('profile') || url.includes('logo')) continue;
       if (url.includes('.svg') || url.includes('.gif')) continue;
       
-      // Extract base image ID to avoid duplicates (same image different sizes)
       const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i);
       const baseId = baseIdMatch ? baseIdMatch[1] : url;
       
       if (seenBaseIds.has(baseId)) continue;
       seenBaseIds.add(baseId);
       
-      // Convert to high resolution
       const highResUrl = toHighResolution(url);
       images.push({ url: highResUrl });
     }
   }
   
   console.log('[Extract] Found', images.length, 'unique high-res images');
-  return images.slice(0, 20); // Max 20 images per project
+  return images.slice(0, 20);
 }
 
-// Extract project details from scraped page
 function extractProjectDetails(data: any, url: string): HouzzProject {
   const html = data.html || '';
   const markdown = data.markdown || '';
   const metadata = data.metadata || {};
   
-  // Extract title from URL first (most reliable for Houzz)
   let title = '';
   const urlMatch = url.match(/\/projets\/([^/]+?)(?:-pj-vj)?~?\d*$/);
   if (urlMatch) {
-    // Convert URL slug to readable title
     title = urlMatch[1]
       .replace(/-pj-vj.*$/, '')
       .replace(/-%E2%9C%A8/g, '')
@@ -175,18 +278,15 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
       .replace(/-+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
-    // Capitalize first letter
     title = title.charAt(0).toUpperCase() + title.slice(1);
   }
   
-  // Fallback to metadata title if URL extraction failed
   if (!title) {
     title = metadata.title || '';
     title = title.replace(/ \| Houzz.*$/i, '').trim();
     title = title.replace(/QUALIRENOVATION by Qualiconcept/i, '').trim();
   }
   
-  // Last fallback
   if (!title) {
     const titleMatch = markdown.match(/^#\s+(.+)$/m);
     title = titleMatch ? titleMatch[1] : 'Projet sans titre';
@@ -194,14 +294,12 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
   
   console.log('[Extract] Title from URL:', title);
   
-  // Description - extract from markdown
   let description = metadata.description || '';
   const descMatch = markdown.match(/##.*Description.*\n+([\s\S]*?)(?=\n##|\n\n\n|$)/i);
   if (descMatch) {
     description = descMatch[1].trim().substring(0, 1000);
   }
   
-  // Category
   let category = 'Rénovation';
   const categoryPatterns = [
     /salle\s*de\s*bain/i,
@@ -220,14 +318,12 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
     }
   }
   
-  // Location
   let location = '';
   const locationMatch = markdown.match(/Paris|Lyon|Marseille|Bordeaux|Nantes|France/i);
   if (locationMatch) {
     location = locationMatch[0];
   }
   
-  // Images
   const images = extractImagesFromHtml(html);
   
   return {
@@ -240,7 +336,6 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
   };
 }
 
-// Save projects to database
 async function saveProjectsToDatabase(supabase: any, projects: HouzzProject[]): Promise<{ imported: number; errors: number }> {
   let imported = 0;
   let errors = 0;
@@ -249,7 +344,6 @@ async function saveProjectsToDatabase(supabase: any, projects: HouzzProject[]): 
     try {
       const slug = generateSlug(project.title);
       
-      // Check if project already exists
       const { data: existing } = await supabase
         .from('houzz_projects')
         .select('id')
@@ -259,7 +353,6 @@ async function saveProjectsToDatabase(supabase: any, projects: HouzzProject[]): 
       let projectId: string;
 
       if (existing) {
-        // Update existing project
         const { error: updateError } = await supabase
           .from('houzz_projects')
           .update({
@@ -277,13 +370,11 @@ async function saveProjectsToDatabase(supabase: any, projects: HouzzProject[]): 
         if (updateError) throw updateError;
         projectId = existing.id;
         
-        // Delete existing images
         await supabase
           .from('houzz_project_images')
           .delete()
           .eq('project_id', projectId);
       } else {
-        // Insert new project
         const { data: newProject, error: insertError } = await supabase
           .from('houzz_projects')
           .insert({
@@ -303,7 +394,6 @@ async function saveProjectsToDatabase(supabase: any, projects: HouzzProject[]): 
         projectId = newProject.id;
       }
 
-      // Insert images
       if (project.images && project.images.length > 0) {
         const imageRecords = project.images
           .filter(img => img.url && img.url.length > 0)
@@ -357,8 +447,48 @@ Deno.serve(async (req) => {
     console.log('[Handler] Action:', action);
 
     switch (action) {
+      case 'import-testimonials': {
+        console.log('[Handler] Importing testimonials from Houzz reviews page');
+        
+        // Scrape the reviews page
+        const reviewsData = await scrapeWithFirecrawl(HOUZZ_REVIEWS_URL, FIRECRAWL_API_KEY);
+        
+        // Extract testimonials
+        const testimonials = extractTestimonialsFromHtml(
+          reviewsData.html || '',
+          reviewsData.markdown || ''
+        );
+        
+        if (testimonials.length === 0) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Aucun avis trouvé sur la page Houzz. Le format de la page a peut-être changé.',
+              debug: {
+                htmlLength: (reviewsData.html || '').length,
+                markdownLength: (reviewsData.markdown || '').length,
+              }
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        // Save to database
+        const result = await saveTestimonialsToDatabase(supabase, testimonials);
+        
+        return new Response(
+          JSON.stringify({
+            success: true,
+            found: testimonials.length,
+            imported: result.imported,
+            errors: result.errors,
+            message: `${result.imported} avis importés sur ${testimonials.length} trouvés`,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       case 'import-urls': {
-        // Import specific URLs provided by user
         if (!urls || !Array.isArray(urls) || urls.length === 0) {
           return new Response(
             JSON.stringify({
@@ -371,13 +501,11 @@ Deno.serve(async (req) => {
         
         console.log('[Handler] Importing', urls.length, 'projects from provided URLs');
         
-        // DELETE all existing projects and images first
         console.log('[Handler] Deleting existing projects and images...');
         await supabase.from('houzz_project_images').delete().neq('id', '00000000-0000-0000-0000-000000000000');
         await supabase.from('houzz_projects').delete().neq('id', '00000000-0000-0000-0000-000000000000');
         console.log('[Handler] Existing data deleted');
         
-        // Scrape each project page
         const projects: HouzzProject[] = [];
         for (const url of urls) {
           try {
@@ -386,14 +514,12 @@ Deno.serve(async (req) => {
             const project = extractProjectDetails(projectData, url);
             projects.push(project);
             
-            // Small delay between requests
             await new Promise(resolve => setTimeout(resolve, 1000));
           } catch (error) {
             console.error('[Handler] Error scraping project:', url, error);
           }
         }
         
-        // Save to database
         console.log('[Handler] Saving', projects.length, 'projects to database...');
         const result = await saveProjectsToDatabase(supabase, projects);
 
@@ -412,7 +538,6 @@ Deno.serve(async (req) => {
       }
 
       case 'queue-status': {
-        // Return current database stats
         const { count: projectCount } = await supabase
           .from('houzz_projects')
           .select('*', { count: 'exact', head: true });
@@ -421,10 +546,15 @@ Deno.serve(async (req) => {
           .from('houzz_project_images')
           .select('*', { count: 'exact', head: true });
 
+        const { count: testimonialCount } = await supabase
+          .from('houzz_testimonials')
+          .select('*', { count: 'exact', head: true });
+
         return new Response(
           JSON.stringify({
             projects: projectCount || 0,
             images: imageCount || 0,
+            testimonials: testimonialCount || 0,
             houzzProfileUrl: HOUZZ_PROFILE_URL,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -434,7 +564,7 @@ Deno.serve(async (req) => {
       default:
         return new Response(
           JSON.stringify({ 
-            error: 'Action inconnue. Disponibles: import-urls, queue-status' 
+            error: 'Action inconnue. Disponibles: import-urls, import-testimonials, queue-status' 
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
