@@ -323,6 +323,12 @@ Deno.serve(async (req) => {
         
         console.log('[Handler] Importing', urls.length, 'projects from provided URLs');
         
+        // DELETE all existing projects and images first
+        console.log('[Handler] Deleting existing projects and images...');
+        await supabase.from('houzz_project_images').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        await supabase.from('houzz_projects').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        console.log('[Handler] Existing data deleted');
+        
         // Scrape each project page
         const projects: HouzzProject[] = [];
         for (const url of urls) {
@@ -351,7 +357,7 @@ Deno.serve(async (req) => {
             imported: result.imported,
             errors: result.errors,
             houzzProfileUrl: HOUZZ_PROFILE_URL,
-            message: `${result.imported} projets importés sur ${urls.length}`,
+            message: `${result.imported} projets importés sur ${urls.length} (anciens projets supprimés)`,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
