@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Instagram } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const InstagramFeed = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
     // Load LightWidget script
     const script = document.createElement("script");
@@ -10,17 +12,39 @@ const InstagramFeed = () => {
     script.async = true;
     document.body.appendChild(script);
 
+    // Intersection Observer for scroll animation
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
     return () => {
-      // Cleanup script on unmount
       const existingScript = document.querySelector('script[src="https://cdn.lightwidget.com/widgets/lightwidget.js"]');
       if (existingScript) {
         existingScript.remove();
       }
+      observer.disconnect();
     };
   }, []);
 
   return (
-    <section className="py-20 bg-secondary/30">
+    <section 
+      ref={sectionRef}
+      className={`py-20 bg-secondary/30 transition-all duration-1000 ease-out ${
+        isVisible 
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 translate-y-12"
+      }`}
+    >
       <div className="container-tight">
         {/* Header */}
         <div className="text-center mb-12">
