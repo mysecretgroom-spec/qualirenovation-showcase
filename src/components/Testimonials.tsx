@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { Button } from "./ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -15,10 +15,11 @@ interface Testimonial {
   project_type: string | null;
 }
 
+const ITEMS_PER_PAGE = 6;
+
 const Testimonials = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState<string>("all");
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const { ref, animationClasses } = useScrollAnimation();
 
   // Fetch visible testimonials from database
@@ -43,48 +44,28 @@ const Testimonials = () => {
       ? Math.round((testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length) * 10) / 10
       : 5,
     platform: "Houzz",
-    skills: 4.9,
-    communication: 4.9,
-    valueForMoney: 4.8,
   };
 
-  // Get unique project types for filtering
-  const projectTypes = ["all", ...new Set(testimonials.map(t => t.project_type).filter(Boolean))];
-  
   // Filter testimonials based on selected type
   const filteredTestimonials = filter === "all" 
     ? testimonials 
-    : testimonials.filter(t => t.project_type === filter);
+    : testimonials.filter(t => t.project_type?.includes(filter) || t.role?.includes(filter));
 
-  // Auto-play carousel
-  useEffect(() => {
-    if (!isAutoPlaying || filteredTestimonials.length === 0) return;
-    
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % filteredTestimonials.length);
-    }, 8000);
-    
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, filteredTestimonials.length]);
-
-  const nextTestimonial = () => {
-    setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev + 1) % filteredTestimonials.length);
-  };
-
-  const prevTestimonial = () => {
-    setIsAutoPlaying(false);
-    setCurrentIndex((prev) => (prev - 1 + filteredTestimonials.length) % filteredTestimonials.length);
-  };
+  // Pagination
+  const totalPages = Math.ceil(filteredTestimonials.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedTestimonials = filteredTestimonials.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter);
-    setCurrentIndex(0);
+    setCurrentPage(1);
   };
 
-  // Ensure currentIndex is valid after filter change
-  const safeIndex = Math.min(currentIndex, Math.max(0, filteredTestimonials.length - 1));
-  const currentTestimonial = filteredTestimonials[safeIndex];
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to testimonials section
+    document.getElementById("testimonials")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   if (isLoading) {
     return (
@@ -96,7 +77,7 @@ const Testimonials = () => {
     );
   }
 
-  if (!currentTestimonial || testimonials.length === 0) {
+  if (testimonials.length === 0) {
     return null;
   }
 
@@ -124,22 +105,6 @@ const Testimonials = () => {
             <span>•</span>
             <span>{testimonialStats.totalReviews} avis sur {testimonialStats.platform}</span>
           </div>
-
-          {/* Stats */}
-          <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Compétences:</span>
-              <span className="font-semibold text-foreground">{testimonialStats.skills}/5</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Communication:</span>
-              <span className="font-semibold text-foreground">{testimonialStats.communication}/5</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Qualité/Prix:</span>
-              <span className="font-semibold text-foreground">{testimonialStats.valueForMoney}/5</span>
-            </div>
-          </div>
         </div>
 
         {/* Filter */}
@@ -163,98 +128,97 @@ const Testimonials = () => {
                 onClick={() => handleFilterChange(type)}
                 className="rounded-full"
               >
-                {type}
+                {type} ({count})
               </Button>
             );
           })}
         </div>
 
-        {/* Testimonial Carousel */}
-        <div className="relative max-w-4xl mx-auto">
-          {/* Quote Icon */}
-          <Quote className="absolute -top-6 left-0 md:left-8 w-16 h-16 text-accent/20" />
-          
-          {/* Content */}
-          <div className="bg-background rounded-sm shadow-card p-8 md:p-12">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex">
-                {[...Array(currentTestimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-accent text-accent" />
-                ))}
-              </div>
-              {currentTestimonial.project_type && (
-                <span className="text-xs bg-secondary px-3 py-1 rounded-full text-muted-foreground">
-                  {currentTestimonial.project_type}
-                </span>
-              )}
-            </div>
-            
-            <p className="text-foreground text-lg md:text-xl leading-relaxed mb-8 font-display italic">
-              "{currentTestimonial.text}"
-            </p>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-foreground">{currentTestimonial.name}</p>
-                <p className="text-muted-foreground text-sm">{currentTestimonial.role}</p>
-                <p className="text-muted-foreground text-xs mt-1">{currentTestimonial.date}</p>
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedTestimonials.map((testimonial) => (
+            <div 
+              key={testimonial.id} 
+              className="bg-background rounded-sm shadow-card p-6 relative flex flex-col"
+            >
+              <Quote className="absolute top-4 right-4 w-8 h-8 text-accent/10" />
+              
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-accent text-accent" />
+                  ))}
+                </div>
+                {testimonial.project_type && (
+                  <span className="text-xs bg-secondary px-2 py-1 rounded-full text-muted-foreground">
+                    {testimonial.project_type}
+                  </span>
+                )}
               </div>
               
-              {/* Navigation */}
-              <div className="flex gap-2">
-                <button
-                  onClick={prevTestimonial}
-                  className="w-10 h-10 rounded-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors"
-                  aria-label="Témoignage précédent"
-                >
-                  <ChevronLeft className="w-5 h-5 text-foreground" />
-                </button>
-                <button
-                  onClick={nextTestimonial}
-                  className="w-10 h-10 rounded-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors"
-                  aria-label="Témoignage suivant"
-                >
-                  <ChevronRight className="w-5 h-5 text-foreground" />
-                </button>
+              <p className="text-foreground text-sm leading-relaxed mb-4 flex-1 font-display italic line-clamp-4">
+                "{testimonial.text}"
+              </p>
+              
+              <div className="border-t border-border pt-4 mt-auto">
+                <p className="font-semibold text-foreground text-sm">{testimonial.name}</p>
+                {testimonial.role && (
+                  <p className="text-muted-foreground text-xs">{testimonial.role}</p>
+                )}
+                {testimonial.date && (
+                  <p className="text-muted-foreground text-xs mt-1">{testimonial.date}</p>
+                )}
               </div>
             </div>
-          </div>
-
-          {/* Progress bar */}
-          <div className="mt-6 flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              {safeIndex + 1} / {filteredTestimonials.length}
-            </span>
-            <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-accent transition-all duration-300"
-                style={{ width: `${((safeIndex + 1) / filteredTestimonials.length) * 100}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Quick navigation dots (show max 10) */}
-          {filteredTestimonials.length <= 10 && (
-            <div className="flex justify-center gap-2 mt-4">
-              {filteredTestimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setIsAutoPlaying(false);
-                    setCurrentIndex(index);
-                  }}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    index === safeIndex ? "bg-accent w-8" : "bg-border hover:bg-muted-foreground"
-                  }`}
-                  aria-label={`Aller au témoignage ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
+          ))}
         </div>
 
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="rounded-sm"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => goToPage(page)}
+                  className="w-8 h-8 rounded-sm p-0"
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="rounded-sm"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Results info */}
+        <p className="text-center text-sm text-muted-foreground mt-4">
+          Affichage de {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredTestimonials.length)} sur {filteredTestimonials.length} avis
+        </p>
+
         {/* CTA */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-8">
           <a
             href="https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618/avis"
             target="_blank"
