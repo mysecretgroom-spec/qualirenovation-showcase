@@ -88,7 +88,7 @@ function extractLocation(content: string): string {
 
 // Scrape a single project page with waitFor for dynamic content
 async function scrapeProjectPage(url: string, apiKey: string): Promise<{ description: string, images: string[], category: string, location: string, year: string, cost: string }> {
-  console.log('Scraping project page with waitFor:', url)
+  console.log('Scraping project page:', url)
   
   try {
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
@@ -100,8 +100,8 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
       body: JSON.stringify({
         url,
         formats: ['markdown', 'html'],
-        onlyMainContent: true, // Changed to true to filter navigation
-        waitFor: 3000,
+        onlyMainContent: false, // Get full page to extract images
+        waitFor: 5000, // Wait longer for images to load
       }),
     })
 
@@ -114,89 +114,137 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
     const html = data.data?.html || ''
     const markdown = data.data?.markdown || ''
     
-    console.log('Markdown preview:', markdown.substring(0, 500))
+    // ============ EXTRACT IMAGES FROM HTML ============
+    // Look for project photo URLs in the HTML - they have specific patterns
+    // Pattern 1: Project photos in gallery
+    const photoUrlPattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+-w\d+-h\d+-[^"'\s]+\.jpg/gi
+    const htmlPhotoMatches = html.match(photoUrlPattern) || []
     
-    // Extract project description - look for the actual content paragraphs
+    // Pattern 2: simgs pattern 
+    const simgsPattern = /https:\/\/st\.hzcdn\.com\/simgs\/[a-f0-9]+_\d+-w\d+-h\d+-[^"'\s]+\.(?:jpg|jpeg|png|webp)/gi
+    const simgsMatches = html.match(simgsPattern) || []
+    
+    // Pattern 3: Look for data-src or srcset with high-res images
+    const srcsetPattern = /(?:srcset|data-src)=["']([^"']+hzcdn\.com[^"']+)["']/gi
+    let srcsetMatch
+    const srcsetImages: string[] = []
+    while ((srcsetMatch = srcsetPattern.exec(html)) !== null) {
+      const urls = srcsetMatch[1].split(',').map(s => s.trim().split(' ')[0])
+      srcsetImages.push(...urls)
+    }
+    
+    // Combine all image sources
+    let allImages = [...htmlPhotoMatches, ...simgsMatches, ...srcsetImages]
+    
+    // Filter and deduplicate
+    const seenHashes = new Set<string>()
+    const uniqueImages: string[] = []
+    
+    for (const img of allImages) {
+      // Extract the unique hash from URL (e.g., 6a01b17209285e76_3364)
+      const hashMatch = img.match(/\/([a-f0-9]+_\d+)-/)
+      if (hashMatch) {
+        const hash = hashMatch[1]
+        if (!seenHashes.has(hash)) {
+          seenHashes.add(hash)
+          // Skip thumbnails and small images
+          if (img.includes('-w40-') || img.includes('-w48-') || img.includes('-w80-') || img.includes('-w100-') || img.includes('-w120-')) {
+            continue
+          }
+          // Convert to high-res version
+          const hdImage = img
+            .replace(/-w\d+-h\d+(-b\d+-p\d+)?/, '-w1920-h1440$1')
+            .replace(/\?.*$/, '') // Remove query params
+          uniqueImages.push(hdImage)
+        }
+      }
+    }
+    
+    console.log(`Found ${uniqueImages.length} unique HD images from ${allImages.length} total matches`)
+    
+    // ============ EXTRACT DESCRIPTION ============
+    // Find the project content section - skip navigation completely
     let description = ''
     const lines = markdown.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0)
     
-    // Find content lines - skip navigation and look for actual project description
+    // Find where actual content starts (after "PROJET..." or project title)
+    let contentStarted = false
     const descriptionLines: string[] = []
-    let foundContent = false
     
-    for (const line of lines) {
-      // Skip navigation links and headers
-      if (line.startsWith('[') && line.includes('](https://www.houzz.fr/')) continue
-      if (line.includes('Passer au contenu') || line.includes('Page d\'accueil')) continue
-      if (line.includes('MAGAZINE') || line.includes('CONSEIL') || line.includes('TROUVER DES PROS')) continue
-      if (line.includes('Cancel') || line.includes('Se connecter') || line.includes('S\'inscrire')) continue
-      if (line.includes('History of Houzz') || line.includes('Houzz Logo')) continue
-      if (line.startsWith('![')) continue // Skip images
-      if (line === 'Lire plus' || line === 'Partager le projet') break // Stop at these markers
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
       
-      // Look for actual content
-      if (line.length > 30 && !line.startsWith('#') && !line.startsWith('!')) {
-        // This looks like actual content
-        foundContent = true
-        descriptionLines.push(line)
-        if (descriptionLines.length >= 5) break // Get first 5 paragraphs max
+      // Skip known navigation patterns
+      if (line.includes('Passer au contenu') || line.includes('Page d\'accueil') || line.includes('ACCUEIL')) continue
+      if (line.includes('Se connecter') || line.includes('S\'inscrire') || line.includes('Cancel')) continue
+      if (line.startsWith('[') && (line.includes('Photos') || line.includes('Magazine') || line.includes('Trouver des pros'))) continue
+      if (line.startsWith('![') && line.includes('Logo')) continue
+      
+      // Look for project title pattern to start content
+      if (!contentStarted) {
+        // Project titles often start with "PROJET" or are substantial titles
+        if (line.match(/^PROJET\s/i) || line.match(/^[A-Z][^a-z]*$/)) {
+          contentStarted = true
+        }
+        // Also check for the long descriptive lines that start with "Dans ce" or similar
+        if (line.startsWith('Dans ') || line.startsWith('Ce ') || line.startsWith('Notre ') || line.startsWith('Projet ')) {
+          contentStarted = true
+        }
+      }
+      
+      if (contentStarted) {
+        // Stop at certain markers
+        if (line === 'Lire plus' || line === 'Partager le projet' || line.startsWith('Année du projet')) break
+        if (line.startsWith('[Avant') || line.startsWith('![PROJET')) break
+        
+        // Skip links and images
+        if (line.startsWith('[') && line.includes('](http')) continue
+        if (line.startsWith('![')) continue
+        
+        // Add content lines
+        if (line.length > 20) {
+          descriptionLines.push(line)
+          if (descriptionLines.join(' ').length > 1500) break
+        }
       }
     }
     
     description = descriptionLines.join('\n\n').substring(0, 2000)
-    console.log('Extracted description:', description.substring(0, 200))
+    console.log('Extracted description:', description.substring(0, 150))
     
-    // Extract year and cost from markdown
+    // ============ EXTRACT METADATA ============
     let year = ''
     let cost = ''
+    let location = 'Paris'
+    
     const yearMatch = markdown.match(/Année du projet\s*:\s*(\d{4})/i)
     if (yearMatch) year = yearMatch[1]
     
     const costMatch = markdown.match(/Coût du projet\s*:\s*([^€\n]+€?)/i)
     if (costMatch) cost = costMatch[1].trim()
     
-    // Extract location from Code postal
-    let location = 'Paris'
     const postalMatch = markdown.match(/Code postal\s*:\s*(\d{5})/i)
     if (postalMatch) {
       const postal = postalMatch[1]
       if (postal.startsWith('75')) {
         const arrondissement = postal.substring(3)
         location = `Paris ${parseInt(arrondissement, 10)}e`
+      } else if (postal.startsWith('92')) {
+        location = 'Hauts-de-Seine'
+      } else if (postal.startsWith('93')) {
+        location = 'Seine-Saint-Denis'
+      } else if (postal.startsWith('94')) {
+        location = 'Val-de-Marne'
       } else {
-        location = `France - ${postal}`
+        location = `Île-de-France`
       }
     }
-    
-    // Extract HD images - look for hzcdn URLs and convert to high-res
-    const imageUrlPattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-zA-Z0-9_-]+[^"\s\)]+/gi
-    const imageMatches = markdown.match(imageUrlPattern) || []
-    
-    // Also get from HTML
-    const htmlImageMatches = html.match(imageUrlPattern) || []
-    
-    const allImageUrls = [...new Set([...imageMatches, ...htmlImageMatches])]
-    
-    // Convert thumbnails to HD versions
-    const hdImages = allImageUrls
-      .filter(img => !img.includes('avatar') && !img.includes('icon') && !img.includes('logo'))
-      .map(img => {
-        // Replace low-res sizing with high-res
-        // Original: https://st.hzcdn.com/fimgs/6a01b17209285e76_3364-w312-h312-b0-p0---photos-avant.jpg
-        // HD: https://st.hzcdn.com/fimgs/6a01b17209285e76_3364-w1920-h1440-b0-p0---photos-avant.jpg
-        return img
-          .replace(/-w\d+-h\d+-/, '-w1920-h1440-')
-          .replace(/\.(jpg|jpeg|png|webp).*$/, '.$1') // Remove any query params
-      })
-      .slice(0, 50) // Max 50 images per project
-
-    console.log(`Found ${hdImages.length} HD images`)
     
     const category = extractCategory(url, description)
 
     return { 
-      description, 
-      images: hdImages, 
+      description: description || 'Projet de rénovation réalisé par QualiRénovation.', 
+      images: uniqueImages.slice(0, 50), // Max 50 images 
       category, 
       location,
       year,
