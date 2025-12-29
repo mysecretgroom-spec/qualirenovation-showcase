@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Instagram, Facebook, Linkedin } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram } from "lucide-react";
 import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
 
 // Houzz icon component
@@ -32,9 +32,7 @@ const Footer = () => {
 
   const socialLinks = [
     { icon: HouzzIcon, href: "https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept", label: "Houzz", isComponent: true },
-    { icon: Instagram, href: "https://www.instagram.com/qualirenovation/", label: "Instagram", isComponent: false },
-    { icon: Facebook, href: "https://www.facebook.com/qualirenovation/", label: "Facebook", isComponent: false },
-    { icon: Linkedin, href: "https://www.linkedin.com/company/qualiconcept/", label: "LinkedIn", isComponent: false },
+    { icon: Instagram, href: "https://www.instagram.com/qualirenovation__travaux/", label: "Instagram", isComponent: false },
   ];
 
   return (
