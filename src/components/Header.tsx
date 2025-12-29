@@ -30,8 +30,8 @@ const Header = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? "bg-primary/90 backdrop-blur-md shadow-elegant py-3"
-            : "bg-primary/70 backdrop-blur-sm py-6"
+            ? "bg-primary/75 backdrop-blur-md shadow-elegant py-3"
+            : "bg-primary/50 backdrop-blur-sm py-6"
         }`}
       >
         <div className="container-tight flex items-center justify-between">
