@@ -114,47 +114,38 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
     const html = data.data?.html || ''
     const markdown = data.data?.markdown || ''
     
-    // ============ EXTRACT IMAGES FROM HTML ============
-    // Look for project photo URLs in the HTML - they have specific patterns
-    // Pattern 1: Project photos in gallery
-    const photoUrlPattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+-w\d+-h\d+-[^"'\s]+\.jpg/gi
-    const htmlPhotoMatches = html.match(photoUrlPattern) || []
+    // ============ EXTRACT IMAGES FROM MARKDOWN ============
+    // Images are in markdown format: ![...](https://st.hzcdn.com/fimgs/XXXX-w312-h312-...)
+    // Pattern: https://st.hzcdn.com/fimgs/HASH-wXXX-hXXX-...jpg
+    const markdownImagePattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+-w\d+-h\d+[^)\s"']+\.jpg/gi
+    const markdownMatches = markdown.match(markdownImagePattern) || []
     
-    // Pattern 2: simgs pattern 
-    const simgsPattern = /https:\/\/st\.hzcdn\.com\/simgs\/[a-f0-9]+_\d+-w\d+-h\d+-[^"'\s]+\.(?:jpg|jpeg|png|webp)/gi
-    const simgsMatches = html.match(simgsPattern) || []
-    
-    // Pattern 3: Look for data-src or srcset with high-res images
-    const srcsetPattern = /(?:srcset|data-src)=["']([^"']+hzcdn\.com[^"']+)["']/gi
-    let srcsetMatch
-    const srcsetImages: string[] = []
-    while ((srcsetMatch = srcsetPattern.exec(html)) !== null) {
-      const urls = srcsetMatch[1].split(',').map(s => s.trim().split(' ')[0])
-      srcsetImages.push(...urls)
-    }
+    // Also check HTML for additional images
+    const htmlImagePattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-f0-9]+_\d+-w\d+-h\d+[^"'\s>]+\.(?:jpg|jpeg|png|webp)/gi
+    const htmlMatches = html.match(htmlImagePattern) || []
     
     // Combine all image sources
-    let allImages = [...htmlPhotoMatches, ...simgsMatches, ...srcsetImages]
+    let allImages = [...markdownMatches, ...htmlMatches]
     
-    // Filter and deduplicate
+    console.log(`Raw image matches: markdown=${markdownMatches.length}, html=${htmlMatches.length}`)
+    
+    // Filter and deduplicate by unique hash
     const seenHashes = new Set<string>()
     const uniqueImages: string[] = []
     
     for (const img of allImages) {
       // Extract the unique hash from URL (e.g., 6a01b17209285e76_3364)
-      const hashMatch = img.match(/\/([a-f0-9]+_\d+)-/)
+      const hashMatch = img.match(/fimgs\/([a-f0-9]+_\d+)-/)
       if (hashMatch) {
         const hash = hashMatch[1]
         if (!seenHashes.has(hash)) {
           seenHashes.add(hash)
-          // Skip thumbnails and small images
-          if (img.includes('-w40-') || img.includes('-w48-') || img.includes('-w80-') || img.includes('-w100-') || img.includes('-w120-')) {
+          // Skip small thumbnails (w40, w48, w80, w100)
+          if (/-w(?:40|48|80|100)-/.test(img)) {
             continue
           }
-          // Convert to high-res version
-          const hdImage = img
-            .replace(/-w\d+-h\d+(-b\d+-p\d+)?/, '-w1920-h1440$1')
-            .replace(/\?.*$/, '') // Remove query params
+          // Convert to high-res version: replace wXXX-hXXX with w1920-h1440
+          const hdImage = img.replace(/-w\d+-h\d+/, '-w1920-h1440')
           uniqueImages.push(hdImage)
         }
       }
