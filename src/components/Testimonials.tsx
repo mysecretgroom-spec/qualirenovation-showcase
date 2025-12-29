@@ -1,8 +1,19 @@
 import { useState, useEffect } from "react";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
-import { testimonials, testimonialStats } from "@/data/testimonials";
 import { Button } from "./ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  rating: number;
+  text: string;
+  date: string | null;
+  project_type: string | null;
+}
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -10,17 +21,44 @@ const Testimonials = () => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const { ref, animationClasses } = useScrollAnimation();
 
+  // Fetch visible testimonials from database
+  const { data: testimonials = [], isLoading } = useQuery({
+    queryKey: ["testimonials"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("houzz_testimonials")
+        .select("id, name, role, rating, text, date, project_type")
+        .eq("hidden", false)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Testimonial[];
+    },
+  });
+
+  // Calculate stats from testimonials
+  const testimonialStats = {
+    totalReviews: testimonials.length,
+    averageRating: testimonials.length > 0 
+      ? Math.round((testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length) * 10) / 10
+      : 5,
+    platform: "Houzz",
+    skills: 4.9,
+    communication: 4.9,
+    valueForMoney: 4.8,
+  };
+
   // Get unique project types for filtering
-  const projectTypes = ["all", ...new Set(testimonials.map(t => t.projectType).filter(Boolean))];
+  const projectTypes = ["all", ...new Set(testimonials.map(t => t.project_type).filter(Boolean))];
   
   // Filter testimonials based on selected type
   const filteredTestimonials = filter === "all" 
     ? testimonials 
-    : testimonials.filter(t => t.projectType === filter);
+    : testimonials.filter(t => t.project_type === filter);
 
   // Auto-play carousel
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || filteredTestimonials.length === 0) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % filteredTestimonials.length);
@@ -45,10 +83,22 @@ const Testimonials = () => {
   };
 
   // Ensure currentIndex is valid after filter change
-  const safeIndex = Math.min(currentIndex, filteredTestimonials.length - 1);
+  const safeIndex = Math.min(currentIndex, Math.max(0, filteredTestimonials.length - 1));
   const currentTestimonial = filteredTestimonials[safeIndex];
 
-  if (!currentTestimonial) return null;
+  if (isLoading) {
+    return (
+      <section id="testimonials" className="section-padding bg-secondary/30">
+        <div className="container-tight flex justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!currentTestimonial || testimonials.length === 0) {
+    return null;
+  }
 
   return (
     <section ref={ref} id="testimonials" className={`section-padding bg-secondary/30 ${animationClasses}`}>
@@ -103,7 +153,7 @@ const Testimonials = () => {
             Tous ({testimonials.length})
           </Button>
           {["Salle de bain", "Rénovation complète", "Cuisine", "Appartement"].map((type) => {
-            const count = testimonials.filter(t => t.projectType?.includes(type) || t.role?.includes(type)).length;
+            const count = testimonials.filter(t => t.project_type?.includes(type) || t.role?.includes(type)).length;
             if (count === 0) return null;
             return (
               <Button
@@ -132,9 +182,9 @@ const Testimonials = () => {
                   <Star key={i} className="w-5 h-5 fill-accent text-accent" />
                 ))}
               </div>
-              {currentTestimonial.projectType && (
+              {currentTestimonial.project_type && (
                 <span className="text-xs bg-secondary px-3 py-1 rounded-full text-muted-foreground">
-                  {currentTestimonial.projectType}
+                  {currentTestimonial.project_type}
                 </span>
               )}
             </div>

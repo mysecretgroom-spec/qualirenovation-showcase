@@ -99,6 +99,7 @@ export type Database = {
           created_at: string
           date: string | null
           has_photos: boolean | null
+          hidden: boolean
           houzz_user_url: string | null
           id: string
           name: string
@@ -112,6 +113,7 @@ export type Database = {
           created_at?: string
           date?: string | null
           has_photos?: boolean | null
+          hidden?: boolean
           houzz_user_url?: string | null
           id?: string
           name: string
@@ -125,6 +127,7 @@ export type Database = {
           created_at?: string
           date?: string | null
           has_photos?: boolean | null
+          hidden?: boolean
           houzz_user_url?: string | null
           id?: string
           name?: string
