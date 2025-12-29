@@ -1,17 +1,47 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useProject } from "@/hooks/use-projects";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { project, relatedProjects, isLoading, isFromDB } = useProject(slug || "");
   const [selectedImage, setSelectedImage] = useState(0);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(0);
+
+  // Sync carousel with state
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    setTotalSlides(carouselApi.scrollSnapList().length);
+    setCurrentSlide(carouselApi.selectedScrollSnap());
+
+    carouselApi.on("select", () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+      setSelectedImage(carouselApi.selectedScrollSnap());
+    });
+  }, [carouselApi]);
+
+  // Scroll to selected image when clicking thumbnails
+  const scrollToImage = useCallback((index: number) => {
+    setSelectedImage(index);
+    carouselApi?.scrollTo(index);
+  }, [carouselApi]);
 
   if (isLoading) {
     return (
@@ -144,79 +174,113 @@ const ProjectDetail = () => {
           </div>
         </section>
 
-        {/* Main Gallery */}
+        {/* Main Gallery Carousel */}
         <section className="py-12">
           <div className="container-tight">
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* Main Image */}
-              <div className="lg:col-span-2 animate-fade-in-up">
-                <div className="aspect-[4/3] rounded-sm overflow-hidden shadow-card bg-muted">
-                  <img
-                    src={allImages[selectedImage]}
-                    alt={`${project.title} - Photo ${selectedImage + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/placeholder.svg";
-                    }}
-                  />
-                </div>
-              </div>
+            {/* Main Carousel */}
+            <div className="animate-fade-in-up">
+              <Carousel
+                setApi={setCarouselApi}
+                className="w-full"
+                opts={{
+                  loop: true,
+                }}
+              >
+                <CarouselContent>
+                  {allImages.map((img, index) => (
+                    <CarouselItem key={index}>
+                      <div className="aspect-[16/9] md:aspect-[21/9] rounded-sm overflow-hidden shadow-card bg-muted">
+                        <img
+                          src={img}
+                          alt={`${project.title} - Photo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder.svg";
+                          }}
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                
+                {/* Navigation Arrows */}
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background"
+                  onClick={() => carouselApi?.scrollPrev()}
+                >
+                  <ChevronLeft className="h-6 w-6" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background"
+                  onClick={() => carouselApi?.scrollNext()}
+                >
+                  <ChevronRight className="h-6 w-6" />
+                </Button>
 
-              {/* Thumbnails */}
-              <div className="grid grid-cols-3 lg:grid-cols-2 gap-3 animate-fade-in-up animation-delay-200">
-                {allImages.slice(0, 6).map((img, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-sm overflow-hidden transition-all duration-300 bg-muted ${
-                      selectedImage === index 
-                        ? "ring-2 ring-accent ring-offset-2" 
-                        : "opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <img
-                      src={img}
-                      alt={`${project.title} - Miniature ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/placeholder.svg";
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
+                {/* Photo Counter */}
+                <div className="absolute bottom-4 right-4 bg-charcoal/70 backdrop-blur-sm text-cream px-4 py-2 rounded-sm text-sm font-medium flex items-center gap-2">
+                  <Images className="w-4 h-4" />
+                  {currentSlide + 1} / {allImages.length}
+                </div>
+              </Carousel>
             </div>
 
-            {/* Additional Images Gallery */}
-            {allImages.length > 6 && (
-              <div className="mt-8">
-                <h3 className="font-display text-xl font-semibold text-foreground mb-4">
-                  Toutes les photos ({allImages.length})
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                  {allImages.slice(6).map((img, index) => (
-                    <button
-                      key={index + 6}
-                      onClick={() => setSelectedImage(index + 6)}
-                      className={`aspect-square rounded-sm overflow-hidden transition-all duration-300 bg-muted ${
-                        selectedImage === index + 6
-                          ? "ring-2 ring-accent ring-offset-2" 
-                          : "opacity-70 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`${project.title} - Photo ${index + 7}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.svg";
-                        }}
-                      />
-                    </button>
+            {/* Thumbnail Strip */}
+            <div className="mt-6 animate-fade-in-up animation-delay-200">
+              <Carousel
+                opts={{
+                  align: "start",
+                  dragFree: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2">
+                  {allImages.map((img, index) => (
+                    <CarouselItem key={index} className="pl-2 basis-1/4 md:basis-1/6 lg:basis-1/8">
+                      <button
+                        onClick={() => scrollToImage(index)}
+                        className={`aspect-square w-full rounded-sm overflow-hidden transition-all duration-300 bg-muted ${
+                          selectedImage === index 
+                            ? "ring-2 ring-accent ring-offset-2 scale-105" 
+                            : "opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={img}
+                          alt={`${project.title} - Miniature ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder.svg";
+                          }}
+                        />
+                      </button>
+                    </CarouselItem>
                   ))}
-                </div>
-              </div>
-            )}
+                </CarouselContent>
+              </Carousel>
+            </div>
+
+            {/* Dots Indicator for Mobile */}
+            <div className="flex justify-center gap-1.5 mt-4 md:hidden">
+              {allImages.slice(0, Math.min(allImages.length, 10)).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToImage(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    selectedImage === index 
+                      ? "bg-accent w-4" 
+                      : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  }`}
+                />
+              ))}
+              {allImages.length > 10 && (
+                <span className="text-xs text-muted-foreground ml-1">+{allImages.length - 10}</span>
+              )}
+            </div>
           </div>
         </section>
 
