@@ -1,133 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Import des images Houzz
-import appartementTransforme from "@/assets/projects/appartement-transforme.jpg";
-import appartementGobelins from "@/assets/projects/appartement-gobelins.jpg";
-import f4Gobelins from "@/assets/projects/f4-gobelins.jpg";
-import murPorteur from "@/assets/projects/mur-porteur.jpg";
-import paris19 from "@/assets/projects/paris-19.jpg";
-import laMuette from "@/assets/projects/la-muette.jpg";
-import vueEnsemble from "@/assets/projects/vue-ensemble.jpg";
-import renovationMaison from "@/assets/projects/renovation-maison.jpg";
-import salleBainXxl from "@/assets/projects/salle-bain-xxl.jpg";
-import paris13 from "@/assets/projects/paris-13.jpg";
-import avantApresSdb from "@/assets/projects/avant-apres-sdb.jpg";
-import parlonsProjet from "@/assets/projects/parlons-projet.jpg";
-
-const categories = ["Tous", "Rénovation complète", "Salle de Bain", "Cuisine", "Salon", "Chambre"];
-
-const projects = [
-  {
-    id: 1,
-    title: "Un appartement transformé pour mieux louer : confort et DPE amélioré",
-    category: "Rénovation complète",
-    location: "Paris",
-    image: appartementTransforme,
-    photoCount: 27,
-    houzzUrl: "https://www.houzz.fr/hznb/projets/un-appartement-transforme-pour-mieux-louer-confort-et-dpe-ameliore-pj-vj~7739460"
-  },
-  {
-    id: 2,
-    title: "Réinventer un appartement parisien pour des clients en province",
-    category: "Rénovation complète",
-    location: "Paris - Gobelins",
-    image: appartementGobelins,
-    photoCount: 7,
-    houzzUrl: "https://www.houzz.fr/hznb/projets/reinventer-un-appartement-parisien-pour-des-clients-en-province-pj-vj~7738195"
-  },
-  {
-    id: 3,
-    title: "Au Gobelins : F4 entièrement réorchestré",
-    category: "Rénovation complète",
-    location: "Paris - Gobelins",
-    image: f4Gobelins,
-    photoCount: 12,
-    houzzUrl: "https://www.houzz.fr/hznb/projets/au-gobelins-cet-ancien-f4-a-ete-entierement-reorchestre-pour-offrir-une-nouvel-pj-vj~7738188"
-  },
-  {
-    id: 4,
-    title: "Ouverture de mur porteur : ouvrir deux pièces en toute sécurité",
-    category: "Rénovation complète",
-    location: "Paris",
-    image: murPorteur,
-    photoCount: 6,
-    houzzUrl: "https://www.houzz.fr/hznb/projets/vous-voulez-ouvrir-deux-pieces-mais-zut-il-y-a-un-mur-porteur-pj-vj~7738106"
-  },
-  {
-    id: 5,
-    title: "Paris 19 – De l'ancien au contemporain : une rénovation sur-mesure",
-    category: "Rénovation complète",
-    location: "Paris 19ème",
-    image: paris19,
-    photoCount: 28,
-    houzzUrl: "https://www.houzz.fr/hznb/projets/paris-19-de-l-ancien-au-contemporain-une-renovation-sur-mesure-pj-vj~7704321"
-  },
-  {
-    id: 6,
-    title: "Projet La Muette",
-    category: "Rénovation complète",
-    location: "Paris 16ème",
-    image: laMuette,
-    photoCount: 8,
-    houzzUrl: "https://www.houzz.fr/hznb/projets/projet-la-muette-pj-vj~7738134"
-  },
-  {
-    id: 7,
-    title: "Vue d'ensemble de l'entreprise",
-    category: "Rénovation complète",
-    location: "Paris",
-    image: vueEnsemble,
-    photoCount: 10,
-    houzzUrl: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"
-  },
-  {
-    id: 8,
-    title: "Rénovation d'une maison : un projet ambitieux pour un résultat spectaculaire",
-    category: "Rénovation complète",
-    location: "Île-de-France",
-    image: renovationMaison,
-    photoCount: 15,
-    houzzUrl: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"
-  },
-  {
-    id: 9,
-    title: "Une Salle de Bain XXL pour Monsieur : Élégance Pratique et Luxe Moderne",
-    category: "Salle de Bain",
-    location: "Paris",
-    image: salleBainXxl,
-    photoCount: 12,
-    houzzUrl: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"
-  },
-  {
-    id: 10,
-    title: "L'Élégance Moderne Au Cœur de Paris 13",
-    category: "Rénovation complète",
-    location: "Paris 13ème",
-    image: paris13,
-    photoCount: 20,
-    houzzUrl: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"
-  },
-  {
-    id: 11,
-    title: "AVANT/APRÈS : Élégante Salle de Bain Ivoire et Laiton Brossé",
-    category: "Salle de Bain",
-    location: "Paris",
-    image: avantApresSdb,
-    photoCount: 8,
-    houzzUrl: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"
-  },
-  {
-    id: 12,
-    title: "Parlons de votre projet !",
-    category: "Rénovation complète",
-    location: "Paris & Île-de-France",
-    image: parlonsProjet,
-    photoCount: 5,
-    houzzUrl: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"
-  },
-];
+import { projects, categories } from "@/data/projects";
 
 const Projects = () => {
   const [activeCategory, setActiveCategory] = useState("Tous");
@@ -187,11 +62,9 @@ const Projects = () => {
         {/* Projects Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {visibleProjects.map((project, index) => (
-            <a
+            <Link
               key={project.id}
-              href={project.houzzUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              to={`/projet/${project.slug}`}
               className="group relative overflow-hidden rounded-sm shadow-elegant hover:shadow-hover transition-all duration-500 animate-fade-in-up block"
               style={{ animationDelay: `${(index % 6) * 100}ms` }}
             >
@@ -219,7 +92,7 @@ const Projects = () => {
                     {project.title}
                   </h3>
                   <span className="inline-flex items-center gap-2 text-cream text-sm font-medium">
-                    Voir sur Houzz
+                    Voir le projet
                     <ArrowRight className="w-4 h-4" />
                   </span>
                 </div>
@@ -234,7 +107,7 @@ const Projects = () => {
                   {project.title}
                 </h3>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
 
