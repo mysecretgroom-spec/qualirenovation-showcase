@@ -122,12 +122,7 @@ const handler = async (req: Request): Promise<Response> => {
           <div class="wrapper">
             <div class="container">
               <div class="header">
-                <svg class="logo-svg" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
-                  <text x="0" y="35" font-family="Georgia, serif" font-size="28" font-weight="700" letter-spacing="2">
-                    <tspan fill="#ba8c1c">QUALI</tspan><tspan fill="#ffffff">RÉNOVATION</tspan>
-                  </text>
-                  <text x="0" y="52" font-family="Arial, sans-serif" font-size="10" fill="#ffffff" opacity="0.8" letter-spacing="3">BY QUALICONCEPT</text>
-                </svg>
+                <img src="https://qualirenovation.fr/logo-qualirenovation-email.webp" alt="Qualirénovation by Qualiconcept" class="logo-svg" style="width: 260px; height: auto;" />
               </div>
               
               <img src="https://st.hzcdn.com/simgs/7461361a0ab3ba4b_8-2381/salons-hotel-particulier-saint-mande-olivier-berni-interieurs.jpg" alt="Rénovation d'intérieur de qualité" class="hero-image" />
@@ -160,12 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               
               <div class="footer">
-                <svg class="footer-logo-svg" viewBox="0 0 320 60" xmlns="http://www.w3.org/2000/svg">
-                  <text x="60" y="35" font-family="Georgia, serif" font-size="24" font-weight="700" letter-spacing="1" text-anchor="middle">
-                    <tspan fill="#ba8c1c">QUALI</tspan><tspan fill="#ffffff">RÉNOVATION</tspan>
-                  </text>
-                  <text x="160" y="52" font-family="Arial, sans-serif" font-size="9" fill="#ffffff" opacity="0.7" letter-spacing="2" text-anchor="middle">BY QUALICONCEPT</text>
-                </svg>
+                <img src="https://qualirenovation.fr/logo-qualirenovation-email.webp" alt="Qualirénovation by Qualiconcept" class="footer-logo-svg" style="width: 180px; height: auto; margin-bottom: 15px;" />
                 <div style="margin-bottom: 20px;">
                   <a href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px;">
                     <img src="https://st.hzcdn.com/static/econ/icon/houzz-icon-white.svg" alt="Houzz" style="width: 18px; height: 18px; vertical-align: middle;" />

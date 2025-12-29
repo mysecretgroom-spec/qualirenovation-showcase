@@ -36,24 +36,12 @@ const Header = () => {
       >
         <div className="container-tight flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3">
+          <a href="#" className="flex items-center">
             <img 
               src={logoQualirenovation} 
               alt="Qualirénovation by Qualiconcept" 
-              className="h-12 w-auto"
+              className="h-14 w-auto"
             />
-            <div className="hidden sm:flex flex-col">
-              <span className={`font-display font-bold text-base tracking-wide transition-colors duration-300 ${
-                isScrolled ? "text-foreground" : "text-background"
-              }`}>
-                QUALIRÉNOVATION
-              </span>
-              <span className={`text-[10px] font-medium transition-colors duration-300 ${
-                isScrolled ? "text-muted-foreground" : "text-background/70"
-              }`}>
-                by Qualiconcept
-              </span>
-            </div>
           </a>
 
           {/* Desktop Navigation */}
