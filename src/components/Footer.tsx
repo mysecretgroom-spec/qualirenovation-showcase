@@ -1,6 +1,14 @@
 import { MapPin, Phone, Mail, Instagram, Facebook, Linkedin } from "lucide-react";
 import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
 
+// Houzz icon component
+const HouzzIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.01 2L5 5.5v13l7.01 3.5L19 18.5v-13L12.01 2zm0 2.25l5.01 2.5v10l-5.01 2.5-5.01-2.5v-10l5.01-2.5z"/>
+    <path d="M12.01 8.5v7l3.5-1.75v-3.5L12.01 8.5z"/>
+  </svg>
+);
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
@@ -20,6 +28,13 @@ const Footer = () => {
     "Levallois-Perret",
     "Issy-les-Moulineaux",
     "Saint-Cloud",
+  ];
+
+  const socialLinks = [
+    { icon: HouzzIcon, href: "https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept", label: "Houzz", isComponent: true },
+    { icon: Instagram, href: "https://www.instagram.com/qualirenovation/", label: "Instagram", isComponent: false },
+    { icon: Facebook, href: "https://www.facebook.com/qualirenovation/", label: "Facebook", isComponent: false },
+    { icon: Linkedin, href: "https://www.linkedin.com/company/qualiconcept/", label: "LinkedIn", isComponent: false },
   ];
 
   return (
@@ -45,27 +60,22 @@ const Footer = () => {
               Plus de 10 ans d'expérience au service de votre habitat.
             </p>
             <div className="flex gap-3">
-              <a 
-                href="#" 
-                className="w-9 h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a 
-                href="#" 
-                className="w-9 h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a 
-                href="#" 
-                className="w-9 h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-primary-foreground/20 transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4" />
-              </a>
+              {socialLinks.map((social) => (
+                <a 
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-primary transition-colors"
+                  aria-label={social.label}
+                >
+                  {social.isComponent ? (
+                    <social.icon className="w-4 h-4" />
+                  ) : (
+                    <social.icon className="w-4 h-4" />
+                  )}
+                </a>
+              ))}
             </div>
           </div>
 
