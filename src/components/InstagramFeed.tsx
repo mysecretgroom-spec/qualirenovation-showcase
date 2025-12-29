@@ -1,7 +1,24 @@
+import { useEffect } from "react";
 import { Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const InstagramFeed = () => {
+  useEffect(() => {
+    // Load LightWidget script
+    const script = document.createElement("script");
+    script.src = "https://cdn.lightwidget.com/widgets/lightwidget.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup script on unmount
+      const existingScript = document.querySelector('script[src="https://cdn.lightwidget.com/widgets/lightwidget.js"]');
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
+
   return (
     <section className="py-20 bg-secondary/30">
       <div className="container-tight">
@@ -21,43 +38,13 @@ const InstagramFeed = () => {
 
         {/* Instagram Widget Container */}
         <div className="relative">
-          {/* LightWidget embed - Replace with your widget code */}
-          <div 
-            id="instagram-widget"
-            className="min-h-[400px] flex items-center justify-center"
-          >
-            {/* Instructions for setup */}
-            <div className="text-center p-8 border-2 border-dashed border-muted-foreground/30 rounded-lg max-w-xl mx-auto">
-              <Instagram className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <h3 className="font-semibold text-lg mb-2">Widget Instagram</h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Pour afficher automatiquement vos posts Instagram, créez un widget gratuit sur{" "}
-                <a 
-                  href="https://lightwidget.com/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gold hover:underline"
-                >
-                  LightWidget.com
-                </a>{" "}
-                et partagez le code d'intégration.
-              </p>
-              <Button 
-                variant="outline" 
-                asChild
-              >
-                <a 
-                  href="https://www.instagram.com/qualirenovation__travaux/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
-                >
-                  <Instagram className="w-4 h-4" />
-                  Voir notre Instagram
-                </a>
-              </Button>
-            </div>
-          </div>
+          <iframe 
+            src="//lightwidget.com/widgets/c113904bb8ef52dfb7ce9b5337127d8c.html" 
+            scrolling="no" 
+            allowTransparency={true}
+            className="lightwidget-widget w-full border-0 overflow-hidden"
+            style={{ minHeight: "400px" }}
+          />
         </div>
 
         {/* CTA */}
