@@ -87,7 +87,7 @@ function extractLocation(content: string): string {
 }
 
 // Scrape a single project page with waitFor for dynamic content
-async function scrapeProjectPage(url: string, apiKey: string): Promise<{ description: string, images: string[], category: string, location: string }> {
+async function scrapeProjectPage(url: string, apiKey: string): Promise<{ description: string, images: string[], category: string, location: string, year: string, cost: string }> {
   console.log('Scraping project page with waitFor:', url)
   
   try {
@@ -99,106 +99,112 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
       },
       body: JSON.stringify({
         url,
-        formats: ['markdown', 'html', 'links'],
-        onlyMainContent: false,
-        waitFor: 3000, // Wait 3 seconds for JavaScript to load
+        formats: ['markdown', 'html'],
+        onlyMainContent: true, // Changed to true to filter navigation
+        waitFor: 3000,
       }),
     })
 
     if (!response.ok) {
       console.error('Failed to scrape project page:', response.status)
-      return { description: '', images: [], category: 'Rénovation', location: 'Paris' }
+      return { description: '', images: [], category: 'Rénovation', location: 'Paris', year: '', cost: '' }
     }
 
     const data = await response.json()
     const html = data.data?.html || ''
     const markdown = data.data?.markdown || ''
-    const links = data.data?.links || []
     
-    // Extract images from HTML - multiple patterns for HD images
-    const imagePatterns = [
-      // High-res Houzz CDN images
-      /https:\/\/st\.hzcdn\.com\/fimgs\/[a-zA-Z0-9_-]+[^"'\s<>)]+\.(jpg|jpeg|png|webp)/gi,
-      /https:\/\/st\.hzcdn\.com\/simgs\/[a-zA-Z0-9_-]+[^"'\s<>)]+\.(jpg|jpeg|png|webp)/gi,
-      // Pictures with various sizes
-      /https:\/\/st\.hzcdn\.com\/simgs\/pictures\/[a-zA-Z0-9_/-]+\.(jpg|jpeg|png|webp)/gi,
-      // Original size images
-      /https:\/\/[^"'\s<>]+\.hzcdn\.com\/[^"'\s<>]+\.(jpg|jpeg|png|webp)/gi,
-    ]
+    console.log('Markdown preview:', markdown.substring(0, 500))
     
-    let allImages: string[] = []
-    for (const pattern of imagePatterns) {
-      const matches = html.match(pattern) || []
-      allImages = [...allImages, ...matches]
-    }
-    
-    // Also extract from srcset for highest resolution
-    const srcsetPattern = /srcset="([^"]+)"/gi
-    let srcsetMatch
-    while ((srcsetMatch = srcsetPattern.exec(html)) !== null) {
-      const srcset = srcsetMatch[1]
-      const sources = srcset.split(',').map(s => s.trim().split(' ')[0])
-      allImages = [...allImages, ...sources.filter(s => s.includes('hzcdn.com'))]
-    }
-    
-    // Deduplicate and filter out thumbnails
-    const uniqueImages = [...new Set(allImages)]
-      .filter(img => 
-        !img.includes('-w40-') && 
-        !img.includes('-w80-') && 
-        !img.includes('-w48-') &&
-        !img.includes('-w100-') &&
-        !img.includes('avatar') &&
-        !img.includes('icon')
-      )
-      .map(img => {
-        // Try to get higher resolution version - replace width parameters
-        return img
-          .replace(/-w\d+-h\d+/, '-w1920-h1440')
-          .replace(/\/w\d+\//, '/w1920/')
-          .replace(/\?.*$/, '') // Remove query params
-      })
-      .slice(0, 100) // Max 100 images per project
-
-    // Extract description from markdown - look for substantial text
+    // Extract project description - look for the actual content paragraphs
     let description = ''
-    const lines = markdown.split('\n').filter((line: string) => line.trim())
+    const lines = markdown.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0)
+    
+    // Find content lines - skip navigation and look for actual project description
+    const descriptionLines: string[] = []
+    let foundContent = false
+    
     for (const line of lines) {
-      // Find descriptive text that's not a link or header
-      if (
-        line.length > 100 && 
-        !line.startsWith('#') && 
-        !line.startsWith('[') && 
-        !line.startsWith('!') && 
-        !line.includes('Houzz') &&
-        !line.includes('cookie') &&
-        !line.includes('©')
-      ) {
-        description = line.trim().substring(0, 2000)
-        break
+      // Skip navigation links and headers
+      if (line.startsWith('[') && line.includes('](https://www.houzz.fr/')) continue
+      if (line.includes('Passer au contenu') || line.includes('Page d\'accueil')) continue
+      if (line.includes('MAGAZINE') || line.includes('CONSEIL') || line.includes('TROUVER DES PROS')) continue
+      if (line.includes('Cancel') || line.includes('Se connecter') || line.includes('S\'inscrire')) continue
+      if (line.includes('History of Houzz') || line.includes('Houzz Logo')) continue
+      if (line.startsWith('![')) continue // Skip images
+      if (line === 'Lire plus' || line === 'Partager le projet') break // Stop at these markers
+      
+      // Look for actual content
+      if (line.length > 30 && !line.startsWith('#') && !line.startsWith('!')) {
+        // This looks like actual content
+        foundContent = true
+        descriptionLines.push(line)
+        if (descriptionLines.length >= 5) break // Get first 5 paragraphs max
       }
     }
     
-    // If no long description found, try combining shorter lines
-    if (!description) {
-      const shortLines = lines.filter((line: string) => 
-        line.length > 30 && 
-        line.length < 500 &&
-        !line.startsWith('#') && 
-        !line.startsWith('[') &&
-        !line.includes('Houzz')
-      )
-      description = shortLines.slice(0, 3).join(' ').substring(0, 2000)
+    description = descriptionLines.join('\n\n').substring(0, 2000)
+    console.log('Extracted description:', description.substring(0, 200))
+    
+    // Extract year and cost from markdown
+    let year = ''
+    let cost = ''
+    const yearMatch = markdown.match(/Année du projet\s*:\s*(\d{4})/i)
+    if (yearMatch) year = yearMatch[1]
+    
+    const costMatch = markdown.match(/Coût du projet\s*:\s*([^€\n]+€?)/i)
+    if (costMatch) cost = costMatch[1].trim()
+    
+    // Extract location from Code postal
+    let location = 'Paris'
+    const postalMatch = markdown.match(/Code postal\s*:\s*(\d{5})/i)
+    if (postalMatch) {
+      const postal = postalMatch[1]
+      if (postal.startsWith('75')) {
+        const arrondissement = postal.substring(3)
+        location = `Paris ${parseInt(arrondissement, 10)}e`
+      } else {
+        location = `France - ${postal}`
+      }
     }
+    
+    // Extract HD images - look for hzcdn URLs and convert to high-res
+    const imageUrlPattern = /https:\/\/st\.hzcdn\.com\/fimgs\/[a-zA-Z0-9_-]+[^"\s\)]+/gi
+    const imageMatches = markdown.match(imageUrlPattern) || []
+    
+    // Also get from HTML
+    const htmlImageMatches = html.match(imageUrlPattern) || []
+    
+    const allImageUrls = [...new Set([...imageMatches, ...htmlImageMatches])]
+    
+    // Convert thumbnails to HD versions
+    const hdImages = allImageUrls
+      .filter(img => !img.includes('avatar') && !img.includes('icon') && !img.includes('logo'))
+      .map(img => {
+        // Replace low-res sizing with high-res
+        // Original: https://st.hzcdn.com/fimgs/6a01b17209285e76_3364-w312-h312-b0-p0---photos-avant.jpg
+        // HD: https://st.hzcdn.com/fimgs/6a01b17209285e76_3364-w1920-h1440-b0-p0---photos-avant.jpg
+        return img
+          .replace(/-w\d+-h\d+-/, '-w1920-h1440-')
+          .replace(/\.(jpg|jpeg|png|webp).*$/, '.$1') // Remove any query params
+      })
+      .slice(0, 50) // Max 50 images per project
 
-    const category = extractCategory(url, markdown)
-    const location = extractLocation(markdown)
+    console.log(`Found ${hdImages.length} HD images`)
+    
+    const category = extractCategory(url, description)
 
-    console.log(`Found ${uniqueImages.length} HD images, category: ${category}, location: ${location}`)
-    return { description, images: uniqueImages, category, location }
+    return { 
+      description, 
+      images: hdImages, 
+      category, 
+      location,
+      year,
+      cost,
+    }
   } catch (error) {
     console.error('Error scraping project page:', error)
-    return { description: '', images: [], category: 'Rénovation', location: 'Paris' }
+    return { description: '', images: [], category: 'Rénovation', location: 'Paris', year: '', cost: '' }
   }
 }
 
@@ -522,7 +528,7 @@ Deno.serve(async (req) => {
             .eq('id', queueItem.id)
           
           // Scrape the project
-          const { description, images, category, location } = await scrapeProjectPage(queueItem.url, firecrawlApiKey)
+          const { description, images, category, location, year } = await scrapeProjectPage(queueItem.url, firecrawlApiKey)
           
           // Extract title from URL
           const urlParts = queueItem.url.split('/')
@@ -556,6 +562,7 @@ Deno.serve(async (req) => {
                 category,
                 image_count: images.length,
                 houzz_url: queueItem.url,
+                year: year || null,
               })
               .eq('id', existing.id)
             
@@ -579,6 +586,7 @@ Deno.serve(async (req) => {
                 category,
                 image_count: images.length,
                 houzz_url: queueItem.url,
+                year: year || null,
               })
               .select()
               .single()
@@ -675,7 +683,7 @@ Deno.serve(async (req) => {
         console.log(`Processing ${i + 1}/${maxProjects}: ${url}`)
         
         try {
-          const { description, images, category, location } = await scrapeProjectPage(url, firecrawlApiKey)
+          const { description, images, category, location, year } = await scrapeProjectPage(url, firecrawlApiKey)
           
           const urlParts = url.split('/')
           let lastPart = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2]
@@ -707,6 +715,7 @@ Deno.serve(async (req) => {
                 category,
                 image_count: images.length,
                 houzz_url: url,
+                year: year || null,
               })
               .eq('id', existing.id)
             
@@ -728,6 +737,7 @@ Deno.serve(async (req) => {
                 category,
                 image_count: images.length,
                 houzz_url: url,
+                year: year || null,
               })
               .select()
               .single()
