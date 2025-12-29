@@ -23,10 +23,16 @@ const Hero = () => {
         {/* Content */}
         <div className="relative z-10 container-tight text-center text-background pt-20">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm border border-background/20 rounded-full px-5 py-2 mb-8 animate-fade-in">
-            <Award className="w-4 h-4 text-gold-light" />
+          <a 
+            href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm border border-background/20 rounded-full px-5 py-2 mb-8 animate-fade-in hover:bg-background/20 hover:border-gold-light/50 transition-all cursor-pointer group"
+          >
+            <Award className="w-4 h-4 text-gold-light group-hover:scale-110 transition-transform" />
             <span className="text-sm font-medium">Lauréat de 11 Best of Houzz</span>
-          </div>
+            <span className="text-xs text-background/60 group-hover:text-gold-light transition-colors">→ Voir le profil</span>
+          </a>
 
           {/* Title */}
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-tight mb-6 animate-fade-in-up">
