@@ -83,54 +83,96 @@ const handler = async (req: Request): Promise<Response> => {
     const clientEmailResponse = await resend.emails.send({
       from: "Qualirenovation <contact@qualiconcept.fr>",
       to: [data.email],
-      subject: "Votre demande de devis a bien été reçue - Qualirenovation",
+      subject: "Votre demande de devis a bien été reçue - Qualirénovation",
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #1a1a1a 0%, #333 100%); color: #fff; padding: 30px; text-align: center; }
-            .header h1 { margin: 0; font-size: 24px; color: #d4af37; }
-            .content { padding: 30px; background: #fff; }
-            .recap { background: #f8f8f8; padding: 20px; border-radius: 8px; margin: 20px 0; }
-            .recap h3 { margin-top: 0; color: #1a1a1a; border-bottom: 2px solid #d4af37; padding-bottom: 10px; }
-            .recap-item { margin: 10px 0; }
-            .recap-label { font-weight: 600; color: #666; }
-            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-            .gold { color: #d4af37; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+            .wrapper { background-color: #f5f5f5; padding: 20px; }
+            .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+            .header { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px; text-align: center; }
+            .logo { margin-bottom: 10px; }
+            .logo-text { font-size: 28px; font-weight: 700; letter-spacing: 2px; margin: 0; }
+            .logo-qr { color: #d4af37; }
+            .logo-rest { color: #ffffff; }
+            .logo-subtitle { color: #888; font-size: 12px; letter-spacing: 1px; margin-top: 5px; }
+            .hero-image { width: 100%; height: auto; display: block; }
+            .content { padding: 30px; }
+            .greeting { font-size: 20px; color: #1a1a1a; margin-bottom: 20px; }
+            .text { color: #555; margin: 15px 0; }
+            .highlight { color: #d4af37; font-weight: 600; }
+            .recap { background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%); padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #d4af37; }
+            .recap-title { margin: 0 0 20px 0; color: #1a1a1a; font-size: 18px; display: flex; align-items: center; }
+            .recap-title::before { content: ""; display: inline-block; width: 8px; height: 8px; background: #d4af37; border-radius: 50%; margin-right: 10px; }
+            .recap-item { margin: 12px 0; display: flex; }
+            .recap-label { font-weight: 600; color: #1a1a1a; min-width: 140px; }
+            .recap-value { color: #555; }
+            .cta-section { text-align: center; margin: 30px 0; padding: 25px; background: #1a1a1a; border-radius: 8px; }
+            .cta-text { color: #ffffff; margin: 0 0 15px 0; }
+            .cta-button { display: inline-block; padding: 12px 30px; background: #d4af37; color: #1a1a1a; text-decoration: none; font-weight: 600; border-radius: 4px; }
+            .signature { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+            .signature-name { color: #1a1a1a; font-weight: 600; }
+            .footer { background: #1a1a1a; padding: 25px; text-align: center; }
+            .footer-logo { font-size: 16px; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+            .footer-logo .qr { color: #d4af37; }
+            .footer-logo .rest { color: #ffffff; }
+            .footer-info { color: #888; font-size: 11px; line-height: 1.8; }
+            .footer-link { color: #d4af37; text-decoration: none; }
+            .social-bar { margin: 15px 0; }
           </style>
         </head>
         <body>
-          <div class="container">
-            <div class="header">
-              <h1>QUALIRENOVATION</h1>
-              <p style="margin: 10px 0 0; opacity: 0.9;">Rénovation d'excellence à Paris</p>
-            </div>
-            <div class="content">
-              <h2>Bonjour ${data.name},</h2>
-              <p>Nous avons bien reçu votre demande de devis et nous vous en remercions.</p>
-              <p>Notre équipe étudie votre projet et vous recontactera <strong>sous 48 heures</strong> avec une proposition personnalisée.</p>
-              
-              <div class="recap">
-                <h3>Récapitulatif de votre demande</h3>
-                <div class="recap-item"><span class="recap-label">Ville :</span> ${data.city}</div>
-                <div class="recap-item"><span class="recap-label">Surface :</span> ${data.surface} m²</div>
-                <div class="recap-item"><span class="recap-label">Budget envisagé :</span> ${budgetLabel}</div>
-                <div class="recap-item"><span class="recap-label">Démarrage souhaité :</span> ${timelineLabel}</div>
-                <div class="recap-item"><span class="recap-label">Description :</span> ${data.message}</div>
+          <div class="wrapper">
+            <div class="container">
+              <div class="header">
+                <div class="logo">
+                  <p class="logo-text"><span class="logo-qr">QR</span><span class="logo-rest">ALIRÉNOVATION</span></p>
+                  <p class="logo-subtitle">BY QUALICONCEPT</p>
+                </div>
               </div>
-
-              <p>En attendant, n'hésitez pas à consulter nos <a href="https://qualirenovation.fr/#realisations" class="gold">réalisations</a> pour découvrir notre savoir-faire.</p>
               
-              <p>À très bientôt,<br><strong>L'équipe Qualirenovation</strong></p>
-            </div>
-            <div class="footer">
-              <p>QUALIRENOVATION BY QUALICONCEPT<br>
-              SIRET : 85286728200034<br>
-              contact@qualiconcept.fr</p>
+              <img src="https://st.hzcdn.com/simgs/7461361a0ab3ba4b_8-2381/salons-hotel-particulier-saint-mande-olivier-berni-interieurs.jpg" alt="Rénovation d'intérieur de qualité" class="hero-image" />
+              
+              <div class="content">
+                <h2 class="greeting">Bonjour ${data.name},</h2>
+                
+                <p class="text">Nous avons bien reçu votre demande de devis et nous vous en remercions chaleureusement.</p>
+                
+                <p class="text">Notre équipe d'experts étudie votre projet avec attention et vous recontactera <span class="highlight">sous 48 heures</span> avec une proposition personnalisée.</p>
+                
+                <div class="recap">
+                  <h3 class="recap-title">Récapitulatif de votre demande</h3>
+                  <div class="recap-item"><span class="recap-label">Ville du bien :</span> <span class="recap-value">${data.city}</span></div>
+                  <div class="recap-item"><span class="recap-label">Surface :</span> <span class="recap-value">${data.surface} m²</span></div>
+                  <div class="recap-item"><span class="recap-label">Budget envisagé :</span> <span class="recap-value">${budgetLabel}</span></div>
+                  <div class="recap-item"><span class="recap-label">Démarrage :</span> <span class="recap-value">${timelineLabel}</span></div>
+                  <div class="recap-item"><span class="recap-label">Description :</span> <span class="recap-value">${data.message}</span></div>
+                </div>
+
+                <div class="cta-section">
+                  <p class="cta-text">Découvrez nos réalisations en attendant notre réponse</p>
+                  <a href="https://qualirenovation.fr/#realisations" class="cta-button">Voir nos projets</a>
+                </div>
+                
+                <div class="signature">
+                  <p class="text">À très bientôt,</p>
+                  <p class="signature-name">L'équipe Qualirénovation</p>
+                </div>
+              </div>
+              
+              <div class="footer">
+                <div class="footer-logo"><span class="qr">QR</span><span class="rest">ALIRÉNOVATION</span></div>
+                <p class="footer-info">
+                  QUALIRÉNOVATION BY QUALICONCEPT<br>
+                  SIRET : 85286728200034<br>
+                  <a href="mailto:contact@qualiconcept.fr" class="footer-link">contact@qualiconcept.fr</a><br>
+                  <a href="https://qualirenovation.fr" class="footer-link">qualirenovation.fr</a>
+                </p>
+              </div>
             </div>
           </div>
         </body>
