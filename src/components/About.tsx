@@ -1,6 +1,6 @@
 import { CheckCircle2, Users, Clock, Shield } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-
+import carinaPhoto from "@/assets/carina.jpg";
 const features = [
   {
     icon: Users,
@@ -62,12 +62,14 @@ const About = () => {
 
             {/* Signature */}
             <div className="flex items-center gap-4 pt-6 border-t border-border">
-              <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center">
-                <span className="font-display text-xl font-semibold text-foreground">C</span>
-              </div>
+              <img 
+                src={carinaPhoto} 
+                alt="Carina - Maître d'œuvres" 
+                className="w-14 h-14 rounded-full object-cover"
+              />
               <div>
                 <p className="font-display font-semibold text-foreground">Carina</p>
-                <p className="text-muted-foreground text-sm">Fondatrice & Directrice des travaux</p>
+                <p className="text-muted-foreground text-sm">Maître d'œuvres</p>
               </div>
             </div>
           </div>
