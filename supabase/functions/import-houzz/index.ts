@@ -6,21 +6,14 @@ const corsHeaders = {
 };
 
 const HOUZZ_PROFILE_URL = "https://www.houzz.fr/pro/qualirenovation";
-// Using free pay-per-usage actor instead of subscription-based one
-const APIFY_ACTOR_ID = "qolqXcRChALisdsES"; // jungle_synthesizer/houzz-scraper
-
-interface ApifyRunResult {
-  id: string;
-  status: string;
-  defaultDatasetId: string;
-}
+const HOUZZ_PROJECTS_URL = "https://www.houzz.fr/pro/qualirenovation/projets";
 
 interface HouzzProject {
   url: string;
   title: string;
   description?: string;
   category?: string;
-  images?: { url: string; caption?: string }[];
+  images: { url: string; caption?: string }[];
   location?: string;
   year?: string;
 }
@@ -36,146 +29,167 @@ function generateSlug(title: string): string {
     .substring(0, 100);
 }
 
-// Start Apify actor run
-async function startApifyScraper(apiKey: string): Promise<ApifyRunResult> {
-  console.log('[Apify] Starting Houzz scraper actor...');
+// Scrape a page with Firecrawl
+async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
+  console.log('[Firecrawl] Scraping:', url);
   
-  // This actor uses searchQuery parameter for the professional profile URL
-  const response = await fetch(`https://api.apify.com/v2/acts/${APIFY_ACTOR_ID}/runs?token=${apiKey}`, {
+  const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
-      searchQuery: "qualirenovation",
-      maxItems: 200,
-      sp_intended_usage: "Import renovation projects for company portfolio website",
-      sp_improvement_suggestions: "Works great",
-      proxyConfiguration: { useApifyProxy: true },
+      url,
+      formats: ['markdown', 'html', 'links'],
+      onlyMainContent: false,
+      waitFor: 5000,
     }),
   });
 
   if (!response.ok) {
     const error = await response.text();
-    console.error('[Apify] Failed to start actor:', error, 'Status:', response.status);
-    throw new Error(`Apify actor start failed: ${response.status} - ${error}`);
+    console.error('[Firecrawl] Error:', error);
+    throw new Error(`Firecrawl scrape failed: ${response.status}`);
   }
 
-  const result = await response.json();
-  console.log('[Apify] Actor started, run ID:', result.data.id);
-  return result.data;
+  const data = await response.json();
+  return data.data || data;
 }
 
-// Check actor run status
-async function checkRunStatus(apiKey: string, runId: string): Promise<ApifyRunResult> {
-  const response = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${apiKey}`);
+// Extract project URLs from the profile page
+function extractProjectUrls(html: string, links: string[]): string[] {
+  const projectUrls: string[] = [];
   
-  if (!response.ok) {
-    throw new Error(`Failed to check run status: ${response.status}`);
-  }
-
-  const result = await response.json();
-  return result.data;
-}
-
-// Get dataset items
-async function getDatasetItems(apiKey: string, datasetId: string): Promise<any[]> {
-  console.log('[Apify] Fetching dataset items from:', datasetId);
-  
-  const response = await fetch(
-    `https://api.apify.com/v2/datasets/${datasetId}/items?token=${apiKey}&format=json`
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch dataset: ${response.status}`);
-  }
-
-  const items = await response.json();
-  console.log('[Apify] Retrieved', items.length, 'items from dataset');
-  return items;
-}
-
-// Wait for run to complete with polling
-async function waitForRunCompletion(apiKey: string, runId: string, maxWaitMs = 300000): Promise<ApifyRunResult> {
-  const startTime = Date.now();
-  const pollInterval = 5000; // 5 seconds
-
-  while (Date.now() - startTime < maxWaitMs) {
-    const status = await checkRunStatus(apiKey, runId);
-    console.log('[Apify] Run status:', status.status);
-
-    if (status.status === 'SUCCEEDED') {
-      return status;
-    } else if (status.status === 'FAILED' || status.status === 'ABORTED') {
-      throw new Error(`Apify run ${status.status}`);
+  // From links array
+  for (const link of links) {
+    if (link.includes('/projets/') && link.includes('houzz.fr')) {
+      projectUrls.push(link);
     }
-
-    await new Promise(resolve => setTimeout(resolve, pollInterval));
   }
-
-  throw new Error('Apify run timed out');
-}
-
-// Extract projects from Apify data
-function extractProjectsFromApifyData(items: any[]): HouzzProject[] {
-  const projects: HouzzProject[] = [];
   
-  for (const item of items) {
-    console.log('[Apify] Processing item:', JSON.stringify(item).substring(0, 500));
-    
-    // Handle professional data format
-    if (item.professional?.projects) {
-      for (const project of item.professional.projects) {
-        projects.push({
-          url: project.url || project.projectUrl || '',
-          title: project.title || project.name || 'Projet sans titre',
-          description: project.description || '',
-          category: project.category || project.style || 'Rénovation',
-          images: (project.images || project.photos || []).map((img: any) => ({
-            url: typeof img === 'string' ? img : (img.url || img.imageUrl || img.src),
-            caption: typeof img === 'string' ? '' : (img.caption || img.alt || ''),
-          })),
-          location: project.location || item.professional?.formattedAddress || '',
-          year: project.year || '',
-        });
+  // From HTML with regex patterns
+  const patterns = [
+    /href="(https:\/\/www\.houzz\.fr\/pro\/qualirenovation\/projets\/[^"]+)"/g,
+    /href="(\/pro\/qualirenovation\/projets\/[^"]+)"/g,
+    /"url":"(https:\/\/www\.houzz\.fr\/[^"]*projets[^"]*)"/g,
+  ];
+  
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(html)) !== null) {
+      let url = match[1];
+      if (url.startsWith('/')) {
+        url = `https://www.houzz.fr${url}`;
+      }
+      if (!projectUrls.includes(url)) {
+        projectUrls.push(url);
       }
     }
-    
-    // Handle projects array directly
-    if (item.projects && Array.isArray(item.projects)) {
-      for (const project of item.projects) {
-        projects.push({
-          url: project.url || project.projectUrl || '',
-          title: project.title || project.name || 'Projet sans titre',
-          description: project.description || '',
-          category: project.category || project.style || 'Rénovation',
-          images: (project.images || project.photos || []).map((img: any) => ({
-            url: typeof img === 'string' ? img : (img.url || img.imageUrl || img.src),
-            caption: typeof img === 'string' ? '' : (img.caption || img.alt || ''),
-          })),
-          location: project.location || '',
-          year: project.year || '',
-        });
-      }
-    }
-    
-    // Handle direct project format
-    if (item.projectUrl || item.url?.includes('/projets/')) {
-      projects.push({
-        url: item.projectUrl || item.url || '',
-        title: item.title || item.projectTitle || 'Projet sans titre',
-        description: item.description || '',
-        category: item.category || item.style || 'Rénovation',
-        images: (item.images || item.photos || []).map((img: any) => ({
-          url: typeof img === 'string' ? img : (img.url || img.imageUrl || img.src),
-          caption: typeof img === 'string' ? '' : (img.caption || img.alt || ''),
-        })),
-        location: item.location || '',
-        year: item.year || '',
-      });
+  }
+  
+  console.log('[Extract] Found', projectUrls.length, 'project URLs');
+  return projectUrls;
+}
+
+// Extract images from a project page HTML
+function extractImagesFromHtml(html: string): { url: string; caption?: string }[] {
+  const images: { url: string; caption?: string }[] = [];
+  const seenUrls = new Set<string>();
+  
+  // Multiple patterns to find Houzz image URLs
+  const patterns = [
+    /"imageUrl":"([^"]+)"/g,
+    /data-src="(https:\/\/[^"]*houzz[^"]*\.(jpg|jpeg|png|webp)[^"]*)"/gi,
+    /src="(https:\/\/[^"]*st\.hzcdn\.com[^"]*\.(jpg|jpeg|png|webp)[^"]*)"/gi,
+    /"fullUrl":"([^"]+)"/g,
+    /srcset="([^"\s]+)/g,
+  ];
+  
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(html)) !== null) {
+      let url = match[1];
+      
+      // Clean and validate URL
+      url = url.replace(/\\u002F/g, '/').replace(/\\/g, '');
+      
+      if (!url.startsWith('http')) continue;
+      if (seenUrls.has(url)) continue;
+      if (url.includes('avatar') || url.includes('profile') || url.includes('logo')) continue;
+      if (url.includes('.svg') || url.includes('.gif')) continue;
+      
+      // Convert to high resolution
+      url = url.replace(/\/v\d+-\d+x\d+-[a-z]+\//, '/v1-1920x1080-ls/');
+      url = url.replace(/-\d+x\d+-/, '-1920x1080-');
+      
+      seenUrls.add(url);
+      images.push({ url });
     }
   }
+  
+  console.log('[Extract] Found', images.length, 'images');
+  return images.slice(0, 20); // Max 20 images per project
+}
 
-  console.log('[Apify] Extracted', projects.length, 'projects from data');
-  return projects;
+// Extract project details from scraped page
+function extractProjectDetails(data: any, url: string): HouzzProject {
+  const html = data.html || '';
+  const markdown = data.markdown || '';
+  const metadata = data.metadata || {};
+  
+  // Title
+  let title = metadata.title || '';
+  title = title.replace(/ \| Houzz.*$/i, '').trim();
+  if (!title) {
+    const titleMatch = markdown.match(/^#\s+(.+)$/m);
+    title = titleMatch ? titleMatch[1] : 'Projet sans titre';
+  }
+  
+  // Description - extract from markdown
+  let description = metadata.description || '';
+  const descMatch = markdown.match(/##.*Description.*\n+([\s\S]*?)(?=\n##|\n\n\n|$)/i);
+  if (descMatch) {
+    description = descMatch[1].trim().substring(0, 1000);
+  }
+  
+  // Category
+  let category = 'Rénovation';
+  const categoryPatterns = [
+    /salle\s*de\s*bain/i,
+    /cuisine/i,
+    /salon/i,
+    /chambre/i,
+    /appartement/i,
+    /maison/i,
+    /bureau/i,
+    /terrasse/i,
+  ];
+  for (const pattern of categoryPatterns) {
+    if (pattern.test(title) || pattern.test(description)) {
+      category = title.match(pattern)?.[0] || category;
+      break;
+    }
+  }
+  
+  // Location
+  let location = '';
+  const locationMatch = markdown.match(/Paris|Lyon|Marseille|Bordeaux|Nantes|France/i);
+  if (locationMatch) {
+    location = locationMatch[0];
+  }
+  
+  // Images
+  const images = extractImagesFromHtml(html);
+  
+  return {
+    url,
+    title,
+    description,
+    category,
+    images,
+    location,
+  };
 }
 
 // Save projects to database
@@ -281,9 +295,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const APIFY_API_KEY = Deno.env.get('APIFY_API_KEY');
-    if (!APIFY_API_KEY) {
-      throw new Error('APIFY_API_KEY not configured');
+    const FIRECRAWL_API_KEY = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!FIRECRAWL_API_KEY) {
+      throw new Error('FIRECRAWL_API_KEY not configured');
     }
 
     const supabase = createClient(
@@ -291,100 +305,62 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const { action, runId } = await req.json();
-    console.log('[Handler] Action:', action);
+    const { action, limit = 10 } = await req.json();
+    console.log('[Handler] Action:', action, 'Limit:', limit);
 
     switch (action) {
-      case 'start-scraper': {
-        // Start the Apify scraper
-        const run = await startApifyScraper(APIFY_API_KEY);
-        return new Response(
-          JSON.stringify({
-            success: true,
-            runId: run.id,
-            status: run.status,
-            message: 'Scraper Apify démarré. Utilisez check-status pour suivre la progression.',
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      case 'check-status': {
-        if (!runId) {
-          throw new Error('runId is required for check-status');
-        }
-        const status = await checkRunStatus(APIFY_API_KEY, runId);
-        return new Response(
-          JSON.stringify({
-            success: true,
-            runId: status.id,
-            status: status.status,
-            datasetId: status.defaultDatasetId,
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      case 'import-results': {
-        if (!runId) {
-          throw new Error('runId is required for import-results');
-        }
+      case 'import-latest': {
+        // Step 1: Scrape the projects page to get URLs
+        console.log('[Handler] Step 1: Discovering project URLs...');
+        const profileData = await scrapeWithFirecrawl(HOUZZ_PROJECTS_URL, FIRECRAWL_API_KEY);
         
-        // Get run status to get dataset ID
-        const status = await checkRunStatus(APIFY_API_KEY, runId);
+        const projectUrls = extractProjectUrls(
+          profileData.html || '', 
+          profileData.links || []
+        );
         
-        if (status.status !== 'SUCCEEDED') {
+        if (projectUrls.length === 0) {
           return new Response(
             JSON.stringify({
               success: false,
-              error: `Le scraper n'est pas terminé. Statut: ${status.status}`,
+              error: 'Aucun projet trouvé sur la page Houzz',
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-
-        // Get dataset items
-        const items = await getDatasetItems(APIFY_API_KEY, status.defaultDatasetId);
         
-        // Extract projects
-        const projects = extractProjectsFromApifyData(items);
+        // Take only the first N projects
+        const urlsToImport = projectUrls.slice(0, limit);
+        console.log('[Handler] Will import', urlsToImport.length, 'projects');
         
-        // Save to database
+        // Step 2: Scrape each project page
+        const projects: HouzzProject[] = [];
+        for (const url of urlsToImport) {
+          try {
+            console.log('[Handler] Scraping project:', url);
+            const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
+            const project = extractProjectDetails(projectData, url);
+            projects.push(project);
+            
+            // Small delay between requests
+            await new Promise(resolve => setTimeout(resolve, 500));
+          } catch (error) {
+            console.error('[Handler] Error scraping project:', url, error);
+          }
+        }
+        
+        // Step 3: Save to database
+        console.log('[Handler] Saving', projects.length, 'projects to database...');
         const result = await saveProjectsToDatabase(supabase, projects);
 
         return new Response(
           JSON.stringify({
             success: true,
-            total: projects.length,
+            discovered: projectUrls.length,
             imported: result.imported,
             errors: result.errors,
-            message: `${result.imported} projets importés avec ${result.errors} erreurs`,
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      case 'full-import': {
-        // Start scraper and wait for completion, then import
-        console.log('[Handler] Starting full import process...');
-        
-        const run = await startApifyScraper(APIFY_API_KEY);
-        console.log('[Handler] Waiting for scraper to complete...');
-        
-        const completedRun = await waitForRunCompletion(APIFY_API_KEY, run.id);
-        console.log('[Handler] Scraper completed, fetching results...');
-        
-        const items = await getDatasetItems(APIFY_API_KEY, completedRun.defaultDatasetId);
-        const projects = extractProjectsFromApifyData(items);
-        const result = await saveProjectsToDatabase(supabase, projects);
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            total: projects.length,
-            imported: result.imported,
-            errors: result.errors,
-            message: `Import complet: ${result.imported} projets importés`,
+            houzzProfileUrl: HOUZZ_PROFILE_URL,
+            message: `${result.imported} projets importés sur ${urlsToImport.length}`,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -404,11 +380,7 @@ Deno.serve(async (req) => {
           JSON.stringify({
             projects: projectCount || 0,
             images: imageCount || 0,
-            pending: 0,
-            processing: 0,
-            completed: projectCount || 0,
-            failed: 0,
-            total: projectCount || 0,
+            houzzProfileUrl: HOUZZ_PROFILE_URL,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -417,7 +389,7 @@ Deno.serve(async (req) => {
       default:
         return new Response(
           JSON.stringify({ 
-            error: 'Action inconnue. Disponibles: start-scraper, check-status, import-results, full-import, queue-status' 
+            error: 'Action inconnue. Disponibles: import-latest, queue-status' 
           }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
