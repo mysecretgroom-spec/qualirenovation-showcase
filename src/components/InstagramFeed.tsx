@@ -42,13 +42,13 @@ const InstagramFeed = () => {
 
         {/* Instagram Widget Container */}
         <div className="relative">
-          <iframe 
-            src="https://cdn.lightwidget.com/widgets/c113904bb8ef52dfb7ce9b5337127d8c.html" 
-            scrolling="no"
-            allowTransparency={true}
-            className="lightwidget-widget w-full border-0 overflow-hidden"
-            style={{ minHeight: "400px" }}
-          />
+        <iframe 
+          src="https://cdn.lightwidget.com/widgets/2ee40805029b5806816cc8dd6ddc766f.html" 
+          scrolling="no"
+          allowTransparency={true}
+          className="lightwidget-widget w-full border-0 overflow-hidden"
+          style={{ minHeight: "400px" }}
+        />
         </div>
 
         {/* CTA */}
