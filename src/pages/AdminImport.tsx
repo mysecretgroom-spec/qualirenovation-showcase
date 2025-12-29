@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Download, CheckCircle, AlertCircle, Database, ExternalLink, AlertTriangle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Loader2, Download, CheckCircle, AlertCircle, Database, ExternalLink, AlertTriangle, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +39,8 @@ https://www.houzz.fr/hznb/projets/projet-convention-3-en-1-mission-accomplie-%E2
 
 const AdminImport = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user, loading, adminLoading, isAdmin, signOut } = useAuth();
   
   // Database stats
   const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
@@ -47,6 +50,29 @@ const AdminImport = () => {
   const [importResult, setImportResult] = useState<any>(null);
   const [urlsInput, setUrlsInput] = useState(DEFAULT_URLS);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  // Redirect if not authenticated or not admin
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/auth');
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!loading && !adminLoading && user && !isAdmin) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les droits d'administration.",
+        variant: "destructive",
+      });
+      navigate('/');
+    }
+  }, [user, loading, adminLoading, isAdmin, navigate, toast]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   // Fetch database stats
   const fetchQueueStatus = useCallback(async () => {
@@ -145,15 +171,35 @@ const AdminImport = () => {
 
   const urlCount = parseUrls().length;
 
+  // Show loading state while checking auth
+  if (loading || adminLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  // Don't render if not admin
+  if (!user || !isAdmin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container max-w-4xl mx-auto px-4">
         <div className="mb-8 flex items-center justify-between">
           <Link to="/" className="text-accent hover:underline">← Retour au site</Link>
-          <nav className="flex gap-4 text-sm">
-            <Link to="/admin/avis" className="text-muted-foreground hover:text-foreground">Avis</Link>
-            <Link to="/admin/devis" className="text-muted-foreground hover:text-foreground">Devis</Link>
-          </nav>
+          <div className="flex items-center gap-4">
+            <nav className="flex gap-4 text-sm">
+              <Link to="/admin/avis" className="text-muted-foreground hover:text-foreground">Avis</Link>
+              <Link to="/admin/devis" className="text-muted-foreground hover:text-foreground">Devis</Link>
+            </nav>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
         
         <h1 className="text-3xl font-display font-bold mb-2">Administration - Import Houzz</h1>

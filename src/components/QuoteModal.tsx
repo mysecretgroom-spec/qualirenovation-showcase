@@ -15,7 +15,64 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Send, X } from "lucide-react";
+import { Send } from "lucide-react";
+import { z } from "zod";
+
+// =============================================
+// VALIDATION SCHEMA
+// =============================================
+
+const quoteFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Le nom doit contenir au moins 2 caractères")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères")
+    .transform(val => val.trim()),
+  email: z
+    .string()
+    .email("Adresse email invalide")
+    .max(255, "L'email ne peut pas dépasser 255 caractères")
+    .transform(val => val.trim().toLowerCase()),
+  phone: z
+    .string()
+    .min(10, "Numéro de téléphone invalide")
+    .max(20, "Numéro de téléphone trop long")
+    .refine(
+      (val) => {
+        const cleanPhone = val.replace(/[\s.\-]/g, '');
+        return /^(?:(?:\+|00)33|0)[1-9](?:[0-9]{8})$/.test(cleanPhone);
+      },
+      "Numéro de téléphone français invalide"
+    ),
+  city: z
+    .string()
+    .min(2, "La ville doit contenir au moins 2 caractères")
+    .max(100, "La ville ne peut pas dépasser 100 caractères")
+    .transform(val => val.trim()),
+  surface: z
+    .string()
+    .refine(val => /^\d+$/.test(val), "La surface doit être un nombre")
+    .refine(val => parseInt(val) >= 1 && parseInt(val) <= 10000, "Surface entre 1 et 10 000 m²"),
+  budget: z
+    .string()
+    .refine(
+      val => ["2000-10000", "10000-30000", "30000-50000", "50000-100000", "100000-200000", "200000+"].includes(val),
+      "Sélectionnez une fourchette de budget"
+    ),
+  timeline: z
+    .string()
+    .refine(
+      val => ["urgent", "1-month", "1-3-months", "3-6-months", "6-months+", "undetermined"].includes(val),
+      "Sélectionnez une période de démarrage"
+    ),
+  message: z
+    .string()
+    .min(10, "La description doit contenir au moins 10 caractères")
+    .max(2000, "La description ne peut pas dépasser 2000 caractères")
+    .transform(val => val.trim()),
+});
+
+type QuoteFormData = z.infer<typeof quoteFormSchema>;
 
 const budgetRanges = [
   { value: "2000-10000", label: "2 000 € - 10 000 €" },
@@ -40,6 +97,17 @@ interface QuoteModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  surface?: string;
+  budget?: string;
+  timeline?: string;
+  message?: string;
+}
+
 const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -52,13 +120,19 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
     timeline: "",
     message: "",
   });
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+    // Clear error when user types
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -66,10 +140,38 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       ...prev,
       [name]: value,
     }));
+    // Clear error when user selects
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const result = quoteFormSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const newErrors: FormErrors = {};
+      for (const error of result.error.errors) {
+        const field = error.path[0] as keyof FormErrors;
+        if (!newErrors[field]) {
+          newErrors[field] = error.message;
+        }
+      }
+      setErrors(newErrors);
+      return false;
+    }
+    
+    setErrors({});
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -87,7 +189,6 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         return;
       }
 
-      console.log('Quote request sent successfully:', data);
       toast({
         title: "Demande de devis envoyée !",
         description: "Un email de confirmation vous a été envoyé. Nous vous recontacterons sous 48h.",
@@ -103,6 +204,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         timeline: "",
         message: "",
       });
+      setErrors({});
       onOpenChange(false);
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -129,18 +231,21 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
           {/* Nom */}
           <div>
             <label htmlFor="modal-name" className="block text-sm font-medium text-foreground mb-1.5">
-              Votre nom *
+              Votre nom * <span className="text-muted-foreground font-normal">(max 100 car.)</span>
             </label>
             <input
               type="text"
               id="modal-name"
               name="name"
-              required
+              maxLength={100}
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+              className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
+                errors.name ? 'border-destructive' : 'border-input'
+              }`}
               placeholder="Jean Dupont"
             />
+            {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
           </div>
 
           {/* Email & Téléphone */}
@@ -153,12 +258,15 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 type="email"
                 id="modal-email"
                 name="email"
-                required
+                maxLength={255}
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
+                  errors.email ? 'border-destructive' : 'border-input'
+                }`}
                 placeholder="jean@exemple.fr"
               />
+              {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
             </div>
             <div>
               <label htmlFor="modal-phone" className="block text-sm font-medium text-foreground mb-1.5">
@@ -168,12 +276,15 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 type="tel"
                 id="modal-phone"
                 name="phone"
-                required
+                maxLength={20}
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
+                  errors.phone ? 'border-destructive' : 'border-input'
+                }`}
                 placeholder="06 12 34 56 78"
               />
+              {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
             </div>
           </div>
 
@@ -187,12 +298,15 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 type="text"
                 id="modal-city"
                 name="city"
-                required
+                maxLength={100}
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
+                  errors.city ? 'border-destructive' : 'border-input'
+                }`}
                 placeholder="Paris 16ème"
               />
+              {errors.city && <p className="text-sm text-destructive mt-1">{errors.city}</p>}
             </div>
             <div>
               <label htmlFor="modal-surface" className="block text-sm font-medium text-foreground mb-1.5">
@@ -202,12 +316,15 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 type="text"
                 id="modal-surface"
                 name="surface"
-                required
+                maxLength={5}
                 value={formData.surface}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
+                  errors.surface ? 'border-destructive' : 'border-input'
+                }`}
                 placeholder="85"
               />
+              {errors.surface && <p className="text-sm text-destructive mt-1">{errors.surface}</p>}
             </div>
           </div>
 
@@ -219,9 +336,10 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             <Select
               value={formData.budget}
               onValueChange={(value) => handleSelectChange("budget", value)}
-              required
             >
-              <SelectTrigger className="w-full px-4 py-2.5 h-auto rounded-sm border border-input bg-background text-foreground">
+              <SelectTrigger className={`w-full px-4 py-2.5 h-auto rounded-sm border bg-background text-foreground ${
+                errors.budget ? 'border-destructive' : 'border-input'
+              }`}>
                 <SelectValue placeholder="Sélectionnez votre budget" />
               </SelectTrigger>
               <SelectContent className="bg-card border border-input z-[100]">
@@ -236,6 +354,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 ))}
               </SelectContent>
             </Select>
+            {errors.budget && <p className="text-sm text-destructive mt-1">{errors.budget}</p>}
           </div>
 
           {/* Timeline */}
@@ -246,9 +365,10 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             <Select
               value={formData.timeline}
               onValueChange={(value) => handleSelectChange("timeline", value)}
-              required
             >
-              <SelectTrigger className="w-full px-4 py-2.5 h-auto rounded-sm border border-input bg-background text-foreground">
+              <SelectTrigger className={`w-full px-4 py-2.5 h-auto rounded-sm border bg-background text-foreground ${
+                errors.timeline ? 'border-destructive' : 'border-input'
+              }`}>
                 <SelectValue placeholder="Sélectionnez une période" />
               </SelectTrigger>
               <SelectContent className="bg-card border border-input z-[100]">
@@ -263,23 +383,27 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 ))}
               </SelectContent>
             </Select>
+            {errors.timeline && <p className="text-sm text-destructive mt-1">{errors.timeline}</p>}
           </div>
 
           {/* Description */}
           <div>
             <label htmlFor="modal-message" className="block text-sm font-medium text-foreground mb-1.5">
-              Décrivez votre projet *
+              Décrivez votre projet * <span className="text-muted-foreground font-normal">({formData.message.length}/2000)</span>
             </label>
             <textarea
               id="modal-message"
               name="message"
-              required
               rows={3}
+              maxLength={2000}
               value={formData.message}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-none"
+              className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-none ${
+                errors.message ? 'border-destructive' : 'border-input'
+              }`}
               placeholder="Type de travaux, pièces concernées..."
             />
+            {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
