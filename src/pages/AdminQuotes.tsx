@@ -74,15 +74,17 @@ const AdminQuotes = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const { user, isAdmin, loading: authLoading, signOut } = useAuth();
+  const { user, isAdmin, loading: authLoading, adminLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!authLoading) {
+    // Wait for both auth and admin check to complete
+    if (!authLoading && !adminLoading) {
       if (!user) {
         navigate("/auth");
       } else if (!isAdmin) {
+        console.log("[AdminQuotes] Access denied - isAdmin:", isAdmin);
         toast({
           title: "Accès refusé",
           description: "Vous n'avez pas les droits d'administration.",
@@ -91,7 +93,7 @@ const AdminQuotes = () => {
         navigate("/");
       }
     }
-  }, [user, isAdmin, authLoading, navigate, toast]);
+  }, [user, isAdmin, authLoading, adminLoading, navigate, toast]);
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -151,7 +153,7 @@ const AdminQuotes = () => {
     ? quotes 
     : quotes.filter(q => q.status === statusFilter);
 
-  if (authLoading || (!isAdmin && user)) {
+  if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-muted-foreground">Chargement...</div>
