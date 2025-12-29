@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Send } from "lucide-react";
 import { z } from "zod";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 // =============================================
 // VALIDATION SCHEMA
@@ -122,6 +123,10 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha>(null);
+
+  const HCAPTCHA_SITE_KEY = import.meta.env.VITE_HCAPTCHA_SITE_KEY || "10000000-ffff-ffff-ffff-000000000001";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -172,11 +177,20 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       return;
     }
 
+    if (!captchaToken) {
+      toast({
+        title: "Vérification requise",
+        description: "Veuillez compléter la vérification hCaptcha.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('send-quote-confirmation', {
-        body: formData,
+        body: { ...formData, captchaToken },
       });
 
       if (error) {
@@ -186,6 +200,8 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
           description: "Une erreur est survenue. Veuillez réessayer ou nous contacter directement.",
           variant: "destructive",
         });
+        captchaRef.current?.resetCaptcha();
+        setCaptchaToken(null);
         return;
       }
 
@@ -205,6 +221,8 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         message: "",
       });
       setErrors({});
+      setCaptchaToken(null);
+      captchaRef.current?.resetCaptcha();
       onOpenChange(false);
     } catch (err) {
       console.error('Unexpected error:', err);
@@ -213,6 +231,8 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         description: "Une erreur est survenue. Veuillez réessayer.",
         variant: "destructive",
       });
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -406,7 +426,18 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+          {/* hCaptcha */}
+          <div className="flex justify-center">
+            <HCaptcha
+              ref={captchaRef}
+              sitekey={HCAPTCHA_SITE_KEY}
+              onVerify={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken(null)}
+              onError={() => setCaptchaToken(null)}
+            />
+          </div>
+
+          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting || !captchaToken}>
             {isSubmitting ? (
               "Envoi en cours..."
             ) : (
