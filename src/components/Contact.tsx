@@ -2,6 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const contactInfo = [
   {
@@ -26,13 +33,34 @@ const contactInfo = [
   },
 ];
 
+const budgetRanges = [
+  { value: "2000-10000", label: "2 000 € - 10 000 €" },
+  { value: "10000-30000", label: "10 000 € - 30 000 €" },
+  { value: "30000-50000", label: "30 000 € - 50 000 €" },
+  { value: "50000-100000", label: "50 000 € - 100 000 €" },
+  { value: "100000-200000", label: "100 000 € - 200 000 €" },
+  { value: "200000+", label: "Supérieur à 200 000 €" },
+];
+
+const timelineOptions = [
+  { value: "urgent", label: "Dès que possible" },
+  { value: "1-month", label: "Dans le mois" },
+  { value: "1-3-months", label: "Dans 1 à 3 mois" },
+  { value: "3-6-months", label: "Dans 3 à 6 mois" },
+  { value: "6-months+", label: "Dans plus de 6 mois" },
+  { value: "undetermined", label: "Pas encore déterminé" },
+];
+
 const Contact = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    postalCode: "",
+    city: "",
+    surface: "",
+    budget: "",
+    timeline: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +72,13 @@ const Contact = () => {
     }));
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -52,11 +87,20 @@ const Contact = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     toast({
-      title: "Message envoyé !",
-      description: "Nous vous recontacterons dans les plus brefs délais.",
+      title: "Demande de devis envoyée !",
+      description: "Nous vous recontacterons dans les plus brefs délais avec un devis personnalisé.",
     });
     
-    setFormData({ name: "", email: "", phone: "", postalCode: "", message: "" });
+    setFormData({ 
+      name: "", 
+      email: "", 
+      phone: "", 
+      city: "", 
+      surface: "",
+      budget: "",
+      timeline: "",
+      message: "" 
+    });
     setIsSubmitting(false);
   };
 
@@ -119,6 +163,7 @@ const Contact = () => {
               </h3>
 
               <div className="space-y-5">
+                {/* Nom */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
                     Votre nom *
@@ -135,6 +180,7 @@ const Contact = () => {
                   />
                 </div>
 
+                {/* Email & Téléphone */}
                 <div className="grid sm:grid-cols-2 gap-5">
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
@@ -168,21 +214,95 @@ const Contact = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="postalCode" className="block text-sm font-medium text-foreground mb-2">
-                    Code postal du projet
-                  </label>
-                  <input
-                    type="text"
-                    id="postalCode"
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                    placeholder="75016"
-                  />
+                {/* Ville & Surface */}
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label htmlFor="city" className="block text-sm font-medium text-foreground mb-2">
+                      Ville du bien à rénover *
+                    </label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      required
+                      value={formData.city}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      placeholder="Paris 16ème"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="surface" className="block text-sm font-medium text-foreground mb-2">
+                      Surface des travaux (m²) *
+                    </label>
+                    <input
+                      type="text"
+                      id="surface"
+                      name="surface"
+                      required
+                      value={formData.surface}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                      placeholder="85"
+                    />
+                  </div>
                 </div>
 
+                {/* Budget */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Fourchette de budget *
+                  </label>
+                  <Select 
+                    value={formData.budget} 
+                    onValueChange={(value) => handleSelectChange("budget", value)}
+                    required
+                  >
+                    <SelectTrigger className="w-full px-4 py-3 h-auto rounded-sm border border-input bg-background text-foreground">
+                      <SelectValue placeholder="Sélectionnez votre budget" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border border-input">
+                      {budgetRanges.map((range) => (
+                        <SelectItem 
+                          key={range.value} 
+                          value={range.value}
+                          className="cursor-pointer hover:bg-secondary"
+                        >
+                          {range.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Timeline */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Quand souhaitez-vous démarrer les travaux ? *
+                  </label>
+                  <Select 
+                    value={formData.timeline} 
+                    onValueChange={(value) => handleSelectChange("timeline", value)}
+                    required
+                  >
+                    <SelectTrigger className="w-full px-4 py-3 h-auto rounded-sm border border-input bg-background text-foreground">
+                      <SelectValue placeholder="Sélectionnez une période" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border border-input">
+                      {timelineOptions.map((option) => (
+                        <SelectItem 
+                          key={option.value} 
+                          value={option.value}
+                          className="cursor-pointer hover:bg-secondary"
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Description du projet */}
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
                     Décrivez votre projet *
@@ -195,7 +315,7 @@ const Contact = () => {
                     value={formData.message}
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-sm border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-none"
-                    placeholder="Rénovation salle de bain, cuisine ouverte, etc."
+                    placeholder="Décrivez votre projet de rénovation : type de travaux, pièces concernées, contraintes particulières..."
                   />
                 </div>
 
@@ -204,7 +324,7 @@ const Contact = () => {
                     "Envoi en cours..."
                   ) : (
                     <>
-                      Envoyer ma demande
+                      Demander mon devis gratuit
                       <Send className="w-4 h-4" />
                     </>
                   )}
