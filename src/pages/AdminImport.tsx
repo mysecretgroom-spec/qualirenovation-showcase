@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Download, CheckCircle, AlertCircle, Database, ExternalLink } from "lucide-react";
@@ -12,6 +13,19 @@ interface QueueStatus {
   houzzProfileUrl: string;
 }
 
+const DEFAULT_URLS = `https://www.houzz.fr/hznb/projets/un-appartement-transforme-pour-mieux-louer-confort-et-dpe-ameliore-pj-vj~7739460
+https://www.houzz.fr/hznb/projets/reinventer-un-appartement-parisien-pour-des-clients-en-province-pj-vj~7738195
+https://www.houzz.fr/hznb/projets/au-gobelins-cet-ancien-f4-a-ete-entierement-reorchestre-pour-offrir-une-nouvel-pj-vj~7738188
+https://www.houzz.fr/hznb/projets/vous-voulez-ouvrir-deux-pieces-mais-zut-il-y-a-un-mur-porteur-pj-vj~7738106
+https://www.houzz.fr/hznb/projets/paris-19-de-l-ancien-au-contemporain-une-renovation-sur-mesure-pj-vj~7704321
+https://www.houzz.fr/hznb/projets/projet-la-muette-pj-vj~7738134
+https://www.houzz.fr/hznb/projets/projet-rueil-la-suite-parentale-%E2%9C%A8-pj-vj~7692838
+https://www.houzz.fr/hznb/projets/avant-apres-une-maison-de-maitre-se-reinvente-avec-brio-pj-vj~7580205
+https://www.houzz.fr/hznb/projets/parlons-de-votre-projet-pj-vj~7497684
+https://www.houzz.fr/hznb/projets/projet-rueil-la-piece-de-vie-principale-%E2%9C%A8-pj-vj~7692819
+https://www.houzz.fr/hznb/projets/projet-rueil-l-entree-pj-vj~7692820
+https://www.houzz.fr/hznb/projets/projet-convention-3-en-1-mission-accomplie-%E2%9C%A8-pj-vj~7693030`;
+
 const AdminImport = () => {
   const { toast } = useToast();
   
@@ -21,6 +35,7 @@ const AdminImport = () => {
   // Import state
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
+  const [urlsInput, setUrlsInput] = useState(DEFAULT_URLS);
 
   // Fetch database stats
   const fetchQueueStatus = useCallback(async () => {
@@ -42,19 +57,38 @@ const AdminImport = () => {
     fetchQueueStatus();
   }, [fetchQueueStatus]);
 
-  // Import latest projects
-  const handleImportLatest = async () => {
+  // Parse URLs from textarea
+  const parseUrls = (): string[] => {
+    return urlsInput
+      .split('\n')
+      .map(url => url.trim())
+      .filter(url => url.length > 0 && url.startsWith('http'));
+  };
+
+  // Import URLs
+  const handleImportUrls = async () => {
+    const urls = parseUrls();
+    
+    if (urls.length === 0) {
+      toast({
+        title: "Erreur",
+        description: "Aucune URL valide trouvée",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsImporting(true);
     setImportResult(null);
 
     toast({
       title: "Import en cours...",
-      description: "Récupération des 10 derniers projets Houzz",
+      description: `Récupération de ${urls.length} projets Houzz (peut prendre quelques minutes)`,
     });
 
     try {
       const { data, error } = await supabase.functions.invoke('import-houzz', {
-        body: { action: 'import-latest', limit: 10 },
+        body: { action: 'import-urls', urls },
       });
 
       if (error) throw error;
@@ -86,6 +120,8 @@ const AdminImport = () => {
     }
   };
 
+  const urlCount = parseUrls().length;
+
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container max-w-4xl mx-auto px-4">
@@ -94,7 +130,7 @@ const AdminImport = () => {
         </div>
         
         <h1 className="text-3xl font-display font-bold mb-2">Administration - Import Houzz</h1>
-        <p className="text-muted-foreground mb-8">Importe les 10 derniers projets avec un lien vers le profil Houzz complet</p>
+        <p className="text-muted-foreground mb-8">Importe les projets Houzz à partir des URLs fournies</p>
         
         {/* Database Stats */}
         {queueStatus && (
@@ -135,38 +171,44 @@ const AdminImport = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="w-5 h-5" />
-              Importer les derniers projets
+              Importer des projets
             </CardTitle>
             <CardDescription>
-              Utilise Firecrawl pour récupérer les 10 derniers projets avec toutes leurs images
+              Collez les URLs des projets Houzz à importer (une par ligne)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-              <h4 className="font-medium mb-2">📸 Import rapide</h4>
-              <p className="text-sm text-muted-foreground mb-4">
-                Récupère les 10 derniers projets Houzz avec leurs photos en haute résolution.
-                Un lien vers le profil Houzz complet sera affiché pour voir les 115 réalisations.
-              </p>
-              <Button 
-                onClick={handleImportLatest} 
+            <div>
+              <Textarea
+                value={urlsInput}
+                onChange={(e) => setUrlsInput(e.target.value)}
+                placeholder="https://www.houzz.fr/hznb/projets/..."
+                className="min-h-[200px] font-mono text-sm"
                 disabled={isImporting}
-                size="lg"
-                className="w-full"
-              >
-                {isImporting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Import en cours...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Importer les 10 derniers projets
-                  </>
-                )}
-              </Button>
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                {urlCount} URL{urlCount > 1 ? 's' : ''} détectée{urlCount > 1 ? 's' : ''}
+              </p>
             </div>
+
+            <Button 
+              onClick={handleImportUrls} 
+              disabled={isImporting || urlCount === 0}
+              size="lg"
+              className="w-full"
+            >
+              {isImporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Import en cours... (peut prendre 1-2 min)
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Importer {urlCount} projet{urlCount > 1 ? 's' : ''}
+                </>
+              )}
+            </Button>
 
             {/* Import Result */}
             {importResult && (
@@ -178,7 +220,7 @@ const AdminImport = () => {
                       <p className="font-medium text-green-700 dark:text-green-400">Import réussi !</p>
                       <p className="text-sm text-muted-foreground">{importResult.message}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Découverts: {importResult.discovered} | Importés: {importResult.imported} | Erreurs: {importResult.errors}
+                        Total: {importResult.total} | Scrapés: {importResult.scraped} | Importés: {importResult.imported} | Erreurs: {importResult.errors}
                       </p>
                     </div>
                   </div>
@@ -199,19 +241,20 @@ const AdminImport = () => {
         {/* Info Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">ℹ️ Fonctionnement</CardTitle>
+            <CardTitle className="text-lg">ℹ️ Comment ça marche</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
             <p>
-              <strong>Approche simplifiée :</strong> Au lieu d'importer les 115 projets, 
-              on affiche les 10 derniers avec un lien vers Houzz pour voir le reste.
+              <strong>1.</strong> Collez les URLs des projets Houzz que vous souhaitez importer
             </p>
             <p>
-              <strong>Avantage :</strong> Import rapide et fiable avec Firecrawl (déjà connecté).
+              <strong>2.</strong> Cliquez sur "Importer" - chaque projet sera scrapé avec Firecrawl
             </p>
             <p>
-              <strong>Sur le site :</strong> Un bouton "Voir toutes nos réalisations sur Houzz" 
-              redirige les visiteurs vers le profil complet.
+              <strong>3.</strong> Les projets et leurs images seront enregistrés dans la base de données
+            </p>
+            <p>
+              <strong>Note :</strong> L'import peut prendre 1-2 minutes pour 10+ projets (délai entre chaque requête)
             </p>
           </CardContent>
         </Card>
