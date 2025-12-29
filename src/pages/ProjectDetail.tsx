@@ -1,18 +1,28 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getProjectBySlug, getRelatedProjects } from "@/data/projects";
+import { useProject } from "@/hooks/use-projects";
 import { useState } from "react";
 
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const project = getProjectBySlug(slug || "");
-  const relatedProjects = getRelatedProjects(slug || "", 3);
+  const { project, relatedProjects, isLoading, isFromDB } = useProject(slug || "");
   const [selectedImage, setSelectedImage] = useState(0);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-accent mx-auto mb-4" />
+          <p className="text-muted-foreground">Chargement du projet...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!project) {
     return (
@@ -61,6 +71,12 @@ const ProjectDetail = () => {
               </Link>
               <span>/</span>
               <span className="text-foreground">{project.category}</span>
+              {isFromDB && (
+                <span className="ml-2 text-xs text-accent flex items-center gap-1">
+                  <Database className="w-3 h-3" />
+                  DB
+                </span>
+              )}
             </nav>
 
             {/* Back Button */}
@@ -134,11 +150,14 @@ const ProjectDetail = () => {
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Main Image */}
               <div className="lg:col-span-2 animate-fade-in-up">
-                <div className="aspect-[4/3] rounded-sm overflow-hidden shadow-card">
+                <div className="aspect-[4/3] rounded-sm overflow-hidden shadow-card bg-muted">
                   <img
                     src={allImages[selectedImage]}
                     alt={`${project.title} - Photo ${selectedImage + 1}`}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                    }}
                   />
                 </div>
               </div>
@@ -149,7 +168,7 @@ const ProjectDetail = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-sm overflow-hidden transition-all duration-300 ${
+                    className={`aspect-square rounded-sm overflow-hidden transition-all duration-300 bg-muted ${
                       selectedImage === index 
                         ? "ring-2 ring-accent ring-offset-2" 
                         : "opacity-70 hover:opacity-100"
@@ -159,11 +178,45 @@ const ProjectDetail = () => {
                       src={img}
                       alt={`${project.title} - Miniature ${index + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                      }}
                     />
                   </button>
                 ))}
               </div>
             </div>
+
+            {/* Additional Images Gallery */}
+            {allImages.length > 6 && (
+              <div className="mt-8">
+                <h3 className="font-display text-xl font-semibold text-foreground mb-4">
+                  Toutes les photos ({allImages.length})
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {allImages.slice(6).map((img, index) => (
+                    <button
+                      key={index + 6}
+                      onClick={() => setSelectedImage(index + 6)}
+                      className={`aspect-square rounded-sm overflow-hidden transition-all duration-300 bg-muted ${
+                        selectedImage === index + 6
+                          ? "ring-2 ring-accent ring-offset-2" 
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${project.title} - Photo ${index + 7}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
@@ -257,11 +310,14 @@ const ProjectDetail = () => {
                     className="group block animate-fade-in-up"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className="aspect-[4/3] rounded-sm overflow-hidden shadow-elegant mb-4">
+                    <div className="aspect-[4/3] rounded-sm overflow-hidden shadow-elegant mb-4 bg-muted">
                       <img
                         src={related.image}
                         alt={related.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                        }}
                       />
                     </div>
                     <span className="text-accent text-sm font-medium">
