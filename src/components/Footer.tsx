@@ -1,4 +1,5 @@
 import { MapPin, Phone, Mail, Instagram, Facebook, Linkedin } from "lucide-react";
+import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -28,12 +29,12 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-6">
-              {/* Logo QR */}
-              <div className="flex flex-col items-center justify-center w-11 h-11 rounded bg-[#1e3a5f]">
-                <span className="font-display font-bold text-xl text-white leading-none">QR</span>
-                <span className="text-[6px] text-white/90 font-medium tracking-wide">QualiRénovation</span>
-              </div>
+            <div className="flex items-center gap-3 mb-6">
+              <img 
+                src={logoQualirenovation} 
+                alt="Qualirénovation by Qualiconcept" 
+                className="h-12 w-auto"
+              />
               <div className="flex flex-col">
                 <span className="font-display font-bold text-base tracking-wide">QUALIRÉNOVATION</span>
                 <span className="text-[10px] font-medium text-primary-foreground/70">by Qualiconcept</span>

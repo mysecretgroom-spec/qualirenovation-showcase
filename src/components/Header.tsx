@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
+import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,14 +33,12 @@ const Header = () => {
     >
       <div className="container-tight flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2">
-          {/* Logo QR */}
-          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded transition-colors duration-300 ${
-            isScrolled ? "bg-[#1e3a5f]" : "bg-[#1e3a5f]"
-          }`}>
-            <span className="font-display font-bold text-xl text-white leading-none">QR</span>
-            <span className="text-[6px] text-white/90 font-medium tracking-wide">QualiRénovation</span>
-          </div>
+        <a href="#" className="flex items-center gap-3">
+          <img 
+            src={logoQualirenovation} 
+            alt="Qualirénovation by Qualiconcept" 
+            className="h-12 w-auto"
+          />
           <div className="hidden sm:flex flex-col">
             <span className={`font-display font-bold text-base tracking-wide transition-colors duration-300 ${
               isScrolled ? "text-foreground" : "text-background"
