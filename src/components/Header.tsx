@@ -32,19 +32,24 @@ const Header = () => {
     >
       <div className="container-tight flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-3">
-          <div className={`flex items-center justify-center w-10 h-10 rounded-sm transition-colors duration-300 ${
-            isScrolled ? "bg-primary" : "bg-background"
+        <a href="#" className="flex items-center gap-2">
+          {/* Logo QR */}
+          <div className={`flex flex-col items-center justify-center w-11 h-11 rounded transition-colors duration-300 ${
+            isScrolled ? "bg-[#1e3a5f]" : "bg-[#1e3a5f]"
           }`}>
-            <span className={`font-display font-bold text-lg ${
-              isScrolled ? "text-primary-foreground" : "text-foreground"
-            }`}>QR</span>
+            <span className="font-display font-bold text-xl text-white leading-none">QR</span>
+            <span className="text-[6px] text-white/90 font-medium tracking-wide">QualiRénovation</span>
           </div>
-          <div className="hidden sm:block">
-            <span className={`font-display font-semibold text-lg transition-colors duration-300 ${
+          <div className="hidden sm:flex flex-col">
+            <span className={`font-display font-bold text-base tracking-wide transition-colors duration-300 ${
               isScrolled ? "text-foreground" : "text-background"
             }`}>
-              QUALIRENOVATION
+              QUALIRÉNOVATION
+            </span>
+            <span className={`text-[10px] font-medium transition-colors duration-300 ${
+              isScrolled ? "text-muted-foreground" : "text-background/70"
+            }`}>
+              by Qualiconcept
             </span>
           </div>
         </a>
