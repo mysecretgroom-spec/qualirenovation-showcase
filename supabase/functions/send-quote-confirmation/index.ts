@@ -165,6 +165,14 @@ const handler = async (req: Request): Promise<Response> => {
               </div>
               
               <div class="footer">
+                <div class="social-links" style="margin-bottom: 20px;">
+                  <a href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: #333; border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px;">
+                    <img src="https://st.hzcdn.com/static/econ/icon/houzz-icon-white.svg" alt="Houzz" style="width: 18px; height: 18px; vertical-align: middle;" />
+                  </a>
+                  <a href="https://www.instagram.com/qualirenovation/" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: #333; border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px; color: #fff; text-decoration: none; font-size: 16px;">📷</a>
+                  <a href="https://www.facebook.com/qualirenovation/" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: #333; border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px; color: #fff; text-decoration: none; font-size: 16px;">f</a>
+                  <a href="https://www.linkedin.com/company/qualiconcept/" target="_blank" style="display: inline-block; width: 36px; height: 36px; background: #333; border-radius: 4px; margin: 0 5px; text-align: center; line-height: 36px; color: #fff; text-decoration: none; font-size: 16px;">in</a>
+                </div>
                 <div class="footer-logo"><span class="qr">QR</span><span class="rest">ALIRÉNOVATION</span></div>
                 <p class="footer-info">
                   QUALIRÉNOVATION BY QUALICONCEPT<br>
