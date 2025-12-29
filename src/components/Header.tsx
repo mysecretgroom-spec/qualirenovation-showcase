@@ -92,7 +92,7 @@ const Header = () => {
 
         {/* Mobile Menu */}
         <div
-          className={`lg:hidden absolute top-full left-0 right-0 bg-background shadow-card transition-all duration-300 ${
+          className={`lg:hidden absolute top-full left-0 right-0 bg-primary/75 backdrop-blur-md shadow-elegant transition-all duration-300 ${
             isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
           }`}
         >
@@ -101,14 +101,15 @@ const Header = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-foreground text-lg font-medium py-2 hover:text-accent transition-colors"
+                className="text-primary-foreground/90 text-lg font-medium py-2 hover:text-gold transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.label}
               </a>
             ))}
             <Button 
-              className="mt-4" 
+              variant="outline"
+              className="mt-4 border-gold text-gold hover:bg-gold hover:text-primary" 
               onClick={() => {
                 setIsMobileMenuOpen(false);
                 setIsQuoteModalOpen(true);
