@@ -25,6 +25,9 @@ interface HouzzTestimonial {
   text: string;
   date?: string;
   project_type?: string;
+  houzz_user_url?: string;
+  has_photos?: boolean;
+  photo_urls?: string[];
 }
 
 // Generate URL-friendly slug
@@ -66,107 +69,154 @@ async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
   return data.data || data;
 }
 
-// Extract testimonials from HTML
-function extractTestimonialsFromHtml(html: string, markdown: string): HouzzTestimonial[] {
+// Extract testimonials from markdown
+function extractTestimonialsFromMarkdown(markdown: string): HouzzTestimonial[] {
   const testimonials: HouzzTestimonial[] = [];
   
-  console.log('[Extract] Parsing testimonials from HTML...');
+  console.log('[Extract] Parsing testimonials from markdown...');
+  console.log('[Extract] Markdown length:', markdown.length);
   
-  // Pattern 1: Look for review blocks in HTML
-  // Houzz reviews typically have reviewer name, rating, date, and review text
+  // Split by user profile links - each review starts with a user link
+  // Pattern: [Username](https://www.houzz.fr/user/...) followed by rating and text
+  const lines = markdown.split('\n');
   
-  // Try to find JSON-LD structured data first
-  const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi);
-  if (jsonLdMatch) {
-    for (const match of jsonLdMatch) {
-      try {
-        const jsonContent = match.replace(/<script[^>]*>/, '').replace(/<\/script>/, '');
-        const data = JSON.parse(jsonContent);
-        if (data.review && Array.isArray(data.review)) {
-          for (const review of data.review) {
-            testimonials.push({
-              name: review.author?.name || 'Client',
-              rating: parseInt(review.reviewRating?.ratingValue) || 5,
-              text: review.reviewBody || review.description || '',
-              date: review.datePublished,
-            });
+  let currentName: string | null = null;
+  let currentUserUrl: string | null = null;
+  let currentRating: number = 5;
+  let currentText: string[] = [];
+  let currentDate: string | null = null;
+  let isCollectingText = false;
+  let hasPhotos = false;
+  let photoUrls: string[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Check for user profile link - marks start of a new review
+    // Pattern: [Name](https://www.houzz.fr/user/username)
+    const userMatch = line.match(/^\[([^\]]+)\]\((https:\/\/www\.houzz\.fr\/user\/[^)]+)\)$/);
+    
+    if (userMatch) {
+      // Save previous testimonial if we have one
+      if (currentName && currentText.length > 0) {
+        const text = currentText.join('\n').trim();
+        // Filter out navigation/menu content
+        if (text.length > 30 && !text.includes('COIN REPAS') && !text.includes('PIÈCES À VIVRE') && !text.includes('Voir toutes les photos')) {
+          testimonials.push({
+            name: currentName,
+            rating: currentRating,
+            text: text.substring(0, 2000),
+            date: currentDate || undefined,
+            houzz_user_url: currentUserUrl || undefined,
+            has_photos: hasPhotos,
+            photo_urls: photoUrls.length > 0 ? photoUrls : undefined,
+          });
+        }
+      }
+      
+      // Start new review
+      currentName = userMatch[1];
+      currentUserUrl = userMatch[2];
+      currentRating = 5;
+      currentText = [];
+      currentDate = null;
+      isCollectingText = false;
+      hasPhotos = false;
+      photoUrls = [];
+      
+      // Skip "Utilisateur Houzz - XXXXX" type names (anonymous), keep the actual name
+      if (currentName.startsWith('Utilisateur Houzz')) {
+        // Check next line for the actual display name
+        if (i + 2 < lines.length) {
+          const nextUserMatch = lines[i + 2].trim().match(/^\[([^\]]+)\]\((https:\/\/www\.houzz\.fr\/user\/[^)]+)\)$/);
+          if (nextUserMatch) {
+            currentName = nextUserMatch[1];
+            currentUserUrl = nextUserMatch[2];
+            i += 2; // Skip to after the second user link
           }
         }
-      } catch (e) {
-        // Continue with other patterns
+      }
+      
+      continue;
+    }
+    
+    // Check for rating line
+    const ratingMatch = line.match(/Note moyenne\s*:\s*(\d+)\s*étoiles?\s*sur\s*5/i);
+    if (ratingMatch && currentName) {
+      currentRating = parseInt(ratingMatch[1]);
+      isCollectingText = true;
+      continue;
+    }
+    
+    // Check for "Utile" line - marks end of review text
+    if (line.match(/^Utile(\s*\(\d+\))?$/i) && currentName && isCollectingText) {
+      isCollectingText = false;
+      continue;
+    }
+    
+    // Check for date line (after "Utile")
+    const dateMatch = line.match(/^(\d{1,2}\s+(?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\s+\d{4})/i);
+    if (dateMatch && currentName && !isCollectingText) {
+      currentDate = dateMatch[1];
+      continue;
+    }
+    
+    // Check for photo URLs in the review
+    const photoMatch = line.match(/!\[.*?\]\((https:\/\/st\.hzcdn\.com\/fimgs\/[^)]+)\)/g);
+    if (photoMatch && currentName) {
+      for (const photo of photoMatch) {
+        const urlMatch = photo.match(/\((https:\/\/[^)]+)\)/);
+        if (urlMatch) {
+          photoUrls.push(urlMatch[1]);
+          hasPhotos = true;
+        }
+      }
+      continue;
+    }
+    
+    // Skip company response blocks
+    if (line.includes('Commentaire de QUALIRENOVATION')) {
+      isCollectingText = false;
+      continue;
+    }
+    
+    // Skip "Lire plus" lines
+    if (line === 'Lire plus') {
+      continue;
+    }
+    
+    // Collect review text
+    if (isCollectingText && currentName && line.length > 0) {
+      // Skip image links and navigation elements
+      if (!line.startsWith('![') && !line.match(/^\[.*\]\(https:\/\//)) {
+        currentText.push(line);
       }
     }
   }
   
-  // Pattern 2: Parse from markdown format
-  // Reviews on Houzz often appear in a structured format
-  const reviewBlocks = markdown.split(/(?=\*\*\d+ étoiles?\*\*|\*\*5\.0\*\*|\*\*★)/);
-  
-  for (const block of reviewBlocks) {
-    if (block.length < 50) continue;
-    
-    // Try to extract rating
-    const ratingMatch = block.match(/(\d+(?:\.\d+)?)\s*(?:étoiles?|\/5|★)/i);
-    const rating = ratingMatch ? Math.round(parseFloat(ratingMatch[1])) : 5;
-    
-    // Try to extract name - often at the start or after "par" or "by"
-    const nameMatch = block.match(/(?:par|by|—|–)\s*\*?\*?([A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ]\.?)?)/i) ||
-                      block.match(/^\s*\*?\*?([A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ]\.?)?)\s*\*?\*?/m);
-    const name = nameMatch ? nameMatch[1].trim() : null;
-    
-    // Try to extract date
-    const dateMatch = block.match(/(\d{1,2})\s*(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s*(\d{4})/i) ||
-                      block.match(/(\d{4}-\d{2}-\d{2})/);
-    const date = dateMatch ? dateMatch[0] : null;
-    
-    // Try to extract project type
-    const projectTypeMatch = block.match(/(?:projet|type|catégorie)\s*:?\s*([^,\n]+)/i) ||
-                             block.match(/(salle de bain|cuisine|rénovation complète|appartement|maison)/i);
-    const projectType = projectTypeMatch ? projectTypeMatch[1].trim() : null;
-    
-    // Extract the main review text - remove metadata
-    let text = block
-      .replace(/\*\*/g, '')
-      .replace(/\d+(?:\.\d+)?\s*(?:étoiles?|\/5|★)/gi, '')
-      .replace(/(?:par|by)\s+[A-ZÀ-ÿ][a-zà-ÿ]+(?:\s+[A-ZÀ-ÿ]\.?)?/gi, '')
-      .replace(/\d{1,2}\s*(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s*\d{4}/gi, '')
-      .replace(/\[.*?\]\(.*?\)/g, '')
-      .replace(/#{1,6}\s*/g, '')
-      .trim();
-    
-    // Clean up and validate
-    if (text.length > 30 && name) {
+  // Don't forget the last testimonial
+  if (currentName && currentText.length > 0) {
+    const text = currentText.join('\n').trim();
+    if (text.length > 30 && !text.includes('COIN REPAS') && !text.includes('PIÈCES À VIVRE')) {
       testimonials.push({
-        name,
-        rating: rating > 5 ? 5 : rating,
+        name: currentName,
+        rating: currentRating,
         text: text.substring(0, 2000),
-        date: date || undefined,
-        project_type: projectType || undefined,
+        date: currentDate || undefined,
+        houzz_user_url: currentUserUrl || undefined,
+        has_photos: hasPhotos,
+        photo_urls: photoUrls.length > 0 ? photoUrls : undefined,
       });
     }
   }
   
-  // Pattern 3: Look for specific Houzz review patterns in HTML
-  const reviewPatterns = [
-    /"reviewerName":\s*"([^"]+)"[\s\S]*?"rating":\s*(\d+)[\s\S]*?"text":\s*"([^"]+)"/g,
-    /data-review-author="([^"]+)"[\s\S]*?data-rating="(\d+)"[\s\S]*?<p[^>]*>([^<]+)/g,
-  ];
+  console.log('[Extract] Found', testimonials.length, 'testimonials');
   
-  for (const pattern of reviewPatterns) {
-    let match: RegExpExecArray | null;
-    while ((match = pattern.exec(html)) !== null) {
-      const exists = testimonials.some(t => t.name === match![1] || t.text.includes(match![3].substring(0, 50)));
-      if (!exists && match[3].length > 30) {
-        testimonials.push({
-          name: match[1],
-          rating: parseInt(match[2]) || 5,
-          text: match[3].substring(0, 2000),
-        });
-      }
-    }
+  // Log first testimonial for debugging
+  if (testimonials.length > 0) {
+    console.log('[Extract] First testimonial:', JSON.stringify(testimonials[0]).substring(0, 300));
   }
   
-  console.log('[Extract] Found', testimonials.length, 'testimonials');
   return testimonials;
 }
 
@@ -200,6 +250,9 @@ async function saveTestimonialsToDatabase(supabase: any, testimonials: HouzzTest
           text: testimonial.text,
           date: testimonial.date,
           project_type: testimonial.project_type,
+          houzz_user_url: testimonial.houzz_user_url,
+          has_photos: testimonial.has_photos || false,
+          photo_urls: testimonial.photo_urls,
           hidden: false,
         });
 
@@ -453,9 +506,8 @@ Deno.serve(async (req) => {
         // Scrape the reviews page
         const reviewsData = await scrapeWithFirecrawl(HOUZZ_REVIEWS_URL, FIRECRAWL_API_KEY);
         
-        // Extract testimonials
-        const testimonials = extractTestimonialsFromHtml(
-          reviewsData.html || '',
+        // Extract testimonials from markdown
+        const testimonials = extractTestimonialsFromMarkdown(
           reviewsData.markdown || ''
         );
         
