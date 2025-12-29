@@ -247,51 +247,129 @@ async function scrapeProjectPage(url: string, apiKey: string): Promise<{ descrip
   }
 }
 
-// Use Firecrawl Map API to discover all project URLs
+// Use Firecrawl Crawl API to discover ALL project URLs by crawling the website
 async function discoverProjectUrls(apiKey: string, baseUrl: string): Promise<string[]> {
-  console.log('Using Map API to discover project URLs...')
+  console.log('Using Crawl API to discover ALL project URLs...')
   
+  const allProjectUrls: string[] = []
+  
+  // Method 1: Use Crawl API to crawl the projects section
   try {
-    const response = await fetch('https://api.firecrawl.dev/v1/map', {
+    console.log('Starting crawl of projects section...')
+    const crawlResponse = await fetch('https://api.firecrawl.dev/v1/crawl', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: baseUrl,
-        search: 'projets',
-        limit: 500,
-        includeSubdomains: false,
+        url: `${baseUrl}/projets`,
+        limit: 200, // Get up to 200 pages
+        maxDepth: 2,
+        includePaths: ['/hznb/projets/', '/projets/'],
+        scrapeOptions: {
+          formats: ['links'],
+        },
       }),
     })
 
-    if (!response.ok) {
-      console.error('Map API failed:', response.status)
-      return []
+    if (crawlResponse.ok) {
+      const crawlData = await crawlResponse.json()
+      console.log('Crawl initiated, ID:', crawlData.id)
+      
+      // Wait for crawl to complete (poll status)
+      if (crawlData.id) {
+        let attempts = 0
+        const maxAttempts = 30 // 30 seconds max wait
+        
+        while (attempts < maxAttempts) {
+          await new Promise(r => setTimeout(r, 1000))
+          attempts++
+          
+          const statusResponse = await fetch(`https://api.firecrawl.dev/v1/crawl/${crawlData.id}`, {
+            headers: { 'Authorization': `Bearer ${apiKey}` },
+          })
+          
+          if (statusResponse.ok) {
+            const statusData = await statusResponse.json()
+            console.log(`Crawl status: ${statusData.status}, pages: ${statusData.completed || 0}/${statusData.total || '?'}`)
+            
+            if (statusData.status === 'completed' || statusData.status === 'failed') {
+              // Extract project URLs from crawled data
+              const crawledPages = statusData.data || []
+              for (const page of crawledPages) {
+                const links = page.links || []
+                for (const link of links) {
+                  if (link.includes('/hznb/projets/') && link.includes('pj-vj~')) {
+                    allProjectUrls.push(link)
+                  }
+                }
+                // Also check if the page URL itself is a project
+                if (page.metadata?.sourceURL?.includes('/hznb/projets/')) {
+                  allProjectUrls.push(page.metadata.sourceURL)
+                }
+              }
+              break
+            }
+          }
+        }
+      }
     }
-
-    const data = await response.json()
-    console.log('Map API response:', JSON.stringify(data).substring(0, 500))
-    
-    const links = data.links || data.data?.links || []
-    
-    // Filter to only project URLs
-    const projectUrls: string[] = links.filter((link: string) => 
-      link.includes('/hznb/projets/') || 
-      link.includes('pj-vj~') ||
-      (link.includes('/projets/') && !link.includes('/professionnels/'))
-    )
-    
-    console.log(`Map API found ${projectUrls.length} project URLs`)
-    return [...new Set(projectUrls)] as string[]
   } catch (error) {
-    console.error('Error using Map API:', error)
-    return []
+    console.error('Crawl API error:', error)
   }
+  
+  console.log(`Crawl found ${allProjectUrls.length} project URLs`)
+  
+  // Method 2: Also scrape the main projects page multiple times with different offsets
+  // Houzz uses JavaScript pagination, we need to try direct scraping
+  try {
+    console.log('Scraping projects page for additional links...')
+    const scrapeResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: `${baseUrl}/projets`,
+        formats: ['html', 'links'],
+        onlyMainContent: false,
+        waitFor: 5000, // Wait for JS to load more projects
+      }),
+    })
+
+    if (scrapeResponse.ok) {
+      const scrapeData = await scrapeResponse.json()
+      const html = scrapeData.data?.html || ''
+      const links = scrapeData.data?.links || []
+      
+      // Extract from links array
+      for (const link of links) {
+        if (link.includes('/hznb/projets/') && link.includes('pj-vj~')) {
+          allProjectUrls.push(link)
+        }
+      }
+      
+      // Extract from HTML using regex - look for all project URLs
+      const projectUrlPattern = /https:\/\/www\.houzz\.fr\/hznb\/projets\/[^"'\s<>)]+pj-vj~\d+/gi
+      const htmlMatches = html.match(projectUrlPattern) || []
+      allProjectUrls.push(...htmlMatches)
+      
+      console.log(`Scrape found ${htmlMatches.length} additional URLs from HTML`)
+    }
+  } catch (error) {
+    console.error('Scrape error:', error)
+  }
+  
+  // Deduplicate
+  const uniqueUrls = [...new Set(allProjectUrls)]
+  console.log(`Total unique project URLs found: ${uniqueUrls.length}`)
+  
+  return uniqueUrls
 }
 
-// Scrape the profile page to find project URLs as fallback
+// Fallback: Scrape the profile page to find project URLs
 async function scrapeProfileForProjects(apiKey: string, profileUrl: string): Promise<string[]> {
   console.log('Scraping profile page for projects:', profileUrl)
   
@@ -306,7 +384,7 @@ async function scrapeProfileForProjects(apiKey: string, profileUrl: string): Pro
         url: profileUrl,
         formats: ['html', 'links'],
         onlyMainContent: false,
-        waitFor: 3000,
+        waitFor: 5000,
       }),
     })
 
@@ -321,11 +399,11 @@ async function scrapeProfileForProjects(apiKey: string, profileUrl: string): Pro
     
     // Extract project URLs from links
     let projectUrls: string[] = links.filter((link: string) => 
-      link.includes('/hznb/projets/') || link.includes('pj-vj~')
+      link.includes('/hznb/projets/') && link.includes('pj-vj~')
     )
     
     // Also extract from HTML directly
-    const projectUrlPattern = /https:\/\/www\.houzz\.fr\/hznb\/projets\/[^"'\s<>]+/gi
+    const projectUrlPattern = /https:\/\/www\.houzz\.fr\/hznb\/projets\/[^"'\s<>)]+pj-vj~\d+/gi
     const htmlProjectUrls = html.match(projectUrlPattern) || []
     projectUrls = [...new Set([...projectUrls, ...htmlProjectUrls])]
     
@@ -486,18 +564,53 @@ Deno.serve(async (req) => {
       // Clear existing queue
       await supabase.from('import_queue').delete().eq('type', 'project')
       
-      // Try Map API first
-      let projectUrls = await discoverProjectUrls(firecrawlApiKey, baseProfileUrl)
+      let allProjectUrls: string[] = []
       
-      // Fallback to profile scraping
-      if (projectUrls.length === 0) {
-        projectUrls = await scrapeProfileForProjects(firecrawlApiKey, `${baseProfileUrl}/projets`)
+      // Method 1: Crawl the projects section
+      const crawledUrls = await discoverProjectUrls(firecrawlApiKey, baseProfileUrl)
+      allProjectUrls.push(...crawledUrls)
+      console.log(`Crawl discovered ${crawledUrls.length} URLs`)
+      
+      // Method 2: Scrape the profile page
+      const profileUrls = await scrapeProfileForProjects(firecrawlApiKey, `${baseProfileUrl}/projets`)
+      allProjectUrls.push(...profileUrls)
+      console.log(`Profile scrape discovered ${profileUrls.length} URLs`)
+      
+      // Method 3: Use Firecrawl Search to find more projects
+      try {
+        console.log('Searching for additional QualiRenovation projects...')
+        const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${firecrawlApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: 'site:houzz.fr qualirenovation projets',
+            limit: 100,
+          }),
+        })
+        
+        if (searchResponse.ok) {
+          const searchData = await searchResponse.json()
+          const searchResults = searchData.data || []
+          for (const result of searchResults) {
+            if (result.url && result.url.includes('/hznb/projets/') && result.url.includes('pj-vj~')) {
+              allProjectUrls.push(result.url)
+            }
+          }
+          console.log(`Search found ${searchResults.length} results`)
+        }
+      } catch (error) {
+        console.error('Search error:', error)
       }
       
-      // Use known URLs as final fallback
-      if (projectUrls.length === 0) {
-        projectUrls = KNOWN_PROJECT_URLS
-      }
+      // Add known URLs as baseline
+      allProjectUrls.push(...KNOWN_PROJECT_URLS)
+      
+      // Deduplicate
+      const projectUrls = [...new Set(allProjectUrls)]
+      console.log(`Total unique project URLs: ${projectUrls.length}`)
       
       // Insert URLs into queue
       const queueRecords = projectUrls.map(url => ({
