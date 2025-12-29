@@ -93,7 +93,7 @@ const Header = () => {
         {/* Mobile Menu */}
         <div
           className={`lg:hidden absolute top-full left-0 right-0 bg-primary/75 backdrop-blur-md shadow-elegant transition-all duration-300 ${
-            isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+            isMobileMenuOpen ? "animate-slide-down" : "opacity-0 invisible"
           }`}
         >
           <nav className="container-tight py-6 flex flex-col gap-4">
