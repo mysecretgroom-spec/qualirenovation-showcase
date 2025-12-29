@@ -138,13 +138,36 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
   const markdown = data.markdown || '';
   const metadata = data.metadata || {};
   
-  // Title
-  let title = metadata.title || '';
-  title = title.replace(/ \| Houzz.*$/i, '').trim();
+  // Extract title from URL first (most reliable for Houzz)
+  let title = '';
+  const urlMatch = url.match(/\/projets\/([^/]+?)(?:-pj-vj)?~?\d*$/);
+  if (urlMatch) {
+    // Convert URL slug to readable title
+    title = urlMatch[1]
+      .replace(/-pj-vj.*$/, '')
+      .replace(/-%E2%9C%A8/g, '')
+      .replace(/%E2%9C%A8/g, '')
+      .replace(/-+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Capitalize first letter
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+  }
+  
+  // Fallback to metadata title if URL extraction failed
+  if (!title) {
+    title = metadata.title || '';
+    title = title.replace(/ \| Houzz.*$/i, '').trim();
+    title = title.replace(/QUALIRENOVATION by Qualiconcept/i, '').trim();
+  }
+  
+  // Last fallback
   if (!title) {
     const titleMatch = markdown.match(/^#\s+(.+)$/m);
     title = titleMatch ? titleMatch[1] : 'Projet sans titre';
   }
+  
+  console.log('[Extract] Title from URL:', title);
   
   // Description - extract from markdown
   let description = metadata.description || '';
