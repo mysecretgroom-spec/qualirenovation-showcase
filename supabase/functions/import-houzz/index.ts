@@ -93,17 +93,38 @@ function extractProjectUrls(html: string, links: string[]): string[] {
 }
 
 // Extract images from a project page HTML
+// Convert Houzz image URL to high resolution
+function toHighResolution(url: string): string {
+  // Extract the base image ID pattern from Houzz URLs
+  // Format: https://st.hzcdn.com/fimgs/XXXX-wWWW-hHHH-bB-pP--.jpg
+  
+  // Remove size parameters and get full resolution
+  let highRes = url;
+  
+  // Pattern 1: -wXXX-hXXX- format
+  highRes = highRes.replace(/-w\d+-h\d+-[^.]+/, '-w1920-h1440-b1-p0--');
+  
+  // Pattern 2: simgs to fimgs (full images)
+  highRes = highRes.replace('/simgs/', '/fimgs/');
+  
+  // Pattern 3: pictures format
+  highRes = highRes.replace(/\/pictures\/[^/]+\//, '/fimgs/');
+  
+  return highRes;
+}
+
 function extractImagesFromHtml(html: string): { url: string; caption?: string }[] {
   const images: { url: string; caption?: string }[] = [];
-  const seenUrls = new Set<string>();
+  const seenBaseIds = new Set<string>();
   
   // Multiple patterns to find Houzz image URLs
   const patterns = [
     /"imageUrl":"([^"]+)"/g,
-    /data-src="(https:\/\/[^"]*houzz[^"]*\.(jpg|jpeg|png|webp)[^"]*)"/gi,
-    /src="(https:\/\/[^"]*st\.hzcdn\.com[^"]*\.(jpg|jpeg|png|webp)[^"]*)"/gi,
     /"fullUrl":"([^"]+)"/g,
-    /srcset="([^"\s]+)/g,
+    /"url":"(https:\/\/st\.hzcdn\.com[^"]+)"/g,
+    /data-src="(https:\/\/[^"]*st\.hzcdn\.com[^"]+)"/gi,
+    /src="(https:\/\/[^"]*st\.hzcdn\.com[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
+    /srcset="([^"\s,]+)/g,
   ];
   
   for (const pattern of patterns) {
@@ -111,24 +132,28 @@ function extractImagesFromHtml(html: string): { url: string; caption?: string }[
     while ((match = pattern.exec(html)) !== null) {
       let url = match[1];
       
-      // Clean and validate URL
+      // Clean URL
       url = url.replace(/\\u002F/g, '/').replace(/\\/g, '');
       
       if (!url.startsWith('http')) continue;
-      if (seenUrls.has(url)) continue;
+      if (!url.includes('st.hzcdn.com')) continue;
       if (url.includes('avatar') || url.includes('profile') || url.includes('logo')) continue;
       if (url.includes('.svg') || url.includes('.gif')) continue;
       
-      // Convert to high resolution
-      url = url.replace(/\/v\d+-\d+x\d+-[a-z]+\//, '/v1-1920x1080-ls/');
-      url = url.replace(/-\d+x\d+-/, '-1920x1080-');
+      // Extract base image ID to avoid duplicates (same image different sizes)
+      const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i);
+      const baseId = baseIdMatch ? baseIdMatch[1] : url;
       
-      seenUrls.add(url);
-      images.push({ url });
+      if (seenBaseIds.has(baseId)) continue;
+      seenBaseIds.add(baseId);
+      
+      // Convert to high resolution
+      const highResUrl = toHighResolution(url);
+      images.push({ url: highResUrl });
     }
   }
   
-  console.log('[Extract] Found', images.length, 'images');
+  console.log('[Extract] Found', images.length, 'unique high-res images');
   return images.slice(0, 20); // Max 20 images per project
 }
 
