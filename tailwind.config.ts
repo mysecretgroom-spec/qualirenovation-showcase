@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        // LOCKED FONTS - No system fallbacks to ensure identical rendering
+        display: ["'Playfair Display'", "serif"],
+        sans: ["'Inter'", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
