@@ -99,8 +99,8 @@ function generateSlug(title: string): string {
 }
 
 // Scrape a page with Firecrawl
-async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
-  console.log('[Firecrawl] Scraping:', url);
+async function scrapeWithFirecrawl(url: string, apiKey: string, waitTime: number = 15000): Promise<any> {
+  console.log('[Firecrawl] Scraping:', url, 'with wait:', waitTime);
   
   const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
     method: 'POST',
@@ -110,9 +110,9 @@ async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
     },
     body: JSON.stringify({
       url,
-      formats: ['markdown', 'html', 'links', 'rawHtml'],
+      formats: ['markdown', 'html', 'links', 'rawHtml', 'screenshot'],
       onlyMainContent: false,
-      waitFor: 8000, // Longer wait for dynamic images
+      waitFor: waitTime,
     }),
   });
 
@@ -124,6 +124,49 @@ async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
 
   const data = await response.json();
   return data.data || data;
+}
+
+// Check if we only got generic placeholder images
+function hasOnlyPlaceholders(images: { url: string; caption?: string }[]): boolean {
+  if (images.length === 0) return true;
+  
+  // If all images are filtered out as generic, we only have placeholders
+  const realImages = images.filter(img => !isGenericImage(img.url));
+  return realImages.length === 0;
+}
+
+// Scrape with retry logic - if only placeholders found, retry with longer wait
+async function scrapeWithRetry(url: string, apiKey: string, maxRetries: number = 3): Promise<any> {
+  const waitTimes = [15000, 20000, 25000]; // Increasing wait times
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    const waitTime = waitTimes[attempt] || 25000;
+    console.log(`[Retry] Attempt ${attempt + 1}/${maxRetries} for ${url}`);
+    
+    const data = await scrapeWithFirecrawl(url, apiKey, waitTime);
+    
+    // Extract images to check if we got real ones
+    const images = extractImagesFromHtml(
+      data.html || '', 
+      data.markdown || '', 
+      data.rawHtml || '', 
+      data.links || []
+    );
+    
+    if (!hasOnlyPlaceholders(images)) {
+      console.log(`[Retry] Found ${images.length} real images on attempt ${attempt + 1}`);
+      return data;
+    }
+    
+    console.log(`[Retry] Only placeholders found on attempt ${attempt + 1}, waiting before retry...`);
+    
+    if (attempt < maxRetries - 1) {
+      await new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay between retries
+    }
+  }
+  
+  console.log('[Retry] Max retries reached, returning last result');
+  return await scrapeWithFirecrawl(url, apiKey, 25000);
 }
 
 // Extract photo IDs from project URL and build gallery URLs
@@ -416,10 +459,18 @@ const GENERIC_IMAGE_IDS = [
   '91219cfa02d8687c_16-9774', // Houzz generic image
   '975135c203d2e0c8_9-4489', // Houzz generic image
   'b231ddda0321f9f3_14-1064', // Houzz generic image
+  'aea5f95808ab2bc8_9-8332', // Houzz generic image
+  'home-design', // Generic placeholder indicator
 ];
 
 function isGenericImage(url: string): boolean {
-  return GENERIC_IMAGE_IDS.some(id => url.includes(id));
+  // Check for known generic IDs
+  if (GENERIC_IMAGE_IDS.some(id => url.includes(id))) return true;
+  
+  // Also reject /home-design.jpg placeholder images
+  if (url.includes('/home-design.jpg')) return true;
+  
+  return false;
 }
 
 function extractImagesFromHtml(html: string, markdown?: string, rawHtml?: string, links?: string[]): { url: string; caption?: string }[] {
@@ -783,29 +834,37 @@ Deno.serve(async (req) => {
         const projects: HouzzProject[] = [];
         for (const url of validUrls) {
           try {
-            console.log('[Handler] Scraping project:', url);
-            const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
+            console.log('[Handler] Scraping project with retry logic:', url);
+            // Use retry logic to ensure we get real images
+            const projectData = await scrapeWithRetry(url, FIRECRAWL_API_KEY, 3);
             const project = extractProjectDetails(projectData, url);
             
-            // If few images found, try to get more from gallery
-            if (project.images.length < 3) {
-              console.log('[Handler] Few images found, trying gallery scrape...');
+            console.log(`[Handler] Initial scrape found ${project.images.length} images`);
+            
+            // If still few images or only placeholders, try gallery
+            if (project.images.length < 3 || hasOnlyPlaceholders(project.images)) {
+              console.log('[Handler] Few/placeholder images, trying gallery scrape...');
               const galleryImages = await scrapeHouzzGallery(url, FIRECRAWL_API_KEY);
               if (galleryImages.length > 0) {
                 const existingUrls = new Set(project.images.map(i => i.url));
                 for (const imgUrl of galleryImages) {
-                  if (!existingUrls.has(imgUrl)) {
+                  if (!existingUrls.has(imgUrl) && !isGenericImage(imgUrl)) {
                     project.images.push({ url: imgUrl });
                   }
                 }
                 console.log('[Handler] Total images after gallery:', project.images.length);
               }
-              await new Promise(resolve => setTimeout(resolve, 1500)); // Extra delay for gallery
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Delay for gallery
             }
+            
+            // Final filter to remove any remaining generic images
+            project.images = project.images.filter(img => !isGenericImage(img.url));
+            console.log(`[Handler] Final image count after filtering: ${project.images.length}`);
             
             projects.push(project);
             
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Longer delay between projects to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 2000));
           } catch (error) {
             console.error('[Handler] Error scraping project:', url, error);
           }
@@ -859,29 +918,35 @@ Deno.serve(async (req) => {
         const projects: HouzzProject[] = [];
         for (const url of validUrls) {
           try {
-            console.log('[Handler] Scraping project:', url);
-            const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
+            console.log('[Handler] Re-scraping project with retry logic:', url);
+            const projectData = await scrapeWithRetry(url, FIRECRAWL_API_KEY, 3);
             const project = extractProjectDetails(projectData, url);
             
-            // If few images found, try to get more from gallery
-            if (project.images.length < 3) {
-              console.log('[Handler] Few images found, trying gallery scrape...');
+            console.log(`[Handler] Initial scrape found ${project.images.length} images`);
+            
+            // If still few images or only placeholders, try gallery
+            if (project.images.length < 3 || hasOnlyPlaceholders(project.images)) {
+              console.log('[Handler] Few/placeholder images, trying gallery scrape...');
               const galleryImages = await scrapeHouzzGallery(url, FIRECRAWL_API_KEY);
               if (galleryImages.length > 0) {
                 const existingUrls = new Set(project.images.map(i => i.url));
                 for (const imgUrl of galleryImages) {
-                  if (!existingUrls.has(imgUrl)) {
+                  if (!existingUrls.has(imgUrl) && !isGenericImage(imgUrl)) {
                     project.images.push({ url: imgUrl });
                   }
                 }
                 console.log('[Handler] Total images after gallery:', project.images.length);
               }
-              await new Promise(resolve => setTimeout(resolve, 1500));
+              await new Promise(resolve => setTimeout(resolve, 2000));
             }
+            
+            // Final filter
+            project.images = project.images.filter(img => !isGenericImage(img.url));
+            console.log(`[Handler] Final image count after filtering: ${project.images.length}`);
             
             projects.push(project);
             
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Slightly longer delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
           } catch (error) {
             console.error('[Handler] Error scraping project:', url, error);
           }
