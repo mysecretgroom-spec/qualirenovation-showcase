@@ -274,11 +274,9 @@ const handler = async (req: Request): Promise<Response> => {
             body { font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.7; color: #1a1a1a; margin: 0; padding: 0; background-color: #f8f6f3; }
             .wrapper { background-color: #f8f6f3; padding: 40px 20px; }
             .container { max-width: 600px; margin: 0 auto; background: #ffffff; overflow: hidden; }
-            .header { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 40px 30px; text-align: center; }
+            .header { background: #114a67; padding: 40px 30px; text-align: center; }
             .logo-container { margin-bottom: 10px; }
-            .logo-quali { font-family: 'Georgia', serif; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #c9a961; display: inline; }
-            .logo-renovation { font-family: 'Georgia', serif; font-size: 28px; font-weight: 700; letter-spacing: 3px; color: #ffffff; display: inline; }
-            .logo-tagline { font-family: Arial, sans-serif; font-size: 10px; color: rgba(255,255,255,0.7); letter-spacing: 4px; text-transform: uppercase; margin-top: 8px; }
+            .logo-image { max-width: 280px; height: auto; }
             .hero-section { position: relative; }
             .hero-image { width: 100%; height: auto; display: block; }
             .content { padding: 40px 35px; }
@@ -304,25 +302,24 @@ const handler = async (req: Request): Promise<Response> => {
             .signature-role { color: #c9a961; font-size: 13px; margin: 0 0 12px 0; letter-spacing: 1px; }
             .signature-phone { color: #1a1a1a; font-size: 14px; margin: 0; }
             .signature-phone a { color: #1a1a1a; text-decoration: none; font-weight: 600; }
-            .footer { background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); padding: 35px; text-align: center; }
-            .footer-logo-quali { font-family: 'Georgia', serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #c9a961; display: inline; }
-            .footer-logo-renovation { font-family: 'Georgia', serif; font-size: 20px; font-weight: 700; letter-spacing: 2px; color: #ffffff; display: inline; }
+            .footer { background: #114a67; padding: 35px; text-align: center; }
+            .footer-logo { max-width: 200px; height: auto; margin-bottom: 15px; }
             .footer-divider { width: 40px; height: 1px; background: #c9a961; margin: 20px auto; }
             .footer-info { color: rgba(255,255,255,0.8); font-size: 12px; line-height: 2; font-family: Arial, sans-serif; }
             .footer-link { color: #c9a961; text-decoration: none; }
+            .social-title { color: rgba(255,255,255,0.9); font-size: 14px; font-family: Arial, sans-serif; margin-bottom: 15px; }
             .social-links { margin: 20px 0; }
-            .social-link { display: inline-block; width: 40px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 8px; text-align: center; line-height: 40px; color: #ffffff; text-decoration: none; font-size: 18px; }
+            .social-icon { width: 36px; height: 36px; margin: 0 8px; vertical-align: middle; }
           </style>
         </head>
         <body>
           <div class="wrapper">
             <div class="container">
-              <!-- Header avec logo HTML -->
+              <!-- Header avec logo PNG -->
               <div class="header">
                 <div class="logo-container">
-                  <span class="logo-quali">QUALI</span><span class="logo-renovation">RÉNOVATION</span>
+                  <img src="https://qualirenovation.fr/logo-qualirenovation-email.png" alt="Qualirénovation by Qualiconcept" class="logo-image" />
                 </div>
-                <div class="logo-tagline">by Qualiconcept</div>
               </div>
               
               <!-- Image hero -->
@@ -372,20 +369,26 @@ const handler = async (req: Request): Promise<Response> => {
               
               <!-- Footer -->
               <div class="footer">
-                <div>
-                  <span class="footer-logo-quali">QUALI</span><span class="footer-logo-renovation">RÉNOVATION</span>
-                </div>
+                <img src="https://qualirenovation.fr/logo-qualirenovation-email.png" alt="Qualirénovation" class="footer-logo" />
                 <div class="footer-divider"></div>
+                <p class="social-title">Nos réseaux sociaux</p>
                 <div class="social-links">
-                  <a href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept" target="_blank" class="social-link">🏠</a>
-                  <a href="https://www.instagram.com/qualirenovation__travaux/" target="_blank" class="social-link">📷</a>
+                  <a href="https://wa.me/33659764685" target="_blank" title="WhatsApp">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" class="social-icon" />
+                  </a>
+                  <a href="https://www.instagram.com/qualirenovation__travaux/" target="_blank" title="Instagram">
+                    <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" class="social-icon" />
+                  </a>
+                  <a href="https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept" target="_blank" title="Houzz">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5968/5968866.png" alt="Houzz" class="social-icon" />
+                  </a>
                 </div>
                 <p class="footer-info">
                   QUALIRÉNOVATION BY QUALICONCEPT<br>
                   6 rue d'Armaillé - 75017 Paris<br>
                   SIRET : 85286728200034<br>
                   Assuré par MIC Assurance<br>
-                  <a href="mailto:contact@qualiconcept.fr" class="footer-link">contact@qualiconcept.fr</a><br>
+                  <a href="mailto:gestion@qualiconcept.fr" class="footer-link">gestion@qualiconcept.fr</a><br>
                   <a href="https://qualirenovation.fr" class="footer-link">qualirenovation.fr</a>
                 </p>
               </div>
