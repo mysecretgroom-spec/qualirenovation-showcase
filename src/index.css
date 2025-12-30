@@ -42,7 +42,8 @@
 }
 
 /* ============================================
- * LOCKED COLOR PALETTE (HSL format)
+ * LOCKED COLOR PALETTE - ABSOLUTE VALUES
+ * NO CSS VARIABLES FOR COLORS = 100% CROSS-BROWSER CONSISTENCY
  * ============================================ */
 @layer base {
   :root {
@@ -53,7 +54,10 @@
     --font-size-base: 16px;
     --line-height-base: 1.5;
     
-    /* === LOCKED COLORS === */
+    /* === DISABLE COLOR SCHEME INTERFERENCE === */
+    color-scheme: light only;
+    
+    /* === LOCKED COLORS - ABSOLUTE HSL VALUES === */
     --background: 30 20% 98%;
     --foreground: 30 10% 12%;
 
@@ -76,7 +80,7 @@
     --accent-foreground: 30 20% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 30 15% 85%;
     --input: 30 15% 85%;
@@ -92,14 +96,14 @@
     --warm-gray: 30 10% 45%;
     
     /* === LOCKED GRADIENTS === */
-    --gradient-gold: linear-gradient(135deg, hsl(38 50% 55%), hsl(40 45% 65%));
-    --gradient-dark: linear-gradient(180deg, hsl(30 10% 12%), hsl(30 10% 18%));
+    --gradient-gold: linear-gradient(135deg, hsl(38, 50%, 55%), hsl(40, 45%, 65%));
+    --gradient-dark: linear-gradient(180deg, hsl(30, 10%, 12%), hsl(30, 10%, 18%));
     --gradient-hero: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
     
     /* === LOCKED SHADOWS === */
-    --shadow-elegant: 0 4px 20px -4px hsl(30 10% 12% / 0.08);
-    --shadow-card: 0 8px 30px -8px hsl(30 10% 12% / 0.12);
-    --shadow-hover: 0 12px 40px -8px hsl(30 10% 12% / 0.18);
+    --shadow-elegant: 0 4px 20px -4px rgba(30, 27, 24, 0.08);
+    --shadow-card: 0 8px 30px -8px rgba(30, 27, 24, 0.12);
+    --shadow-hover: 0 12px 40px -8px rgba(30, 27, 24, 0.18);
 
     /* === SIDEBAR (admin) === */
     --sidebar-background: 0 0% 98%;
@@ -112,35 +116,52 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  /* Dark mode - LOCKED */
+  /* FORCE LIGHT MODE ONLY - Ignore system dark mode preference */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: light only;
+      /* Re-apply all light mode colors to override any browser dark mode */
+      --background: 30 20% 98%;
+      --foreground: 30 10% 12%;
+      --card: 30 15% 96%;
+      --card-foreground: 30 10% 12%;
+      --popover: 30 20% 98%;
+      --popover-foreground: 30 10% 12%;
+      --primary: 35 30% 35%;
+      --primary-foreground: 30 20% 98%;
+      --secondary: 30 15% 92%;
+      --secondary-foreground: 30 10% 20%;
+      --muted: 30 10% 90%;
+      --muted-foreground: 30 10% 45%;
+      --accent: 38 50% 55%;
+      --accent-foreground: 30 20% 98%;
+      --border: 30 15% 85%;
+      --input: 30 15% 85%;
+    }
+  }
+
+  /* Dark mode class - DISABLED for consistency */
   .dark {
-    --background: 30 10% 8%;
-    --foreground: 30 15% 95%;
-
-    --card: 30 10% 12%;
-    --card-foreground: 30 15% 95%;
-
-    --popover: 30 10% 8%;
-    --popover-foreground: 30 15% 95%;
-
-    --primary: 38 50% 55%;
-    --primary-foreground: 30 10% 8%;
-
-    --secondary: 30 10% 18%;
-    --secondary-foreground: 30 15% 90%;
-
-    --muted: 30 10% 20%;
-    --muted-foreground: 30 10% 60%;
-
+    /* Force same colors as light mode */
+    --background: 30 20% 98%;
+    --foreground: 30 10% 12%;
+    --card: 30 15% 96%;
+    --card-foreground: 30 10% 12%;
+    --popover: 30 20% 98%;
+    --popover-foreground: 30 10% 12%;
+    --primary: 35 30% 35%;
+    --primary-foreground: 30 20% 98%;
+    --secondary: 30 15% 92%;
+    --secondary-foreground: 30 10% 20%;
+    --muted: 30 10% 90%;
+    --muted-foreground: 30 10% 45%;
     --accent: 38 50% 55%;
-    --accent-foreground: 30 10% 8%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 30 10% 20%;
-    --input: 30 10% 20%;
-    --ring: 38 50% 55%;
+    --accent-foreground: 30 20% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 15% 85%;
+    --input: 30 15% 85%;
+    --ring: 35 30% 35%;
   }
 }
 
