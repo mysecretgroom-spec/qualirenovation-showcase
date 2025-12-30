@@ -125,7 +125,7 @@ const Footer = () => {
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gold-light" />
                 <span className="text-primary-foreground/70 text-sm">
-                  contact@qualiconcept.fr
+                  gestion@qualiconcept.fr
                 </span>
               </li>
             </ul>
