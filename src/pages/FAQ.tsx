@@ -9,46 +9,71 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-const faqItems = [
+const faqSections = [
   {
-    question: "Quelles sont vos zones d'intervention ?",
-    answer: "Nous intervenons principalement à Paris et dans les Hauts-de-Seine : Neuilly-sur-Seine, Boulogne-Billancourt, Levallois-Perret, Issy-les-Moulineaux, Saint-Cloud, et les communes environnantes."
+    title: "Pourquoi choisir Qualirénovation ?",
+    items: [
+      {
+        question: "Qu'est-ce qui vous différencie des autres entreprises de rénovation ?",
+        answer: "Notre approche repose sur trois piliers : un interlocuteur unique tout au long du projet, une équipe d'artisans qualifiés et fidèles, et un suivi rigoureux de chaque chantier. Nous privilégions la qualité à la quantité, avec un nombre limité de projets simultanés pour garantir notre disponibilité."
+      },
+      {
+        question: "Quelles garanties offrez-vous ?",
+        answer: "Nous disposons d'une assurance responsabilité civile professionnelle et d'une garantie décennale. La garantie de parfait achèvement couvre tous les désordres pendant 1 an, la garantie biennale couvre les équipements pendant 2 ans, et la garantie décennale couvre les gros ouvrages pendant 10 ans."
+      },
+      {
+        question: "Proposez-vous un accompagnement déco et conseil ?",
+        answer: "Oui, nous travaillons en collaboration avec notre partenaire décorateur Qualidéco pour vous accompagner dans vos choix de matériaux, couleurs et aménagements. Ce service personnalisé vous aide à créer un intérieur qui vous ressemble tout en optimisant votre budget."
+      },
+      {
+        question: "Comment assurez-vous la qualité des travaux ?",
+        answer: "Chaque chantier est supervisé par notre équipe avec des points d'étape réguliers. Nous travaillons avec des artisans fidèles depuis des années, formés à nos exigences de qualité. Un contrôle final est effectué avant la réception des travaux."
+      }
+    ]
   },
   {
-    question: "Comment se déroule une demande de devis ?",
-    answer: "Après réception de votre demande, nous vous contactons pour organiser une visite technique gratuite sur le lieu des travaux. Suite à cette visite, nous établissons un devis détaillé sous 5 à 7 jours ouvrés. Le devis est valable 30 jours."
+    title: "Déroulement de votre projet",
+    items: [
+      {
+        question: "Comment se déroule une demande de devis ?",
+        answer: "Après réception de votre demande, nous vous contactons pour organiser une visite technique gratuite sur le lieu des travaux. Suite à cette visite, nous établissons un devis détaillé sous 5 à 7 jours ouvrés. Le devis est valable 30 jours."
+      },
+      {
+        question: "Quelle est la durée moyenne d'un chantier ?",
+        answer: "La durée dépend de l'ampleur des travaux. Une rénovation de salle de bain prend généralement 2 à 3 semaines. Une rénovation complète d'appartement peut durer de 2 à 4 mois selon la surface et la complexité du projet."
+      },
+      {
+        question: "Comment se passe le suivi du chantier ?",
+        answer: "Vous bénéficiez d'un interlocuteur unique tout au long du projet. Nous organisons des points réguliers pour vous tenir informé de l'avancement et validons ensemble chaque étape clé. Vous pouvez nous joindre facilement par téléphone ou email."
+      }
+    ]
   },
   {
-    question: "Quels types de travaux réalisez-vous ?",
-    answer: "Nous réalisons tous types de rénovation d'intérieur : rénovation complète d'appartements, salles de bain, cuisines, ouverture de murs porteurs, pose de parquet et carrelage, peinture et finitions, ainsi que l'aménagement et la décoration."
-  },
-  {
-    question: "Quelle est la durée moyenne d'un chantier ?",
-    answer: "La durée dépend de l'ampleur des travaux. Une rénovation de salle de bain prend généralement 2 à 3 semaines. Une rénovation complète d'appartement peut durer de 2 à 4 mois selon la surface et la complexité du projet."
-  },
-  {
-    question: "Êtes-vous assurés pour les travaux ?",
-    answer: "Oui, nous disposons d'une assurance responsabilité civile professionnelle et d'une garantie décennale. Ces attestations peuvent vous être fournies sur demande avant le démarrage des travaux."
-  },
-  {
-    question: "Comment sont planifiés les paiements ?",
-    answer: "Sauf mention contraire, les paiements s'effectuent en trois fois : 30% à la signature du devis (acompte), 30% en cours de chantier, et 40% à la réception des travaux. Les paiements peuvent être effectués par virement ou chèque."
-  },
-  {
-    question: "Proposez-vous un service de décoration et conseil ?",
-    answer: "Oui, nous travaillons en collaboration avec notre partenaire décorateur Qualidéco pour vous accompagner dans vos choix de matériaux, couleurs et aménagements. Ce service peut être inclus ou proposé en option selon votre projet."
-  },
-  {
-    question: "Que se passe-t-il en cas de problème après les travaux ?",
-    answer: "Nous assurons un suivi après chantier. La garantie de parfait achèvement couvre tous les désordres pendant 1 an. La garantie biennale couvre les équipements pendant 2 ans. La garantie décennale couvre les gros ouvrages pendant 10 ans."
+    title: "Nos prestations",
+    items: [
+      {
+        question: "Quels types de travaux réalisez-vous ?",
+        answer: "Nous réalisons tous types de rénovation d'intérieur : rénovation complète d'appartements, salles de bain, cuisines, ouverture de murs porteurs, pose de parquet et carrelage, peinture et finitions, ainsi que l'aménagement et la décoration."
+      },
+      {
+        question: "Quelles sont vos zones d'intervention ?",
+        answer: "Nous intervenons principalement à Paris et dans les Hauts-de-Seine : Neuilly-sur-Seine, Boulogne-Billancourt, Levallois-Perret, Issy-les-Moulineaux, Saint-Cloud, et les communes environnantes."
+      },
+      {
+        question: "Que se passe-t-il en cas de problème après les travaux ?",
+        answer: "Nous assurons un suivi après chantier et restons joignables pour toute question. En cas de désordre, nos garanties vous protègent : parfait achèvement (1 an), biennale (2 ans) et décennale (10 ans)."
+      }
+    ]
   }
 ];
+
+const allFaqItems = faqSections.flatMap(section => section.items);
 
 const FAQPage = () => {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqItems.map(item => ({
+    "mainEntity": allFaqItems.map(item => ({
       "@type": "Question",
       "name": item.question,
       "acceptedAnswer": {
@@ -90,22 +115,29 @@ const FAQPage = () => {
           </div>
 
           <div className="max-w-3xl mx-auto">
-            <Accordion type="single" collapsible className="space-y-4">
-              {faqItems.map((item, index) => (
-                <AccordionItem
-                  key={index}
-                  value={`item-${index}`}
-                  className="bg-card border border-border rounded-lg px-6 data-[state=open]:shadow-md transition-shadow"
-                >
-                  <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-gold hover:no-underline py-5">
-                    {item.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
-                    {item.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+          {faqSections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="mb-12">
+              <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+                {section.title}
+              </h2>
+              <Accordion type="single" collapsible className="space-y-4">
+                {section.items.map((item, index) => (
+                  <AccordionItem
+                    key={index}
+                    value={`section-${sectionIndex}-item-${index}`}
+                    className="bg-card border border-border rounded-lg px-6 data-[state=open]:shadow-md transition-shadow"
+                  >
+                    <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-gold hover:no-underline py-5">
+                      {item.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                      {item.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          ))}
           </div>
 
           <div className="text-center mt-12">
