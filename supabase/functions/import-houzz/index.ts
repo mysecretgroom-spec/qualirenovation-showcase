@@ -110,9 +110,9 @@ async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
     },
     body: JSON.stringify({
       url,
-      formats: ['markdown', 'html', 'links'],
+      formats: ['markdown', 'html', 'links', 'rawHtml'],
       onlyMainContent: false,
-      waitFor: 5000,
+      waitFor: 8000, // Longer wait for dynamic images
     }),
   });
 
@@ -124,6 +124,78 @@ async function scrapeWithFirecrawl(url: string, apiKey: string): Promise<any> {
 
   const data = await response.json();
   return data.data || data;
+}
+
+// Extract photo IDs from project URL and build gallery URLs
+function extractPhotoIdsFromUrl(url: string): string[] {
+  // Houzz project URLs contain photo IDs we can use
+  // Pattern: /projets/title-pj-vj~PROJECTID
+  const match = url.match(/~(\d+)$/);
+  return match ? [match[1]] : [];
+}
+
+// Scrape Houzz gallery page to get all photo URLs
+async function scrapeHouzzGallery(projectUrl: string, apiKey: string): Promise<string[]> {
+  const images: string[] = [];
+  
+  // Try to get the gallery/photos page variant
+  // Houzz has URLs like: /projets/name-pj-vj~ID -> photos at /projets/name-phvw-vp~ID
+  const galleryUrl = projectUrl
+    .replace('-pj-vj~', '-phvw-vp~')
+    .replace('/hznb/projets/', '/photos/');
+  
+  console.log('[Gallery] Trying gallery URL:', galleryUrl);
+  
+  try {
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: galleryUrl,
+        formats: ['html', 'rawHtml', 'links'],
+        onlyMainContent: false,
+        waitFor: 5000,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const result = data.data || data;
+      
+      // Extract image URLs from the gallery HTML
+      const html = result.rawHtml || result.html || '';
+      const links = result.links || [];
+      
+      // Find image URLs in links
+      for (const link of links) {
+        if (typeof link === 'string' && link.includes('st.hzcdn.com') && 
+            (link.includes('/fimgs/') || link.includes('/simgs/'))) {
+          if (!link.includes('c2a344b60455efef_5281')) { // Skip logo
+            images.push(toHighResolution(link));
+          }
+        }
+      }
+      
+      // Also extract from HTML
+      const imgPattern = /https:\/\/st\.hzcdn\.com\/(?:fimgs|simgs)\/[a-f0-9]+[^"'\s)]+/gi;
+      let match;
+      while ((match = imgPattern.exec(html)) !== null) {
+        const imgUrl = match[0];
+        if (!imgUrl.includes('c2a344b60455efef_5281')) {
+          images.push(toHighResolution(imgUrl));
+        }
+      }
+      
+      console.log('[Gallery] Found', images.length, 'images from gallery');
+    }
+  } catch (error) {
+    console.log('[Gallery] Could not scrape gallery:', error);
+  }
+  
+  return [...new Set(images)]; // Deduplicate
 }
 
 // Extract testimonials from markdown
@@ -334,74 +406,101 @@ function toHighResolution(url: string): string {
   return highRes;
 }
 
-function extractImagesFromHtml(html: string, markdown?: string): { url: string; caption?: string }[] {
+function extractImagesFromHtml(html: string, markdown?: string, rawHtml?: string, links?: string[]): { url: string; caption?: string }[] {
   const images: { url: string; caption?: string }[] = [];
   const seenBaseIds = new Set<string>();
   
-  // Also extract from markdown if available (Houzz loads images dynamically)
-  if (markdown) {
-    const mdImagePattern = /!\[([^\]]*)\]\((https:\/\/st\.hzcdn\.com\/fimgs\/[^)]+)\)/g;
-    let mdMatch;
-    while ((mdMatch = mdImagePattern.exec(markdown)) !== null) {
-      const url = mdMatch[2];
-      if (!url) continue;
-      
-      // Skip the logo image
-      if (url.includes('c2a344b60455efef_5281')) continue;
-      
-      const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i);
-      const baseId = baseIdMatch ? baseIdMatch[1] : url;
-      
-      if (seenBaseIds.has(baseId)) continue;
-      seenBaseIds.add(baseId);
-      
-      const highResUrl = toHighResolution(url);
-      images.push({ url: highResUrl, caption: mdMatch[1] || undefined });
+  // Helper to add image if unique
+  const addImage = (url: string, caption?: string) => {
+    if (!url || !url.includes('st.hzcdn.com')) return;
+    if (url.includes('c2a344b60455efef_5281')) return; // Skip logo
+    if (url.includes('avatar') || url.includes('profile') || url.includes('logo')) return;
+    if (url.includes('.svg') || url.includes('.gif')) return;
+    
+    const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i) || url.match(/\/simgs\/([a-f0-9]+)/i);
+    const baseId = baseIdMatch ? baseIdMatch[1] : url;
+    
+    if (seenBaseIds.has(baseId)) return;
+    seenBaseIds.add(baseId);
+    
+    const highResUrl = toHighResolution(url);
+    images.push({ url: highResUrl, caption });
+  };
+  
+  // 1. Extract from links array (most reliable for Firecrawl)
+  if (links && Array.isArray(links)) {
+    for (const link of links) {
+      if (typeof link === 'string' && link.includes('st.hzcdn.com')) {
+        addImage(link);
+      }
     }
-    console.log('[Extract] Found', images.length, 'images from markdown');
+    console.log('[Extract] Found', images.length, 'images from links array');
   }
   
-  const patterns = [
-    /"imageUrl":"([^"]+)"/g,
-    /"fullUrl":"([^"]+)"/g,
-    /"url":"(https:\/\/st\.hzcdn\.com[^"]+)"/g,
-    /data-src="(https:\/\/[^"]*st\.hzcdn\.com[^"]+)"/gi,
-    /src="(https:\/\/[^"]*st\.hzcdn\.com[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
-    /srcset="([^"\s,]+)/g,
+  // 2. Extract from markdown
+  if (markdown) {
+    const mdImagePattern = /!\[([^\]]*)\]\((https:\/\/st\.hzcdn\.com\/(?:fimgs|simgs)\/[^)]+)\)/g;
+    let mdMatch;
+    while ((mdMatch = mdImagePattern.exec(markdown)) !== null) {
+      addImage(mdMatch[2], mdMatch[1] || undefined);
+    }
+    
+    // Also look for raw URLs in markdown
+    const rawUrlPattern = /https:\/\/st\.hzcdn\.com\/(?:fimgs|simgs)\/[a-f0-9][^\s"'<>)]+/gi;
+    let rawMatch;
+    while ((rawMatch = rawUrlPattern.exec(markdown)) !== null) {
+      addImage(rawMatch[0]);
+    }
+  }
+  
+  // 3. Extract from rawHtml (has more data than processed html)
+  const htmlToSearch = rawHtml || html || '';
+  
+  // Look for JSON data embedded in the page (Houzz stores image data in JSON)
+  const jsonPatterns = [
+    /"imageUrl"\s*:\s*"([^"]+)"/g,
+    /"fullUrl"\s*:\s*"([^"]+)"/g,
+    /"url"\s*:\s*"(https:\/\/st\.hzcdn\.com[^"]+)"/g,
+    /"src"\s*:\s*"(https:\/\/st\.hzcdn\.com[^"]+)"/g,
+    /"image"\s*:\s*"(https:\/\/st\.hzcdn\.com[^"]+)"/g,
   ];
   
-  for (const pattern of patterns) {
+  for (const pattern of jsonPatterns) {
     let match;
-    while ((match = pattern.exec(html)) !== null) {
+    while ((match = pattern.exec(htmlToSearch)) !== null) {
       let url = match[1];
       url = url.replace(/\\u002F/g, '/').replace(/\\/g, '');
-      
-      if (!url.startsWith('http')) continue;
-      if (!url.includes('st.hzcdn.com')) continue;
-      if (url.includes('avatar') || url.includes('profile') || url.includes('logo')) continue;
-      if (url.includes('.svg') || url.includes('.gif')) continue;
-      // Skip the logo image
-      if (url.includes('c2a344b60455efef_5281')) continue;
-      
-      const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i);
-      const baseId = baseIdMatch ? baseIdMatch[1] : url;
-      
-      if (seenBaseIds.has(baseId)) continue;
-      seenBaseIds.add(baseId);
-      
-      const highResUrl = toHighResolution(url);
-      images.push({ url: highResUrl });
+      addImage(url);
+    }
+  }
+  
+  // 4. Standard HTML patterns
+  const htmlPatterns = [
+    /data-src="(https:\/\/[^"]*st\.hzcdn\.com[^"]+)"/gi,
+    /src="(https:\/\/[^"]*st\.hzcdn\.com[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
+    /srcset="([^"\s,]+st\.hzcdn\.com[^"\s,]+)/g,
+    /background-image:\s*url\(['"]?(https:\/\/[^'")\s]*st\.hzcdn\.com[^'")\s]+)['"]?\)/gi,
+  ];
+  
+  for (const pattern of htmlPatterns) {
+    let match;
+    while ((match = pattern.exec(htmlToSearch)) !== null) {
+      let url = match[1];
+      url = url.replace(/\\u002F/g, '/').replace(/\\/g, '');
+      addImage(url);
     }
   }
   
   console.log('[Extract] Total unique images found:', images.length);
-  return images.slice(0, 30);
+  return images.slice(0, 50); // Allow more images
 }
 
 function extractProjectDetails(data: any, url: string): HouzzProject {
   const html = data.html || '';
+  const rawHtml = data.rawHtml || '';
   const markdown = data.markdown || '';
   const metadata = data.metadata || {};
+  const links = data.links || [];
   
   let title = '';
   const urlMatch = url.match(/\/projets\/([^/]+?)(?:-pj-vj)?~?\d*$/);
@@ -459,7 +558,8 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
     location = locationMatch[0];
   }
   
-  const images = extractImagesFromHtml(html, markdown);
+  // Pass rawHtml and links to extraction function
+  const images = extractImagesFromHtml(html, markdown, rawHtml, links);
   
   return {
     url,
@@ -670,6 +770,23 @@ Deno.serve(async (req) => {
             console.log('[Handler] Scraping project:', url);
             const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
             const project = extractProjectDetails(projectData, url);
+            
+            // If few images found, try to get more from gallery
+            if (project.images.length < 3) {
+              console.log('[Handler] Few images found, trying gallery scrape...');
+              const galleryImages = await scrapeHouzzGallery(url, FIRECRAWL_API_KEY);
+              if (galleryImages.length > 0) {
+                const existingUrls = new Set(project.images.map(i => i.url));
+                for (const imgUrl of galleryImages) {
+                  if (!existingUrls.has(imgUrl)) {
+                    project.images.push({ url: imgUrl });
+                  }
+                }
+                console.log('[Handler] Total images after gallery:', project.images.length);
+              }
+              await new Promise(resolve => setTimeout(resolve, 1500)); // Extra delay for gallery
+            }
+            
             projects.push(project);
             
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -729,6 +846,23 @@ Deno.serve(async (req) => {
             console.log('[Handler] Scraping project:', url);
             const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
             const project = extractProjectDetails(projectData, url);
+            
+            // If few images found, try to get more from gallery
+            if (project.images.length < 3) {
+              console.log('[Handler] Few images found, trying gallery scrape...');
+              const galleryImages = await scrapeHouzzGallery(url, FIRECRAWL_API_KEY);
+              if (galleryImages.length > 0) {
+                const existingUrls = new Set(project.images.map(i => i.url));
+                for (const imgUrl of galleryImages) {
+                  if (!existingUrls.has(imgUrl)) {
+                    project.images.push({ url: imgUrl });
+                  }
+                }
+                console.log('[Handler] Total images after gallery:', project.images.length);
+              }
+              await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+            
             projects.push(project);
             
             await new Promise(resolve => setTimeout(resolve, 1500)); // Slightly longer delay
