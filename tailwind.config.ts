@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         // LOCKED FONTS - No system fallbacks to ensure identical rendering
-        display: ["'Playfair Display'", "serif"],
+        display: ["'Cormorant Garamond'", "serif"],
         sans: ["'Inter'", "sans-serif"],
       },
       colors: {
