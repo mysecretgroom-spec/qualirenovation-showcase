@@ -23,11 +23,27 @@ export interface DBProjectImage {
   caption: string | null;
 }
 
+// Logo image URL to skip (always shown as first image in Houzz imports)
+const LOGO_IMAGE_URL = "https://st.hzcdn.com/fimgs/c2a344b60455efef_5281-w1920-h1440-b1-p0--.jpg";
+
 // Convert DB project to app format
 function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project {
   const sortedImages = images.sort((a, b) => (a.image_order || 0) - (b.image_order || 0));
-  const mainImage = sortedImages[0]?.image_url || "/placeholder.svg";
-  const gallery = sortedImages.slice(1).map(img => img.image_url);
+  
+  // Skip the logo image (order 0) and get the first real project photo
+  const projectImages = sortedImages.filter(img => 
+    img.image_url !== LOGO_IMAGE_URL && img.image_order > 0
+  );
+  
+  // If we have project images, use the first one; otherwise try any non-logo image
+  const mainImage = projectImages[0]?.image_url || 
+    sortedImages.find(img => img.image_url !== LOGO_IMAGE_URL)?.image_url || 
+    "/placeholder.svg";
+  
+  // Gallery excludes the main image and the logo
+  const gallery = sortedImages
+    .filter(img => img.image_url !== LOGO_IMAGE_URL && img.image_url !== mainImage)
+    .map(img => img.image_url);
 
   return {
     id: parseInt(dbProject.id.replace(/-/g, '').substring(0, 8), 16) || Date.now(),
