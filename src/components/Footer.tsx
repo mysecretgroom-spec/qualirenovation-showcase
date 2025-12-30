@@ -141,6 +141,9 @@ const Footer = () => {
             © {currentYear} QUALIRENOVATION by Qualiconcept. Tous droits réservés.
           </p>
           <div className="flex gap-6 text-sm">
+            <Link to="/faq" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
+              FAQ
+            </Link>
             <Link to="/cgv" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
               CGV
             </Link>
