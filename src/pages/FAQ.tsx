@@ -16,19 +16,19 @@ const faqSections = [
     items: [
       {
         question: "Qu'est-ce qui vous différencie des autres entreprises de rénovation ?",
-        answer: "Notre approche repose sur trois piliers : un interlocuteur unique tout au long du projet, une équipe d'artisans qualifiés et fidèles, et un suivi rigoureux de chaque chantier. Nous privilégions la qualité à la quantité, avec un nombre limité de projets simultanés pour garantir notre disponibilité."
+        answer: "Chez QualiRénovation by QualiConcept, nous allions maîtrise technique, sens du détail et accompagnement personnalisé. Chaque chantier est piloté comme un projet sur mesure : plans précis, anticipation des contraintes, communication transparente et coordination rigoureuse de tous les corps de métier. Notre objectif est simple : zéro surprise et un résultat parfaitement exécuté."
       },
       {
         question: "Quelles garanties offrez-vous ?",
-        answer: "Nous disposons d'une assurance responsabilité civile professionnelle et d'une garantie décennale. La garantie de parfait achèvement couvre tous les désordres pendant 1 an, la garantie biennale couvre les équipements pendant 2 ans, et la garantie décennale couvre les gros ouvrages pendant 10 ans."
+        answer: "Nous travaillons exclusivement avec des artisans et entreprises disposant des assurances obligatoires : décennale, responsabilité civile et assurances spécifiques à chaque métier. En tant que maître d'œuvre, nous garantissons un suivi rigoureux, la conformité aux normes, la transparence des étapes et la sécurisation de votre projet du début à la fin."
       },
       {
         question: "Proposez-vous un accompagnement déco et conseil ?",
-        answer: "Oui, nous travaillons en collaboration avec notre partenaire décorateur Qualidéco pour vous accompagner dans vos choix de matériaux, couleurs et aménagements. Ce service personnalisé vous aide à créer un intérieur qui vous ressemble tout en optimisant votre budget."
+        answer: "Oui. Nous proposons un accompagnement complet : choix des matériaux, couleurs, optimisation des espaces, éclairages, menuiseries, ambiance globale… Nous travaillons également avec un architecte d'intérieur afin de vous fournir des plans 3D et un conseil esthétique cohérent avec votre projet."
       },
       {
         question: "Comment assurez-vous la qualité des travaux ?",
-        answer: "Chaque chantier est supervisé par notre équipe avec des points d'étape réguliers. Nous travaillons avec des artisans fidèles depuis des années, formés à nos exigences de qualité. Un contrôle final est effectué avant la réception des travaux."
+        answer: "Nous ne laissons rien au hasard : sélection d'équipes qualifiées, plans détaillés, suivi quasi quotidien du chantier, contrôles systématiques à chaque étape (structure, plomberie, électricité, étanchéité, finitions) et utilisation de matériaux fiables et conformes aux normes. Notre méthode garantit une exécution dans les règles de l'art et un résultat durable."
       }
     ]
   },
@@ -37,15 +37,15 @@ const faqSections = [
     items: [
       {
         question: "Comment se déroule une demande de devis ?",
-        answer: "Après réception de votre demande, nous vous contactons pour organiser une visite technique gratuite sur le lieu des travaux. Suite à cette visite, nous établissons un devis détaillé sous 5 à 7 jours ouvrés. Le devis est valable 30 jours."
+        answer: "La demande commence par une prise de contact et un échange sur votre projet. Nous organisons ensuite une visite sur place pour relever les mesures, analyser les contraintes techniques et comprendre vos besoins. À partir de ces éléments, nous établissons un devis détaillé, clair et transparent, comprenant les travaux, les matériaux et les éventuelles options. Chaque poste est expliqué afin que vous puissiez valider votre projet sereinement."
       },
       {
         question: "Quelle est la durée moyenne d'un chantier ?",
-        answer: "La durée dépend de l'ampleur des travaux. Une rénovation de salle de bain prend généralement 2 à 3 semaines. Une rénovation complète d'appartement peut durer de 2 à 4 mois selon la surface et la complexité du projet."
+        answer: "La durée dépend naturellement de la nature des travaux. Une rénovation partielle peut durer de 2 à 6 semaines ; une rénovation complète, entre 6 et 12 semaines en moyenne. Nous établissons un planning prévisionnel avant le démarrage et nous nous engageons à le respecter autant que possible, tout en vous tenant informé si une adaptation est nécessaire."
       },
       {
         question: "Comment se passe le suivi du chantier ?",
-        answer: "Vous bénéficiez d'un interlocuteur unique tout au long du projet. Nous organisons des points réguliers pour vous tenir informé de l'avancement et validons ensemble chaque étape clé. Vous pouvez nous joindre facilement par téléphone ou email."
+        answer: "Le suivi est assuré quotidiennement : visite du chantier, coordination des équipes, vérification des étapes clés, résolution des imprévus et contrôle des finitions. Vous recevez des points réguliers, photos, avancées et validations nécessaires. Notre rôle est d'assurer une exécution conforme aux normes, au planning et au projet validé, tout en vous offrant une totale tranquillité d'esprit."
       }
     ]
   },
@@ -54,15 +54,65 @@ const faqSections = [
     items: [
       {
         question: "Quels types de travaux réalisez-vous ?",
-        answer: "Nous réalisons tous types de rénovation d'intérieur : rénovation complète d'appartements, salles de bain, cuisines, ouverture de murs porteurs, pose de parquet et carrelage, peinture et finitions, ainsi que l'aménagement et la décoration."
+        answer: "Nous réalisons tous types de travaux de rénovation : rénovation complète d'appartements et de maisons, création et optimisation d'espaces, salle de bain, cuisine, menuiseries sur mesure, électricité, plomberie, peinture, sols, isolation, faux plafonds, modifications structurelles avec validation BET, et accompagnement déco. Nous gérons l'ensemble du projet du début à la fin pour garantir cohérence, qualité et tranquillité d'esprit."
       },
       {
         question: "Quelles sont vos zones d'intervention ?",
-        answer: "Nous intervenons principalement à Paris et dans les Hauts-de-Seine : Neuilly-sur-Seine, Boulogne-Billancourt, Levallois-Perret, Issy-les-Moulineaux, Saint-Cloud, et les communes environnantes."
+        answer: "Nous intervenons principalement à Paris et dans toute l'Île-de-France : Paris intramuros, Hauts-de-Seine, Val-de-Marne, Seine-Saint-Denis, et communes limitrophes. Pour des projets spécifiques, nous pouvons étudier des interventions au-delà de cette zone."
       },
       {
         question: "Que se passe-t-il en cas de problème après les travaux ?",
-        answer: "Nous assurons un suivi après chantier et restons joignables pour toute question. En cas de désordre, nos garanties vous protègent : parfait achèvement (1 an), biennale (2 ans) et décennale (10 ans)."
+        answer: "En cas de problème, vous n'êtes jamais seul. Nous intervenons rapidement pour diagnostiquer, corriger et assurer la bonne tenue de l'ouvrage. Chaque artisan dispose de ses assurances (décennale, RC), et nous restons votre interlocuteur unique pour coordonner les reprises si nécessaire. L'objectif : une résolution simple, rapide et transparente."
+      }
+    ]
+  },
+  {
+    title: "Le rôle du maître d'œuvre",
+    items: [
+      {
+        question: "Pourquoi faire appel à un maître d'œuvre pour ma rénovation ?",
+        answer: "Faire appel à un maître d'œuvre, c'est vous assurer un chantier cadré, organisé et parfaitement exécuté. Nous anticipons les contraintes, coordonnons tous les artisans, vérifions la conformité aux normes et gérons les imprévus pour vous éviter le stress. Vous bénéficiez d'un interlocuteur unique, d'un suivi rigoureux et d'un résultat maîtrisé du début à la fin."
+      },
+      {
+        question: "Comment choisissez-vous les artisans et entreprises qui interviennent sur le chantier ?",
+        answer: "Nous travaillons uniquement avec des artisans expérimentés, fiables et assurés (décennale et RC). Chaque partenaire est sélectionné pour son sérieux, la qualité constante de son travail et sa capacité à respecter les délais. C'est grâce à cette exigence que nous pouvons garantir une exécution dans les règles de l'art."
+      },
+      {
+        question: "Comment garantissez-vous le respect du budget ?",
+        answer: "Le budget est établi en amont, poste par poste. Nous le suivons tout au long du chantier, validons chaque dépense avec vous et anticipons les éventuels ajustements. Aucune surprise : toutes les décisions sont transparentes et expliquées. L'objectif est simple : respecter votre budget et optimiser chaque euro investi."
+      },
+      {
+        question: "Est-ce que vous vous occupez des autorisations, des relations avec le syndic et du BET ?",
+        answer: "Oui. Nous gérons toutes les démarches nécessaires : demandes auprès du syndic, autorisations de travaux, consultations du BET en cas de mur porteur ou d'intervention structurelle, et conformité aux règles de l'immeuble. Vous êtes déchargé de toute la partie administrative et technique, tout en étant sûr que tout est fait dans les règles."
+      },
+      {
+        question: "Comment assurez-vous la coordination entre les différents corps de métier ?",
+        answer: "Nous planifions et orchestrons l'intervention de chaque artisan : plombier, électricien, plaquiste, peintre, menuisier, carreleur… Chaque étape est organisée pour éviter les temps morts et garantir une progression fluide du chantier. Le maître d'œuvre vérifie, valide et ajuste au fur et à mesure, ce qui assure une réalisation harmonieuse et conforme."
+      }
+    ]
+  },
+  {
+    title: "Préparation et suivi du chantier",
+    items: [
+      {
+        question: "Travaillez-vous avec des plans 3D et des visuels avant travaux ?",
+        answer: "Oui, nous proposons des plans 3D, des vues réalistes et des plans techniques détaillés. Cela permet de visualiser votre futur intérieur, d'affiner les choix et de valider chaque élément avant lancement. C'est un outil essentiel pour garantir un projet cohérent et éviter les mauvaises surprises."
+      },
+      {
+        question: "Comment gérez-vous les imprévus sur un chantier ?",
+        answer: "Les imprévus font partie des travaux, mais notre rôle est de les anticiper et de les résoudre rapidement. Dès qu'un point technique se présente, nous analysons, proposons une solution, validons avec vous et mettons en œuvre sans retarder le planning. Vous êtes informé, mais jamais laissé dans la gestion du problème."
+      },
+      {
+        question: "Est-ce que vous proposez un planning détaillé avant le début des travaux ?",
+        answer: "Oui. Avant le démarrage, nous établissons un planning précis avec l'ordre des interventions, les délais de chaque corps d'état et les étapes clés. Cela permet d'avoir une vision claire du déroulement du chantier et d'avancer dans un cadre structuré et maîtrisé."
+      },
+      {
+        question: "Quel est votre processus de réception de chantier ?",
+        answer: "À la fin des travaux, nous effectuons une visite complète avec vous : contrôle des finitions, vérification des installations, tests des équipements, et liste des éventuelles petites reprises. Une fois ces points validés, la réception est prononcée. C'est une étape essentielle pour garantir un résultat impeccable."
+      },
+      {
+        question: "Pouvez-vous intervenir si le projet comprend des contraintes techniques complexes ?",
+        answer: "Oui. Nous avons l'habitude de gérer des projets avec contraintes : murs porteurs, ventilation, étanchéité, isolation, réseaux, salles de bain techniques, optimisation d'espaces compliqués… Grâce à notre expertise et à nos partenaires (BET, artisans spécialisés), chaque problématique est traitée avec méthode et sécurité."
       }
     ]
   }
