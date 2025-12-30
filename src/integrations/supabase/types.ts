@@ -174,11 +174,14 @@ export type Database = {
       }
       quote_requests: {
         Row: {
+          address: string | null
           budget: string
-          city: string
+          city: string | null
           created_at: string
           email: string
           id: string
+          latitude: number | null
+          longitude: number | null
           message: string
           name: string
           phone: string
@@ -188,11 +191,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           budget: string
-          city: string
+          city?: string | null
           created_at?: string
           email: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           message: string
           name: string
           phone: string
@@ -202,11 +208,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           budget?: string
-          city?: string
+          city?: string | null
           created_at?: string
           email?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           message?: string
           name?: string
           phone?: string
