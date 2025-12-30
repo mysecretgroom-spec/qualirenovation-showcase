@@ -137,9 +137,9 @@ const FAQPage = () => {
   return (
     <>
       <Helmet>
-        <title>FAQ - Questions Fréquentes sur la Rénovation | Qualirénovation Paris</title>
-        <meta name="description" content="Retrouvez les réponses aux questions les plus fréquentes sur nos services de rénovation d'intérieur à Paris et Île-de-France. Devis gratuit, garanties décennales." />
-        <meta name="keywords" content="FAQ rénovation, questions rénovation appartement, devis rénovation Paris, garantie décennale, rénovation salle de bain questions" />
+        <title>FAQ Rénovation Paris | Maître d'œuvre, Devis, Suivi Chantier | Qualirénovation</title>
+        <meta name="description" content="20 questions sur la rénovation à Paris : rôle du maître d'œuvre, garanties décennales, suivi de chantier, plans 3D, coordination artisans et respect du budget. Devis gratuit." />
+        <meta name="keywords" content="FAQ rénovation Paris, maître d'œuvre rénovation, suivi chantier, coordination artisans, plans 3D rénovation, devis rénovation appartement, garantie décennale, BET mur porteur, réception chantier, budget rénovation Île-de-France" />
         <link rel="canonical" href="https://qualirenovation.fr/faq" />
         <script type="application/ld+json">
           {JSON.stringify(faqSchema)}
