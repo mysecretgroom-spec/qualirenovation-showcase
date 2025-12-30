@@ -3,9 +3,36 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, Star } from "lucide-react";
 import heroImage from "@/assets/hero-renovation.jpg";
 import QuoteModal from "./QuoteModal";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Hero = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+
+  // Fetch real testimonial stats from database (visible only)
+  const { data: stats } = useQuery({
+    queryKey: ["testimonials-hero-stats"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("houzz_testimonials")
+        .select("rating")
+        .eq("hidden", false);
+
+      if (error) throw error;
+      
+      const count = data?.length || 0;
+      const avgRating = count > 0 
+        ? Math.round((data.reduce((sum, t) => sum + t.rating, 0) / count) * 10) / 10
+        : 5;
+      
+      return { count, avgRating };
+    },
+  });
+
+  const reviewCount = stats?.count || 0;
+  const avgRating = stats?.avgRating || 5;
+  const fullStars = Math.floor(avgRating);
+  const hasHalfStar = avgRating - fullStars >= 0.5;
 
   return (
     <>
@@ -67,19 +94,27 @@ const Hero = () => {
           </div>
 
           {/* Rating */}
-          <div className="flex items-center justify-center gap-6 animate-fade-in-up animation-delay-400">
-            <div className="flex items-center gap-1">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-5 h-5 ${i < 4 ? "fill-gold-light text-gold-light" : "fill-gold-light/50 text-gold-light/50"}`}
-                />
-              ))}
+          {reviewCount > 0 && (
+            <div className="flex items-center justify-center gap-6 animate-fade-in-up animation-delay-400">
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-5 h-5 ${
+                      i < fullStars 
+                        ? "fill-gold-light text-gold-light" 
+                        : i === fullStars && hasHalfStar
+                          ? "fill-gold-light/50 text-gold-light/50"
+                          : "fill-transparent text-gold-light/30"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-background/80">
+                <strong className="text-background">{avgRating}/5</strong> basé sur {reviewCount} avis
+              </span>
             </div>
-            <span className="text-background/80">
-              <strong className="text-background">4.5/5</strong> basé sur 53 avis
-            </span>
-          </div>
+          )}
         </div>
 
         {/* Scroll Indicator */}
