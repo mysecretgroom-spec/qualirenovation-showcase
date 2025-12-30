@@ -74,8 +74,16 @@ const Testimonials = () => {
     );
   }
 
+  // Always render the section, even if empty, to debug
   if (testimonials.length === 0) {
-    return null;
+    console.warn("No testimonials to display");
+    return (
+      <section id="testimonials" className="section-padding bg-secondary/30">
+        <div className="container-tight text-center py-12">
+          <p className="text-muted-foreground">Chargement des avis...</p>
+        </div>
+      </section>
+    );
   }
 
   return (
