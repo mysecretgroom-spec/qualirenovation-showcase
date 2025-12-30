@@ -8,6 +8,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
 
 interface Testimonial {
   id: string;
@@ -20,6 +22,9 @@ interface Testimonial {
 }
 
 const Testimonials = () => {
+  const autoplayPlugin = useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: true })
+  );
 
   // Debug: Log environment info
   console.log("=== TESTIMONIALS DEBUG ===");
@@ -142,6 +147,7 @@ const Testimonials = () => {
             loop: true,
             containScroll: "trimSnaps",
           }}
+          plugins={[autoplayPlugin.current]}
           className="w-full overflow-hidden"
         >
           <CarouselContent className="-ml-4">
