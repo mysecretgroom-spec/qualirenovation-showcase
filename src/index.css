@@ -6,6 +6,17 @@
  * DO NOT modify these values to ensure consistent
  * rendering across all browsers and devices.
  * ============================================
+ * 
+ * LOCKED FONTS (DO NOT CHANGE):
+ * - Display: Cormorant Garamond (titres principaux)
+ * - Script: Imperial Script (accent calligraphique)
+ * - Body: Inter (corps de texte)
+ * 
+ * HERO TITLE CONFIGURATION:
+ * - "Rénovation d'excellence" → Cormorant Garamond, semi-bold
+ * - "à" → Cormorant Garamond, semi-bold (identique au titre)
+ * - "Paris & Île-de-France" → Imperial Script, 1.15em
+ * ============================================
  */
 
 /* 
