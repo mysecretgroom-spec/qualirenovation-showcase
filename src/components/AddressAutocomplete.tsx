@@ -10,6 +10,7 @@ interface AddressResult {
   latitude: number;
   longitude: number;
   city?: string;
+  postalCode?: string;
 }
 
 interface Suggestion {
@@ -106,12 +107,17 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
   const handleSelect = (suggestion: Suggestion) => {
     const [lng, lat] = suggestion.center;
     
-    // Extract city from context
+    // Extract city and postal code from context
     let city = '';
+    let postalCode = '';
     if (suggestion.context) {
       const placeContext = suggestion.context.find(c => c.id.startsWith('place.'));
+      const postcodeContext = suggestion.context.find(c => c.id.startsWith('postcode.'));
       if (placeContext) {
         city = placeContext.text;
+      }
+      if (postcodeContext) {
+        postalCode = postcodeContext.text;
       }
     }
 
@@ -120,6 +126,7 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
       latitude: lat,
       longitude: lng,
       city,
+      postalCode,
     };
 
     setQuery(suggestion.place_name);
@@ -215,9 +222,16 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
             className="h-32 w-full"
             style={{ minHeight: '128px' }}
           />
-          <div className="bg-secondary/50 px-3 py-2 text-xs text-muted-foreground flex items-center gap-1.5">
-            <MapPin className="w-3 h-3 text-accent" />
-            <span className="truncate">{selectedAddress.address}</span>
+          <div className="bg-secondary/50 px-3 py-2">
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <MapPin className="w-3 h-3 text-accent flex-shrink-0" />
+              <span className="truncate">{selectedAddress.address}</span>
+            </div>
+            {(selectedAddress.postalCode || selectedAddress.city) && (
+              <div className="text-sm font-medium text-foreground mt-1 ml-[18px]">
+                {selectedAddress.postalCode} {selectedAddress.city}
+              </div>
+            )}
           </div>
         </div>
       )}

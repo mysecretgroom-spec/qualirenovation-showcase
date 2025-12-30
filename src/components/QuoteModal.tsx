@@ -124,6 +124,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
     email: "",
     phone: "",
     city: "",
+    postalCode: "",
     address: "",
     latitude: undefined as number | undefined,
     longitude: undefined as number | undefined,
@@ -162,7 +163,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
     }
   };
 
-  const handleAddressChange = (result: { address: string; latitude: number; longitude: number; city?: string } | null) => {
+  const handleAddressChange = (result: { address: string; latitude: number; longitude: number; city?: string; postalCode?: string } | null) => {
     if (result) {
       setFormData((prev) => ({
         ...prev,
@@ -170,6 +171,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         latitude: result.latitude,
         longitude: result.longitude,
         city: result.city || prev.city,
+        postalCode: result.postalCode || prev.postalCode,
       }));
       // Clear address error
       if (errors.address) {
@@ -181,6 +183,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         address: "",
         latitude: undefined,
         longitude: undefined,
+        postalCode: "",
       }));
     }
   };
@@ -257,6 +260,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         email: "",
         phone: "",
         city: "",
+        postalCode: "",
         address: "",
         latitude: undefined,
         longitude: undefined,
