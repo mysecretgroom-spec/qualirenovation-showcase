@@ -23,26 +23,38 @@ export interface DBProjectImage {
   caption: string | null;
 }
 
-// Logo image URL to skip (always shown as first image in Houzz imports)
-const LOGO_IMAGE_URL = "https://st.hzcdn.com/fimgs/c2a344b60455efef_5281-w1920-h1440-b1-p0--.jpg";
+// Known bad images to skip (placeholders, logos, generic Houzz images)
+const BAD_IMAGE_PATTERNS = [
+  'c2a344b60455efef_5281', // Qualirenovation logo
+  '81912ca803582c51_9-2898', // Houzz placeholder 1
+  '15e1f4c30358399f_16-6307', // Houzz generic image
+  '221176c101fc2cf7_16-6566', // Houzz generic image
+  '4fd134ac03585a99_16-4748', // Houzz generic image
+  '91219cfa02d8687c_16-9774', // Houzz generic image
+  '975135c203d2e0c8_9-4489', // Houzz generic image
+  'b231ddda0321f9f3_14-1064', // Houzz generic image
+  'aea5f95808ab2bc8_9-8332', // Houzz generic image
+];
+
+function isValidProjectImage(url: string): boolean {
+  return !BAD_IMAGE_PATTERNS.some(pattern => url.includes(pattern));
+}
 
 // Convert DB project to app format
 function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project {
   const sortedImages = images.sort((a, b) => (a.image_order || 0) - (b.image_order || 0));
   
-  // Skip the logo image (order 0) and get the first real project photo
-  const projectImages = sortedImages.filter(img => 
-    img.image_url !== LOGO_IMAGE_URL && img.image_order > 0
-  );
+  // Filter out known bad images
+  const validImages = sortedImages.filter(img => isValidProjectImage(img.image_url));
   
-  // If we have project images, use the first one; otherwise try any non-logo image
-  const mainImage = projectImages[0]?.image_url || 
-    sortedImages.find(img => img.image_url !== LOGO_IMAGE_URL)?.image_url || 
+  // Use the first valid image as main, fallback to any image if none valid
+  const mainImage = validImages[0]?.image_url || 
+    sortedImages[0]?.image_url || 
     "/placeholder.svg";
   
-  // Gallery excludes the main image and the logo
+  // Gallery excludes the main image and bad images
   const gallery = sortedImages
-    .filter(img => img.image_url !== LOGO_IMAGE_URL && img.image_url !== mainImage)
+    .filter(img => isValidProjectImage(img.image_url) && img.image_url !== mainImage)
     .map(img => img.image_url);
 
   return {
