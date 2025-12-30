@@ -122,6 +122,10 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Honeypot field - should stay empty (bots fill it)
+  const [website, setWebsite] = useState("");
+  // Track form open time for anti-spam
+  const [formOpenedAt] = useState(() => Date.now());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -172,11 +176,30 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       return;
     }
 
+    // Check honeypot - if filled, silently reject (bot detected)
+    if (website) {
+      console.log("Honeypot triggered - bot detected");
+      toast({
+        title: "Demande de devis envoyée !",
+        description: "Un email de confirmation vous a été envoyé.",
+      });
+      onOpenChange(false);
+      return;
+    }
+
+    // Calculate time spent on form
+    const timeSpentMs = Date.now() - formOpenedAt;
+
     setIsSubmitting(true);
 
     try {
       const { data, error } = await supabase.functions.invoke('send-quote-confirmation', {
-        body: formData,
+        body: { 
+          ...formData, 
+          _hp: website, // honeypot field
+          _ts: formOpenedAt, // timestamp when form was opened
+          _duration: timeSpentMs, // time spent filling form
+        },
       });
 
       if (error) {
@@ -404,6 +427,20 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
               placeholder="Type de travaux, pièces concernées..."
             />
             {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
+          </div>
+
+          {/* Honeypot field - hidden from users, bots will fill it */}
+          <div className="absolute -left-[9999px] opacity-0 h-0 overflow-hidden" aria-hidden="true">
+            <label htmlFor="website">Website</label>
+            <input
+              type="text"
+              id="website"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
