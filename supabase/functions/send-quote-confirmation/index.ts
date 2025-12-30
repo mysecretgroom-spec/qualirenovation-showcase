@@ -173,8 +173,31 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Captcha verification removed - form now works without captcha
-    console.log("[send-quote-confirmation] Processing quote request without captcha verification");
+    // Anti-spam checks
+    const honeypot = (rawData as Record<string, unknown>)?._hp;
+    const formTimestamp = (rawData as Record<string, unknown>)?._ts;
+    const formDuration = (rawData as Record<string, unknown>)?._duration;
+    
+    // Check honeypot - if filled, reject silently (bot detected)
+    if (honeypot && typeof honeypot === 'string' && honeypot.length > 0) {
+      console.log("[send-quote-confirmation] Honeypot triggered - bot detected, rejecting silently");
+      return new Response(
+        JSON.stringify({ success: true, message: "Quote request received" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    // Check time spent on form - if less than 3 seconds, likely a bot
+    const MIN_FORM_TIME_MS = 3000; // 3 seconds minimum
+    if (formDuration && typeof formDuration === 'number' && formDuration < MIN_FORM_TIME_MS) {
+      console.log(`[send-quote-confirmation] Form submitted too quickly (${formDuration}ms) - possible bot`);
+      return new Response(
+        JSON.stringify({ success: true, message: "Quote request received" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    
+    console.log(`[send-quote-confirmation] Anti-spam checks passed. Form duration: ${formDuration}ms`);
 
     const validationResult = validateQuoteData(rawData);
     
