@@ -9,7 +9,7 @@
  */
 
 /* 
- * LOCKED FONTS: Playfair Display (display) & Inter (body)
+ * LOCKED FONTS: Cormorant Garamond (display), Imperial Script (script) & Inter (body)
  * Loaded via index.html for optimal performance
  */
 
@@ -40,7 +40,8 @@
 @layer base {
   :root {
     /* === LOCKED TYPOGRAPHY === */
-    --font-display: 'Playfair Display', serif;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-script: 'Imperial Script', cursive;
     --font-body: 'Inter', sans-serif;
     --font-size-base: 16px;
     --line-height-base: 1.5;
@@ -246,9 +247,16 @@
  * LOCKED COMPONENT CLASSES
  * ============================================ */
 @layer components {
-  /* Force display font (Playfair Display) */
+  /* Force display font (Cormorant Garamond) */
   .font-display-locked {
     font-family: var(--font-display) !important;
+  }
+
+  /* Force script font (Imperial Script) - HIGHEST PRIORITY */
+  .font-script {
+    font-family: var(--font-script) !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
   }
 
   /* Force body font (Inter) */
