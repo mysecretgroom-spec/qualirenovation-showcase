@@ -331,10 +331,6 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
               </div>
               
-              <!-- Image hero -->
-              <div class="hero-section">
-                <img src="https://st.hzcdn.com/simgs/7461361a0ab3ba4b_8-2381/salons-hotel-particulier-saint-mande-olivier-berni-interieurs.jpg" alt="Rénovation d'intérieur de qualité" class="hero-image" />
-              </div>
               
               <!-- Contenu principal -->
               <div class="content">
