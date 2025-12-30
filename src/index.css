@@ -95,17 +95,60 @@
 }
 
 @layer base {
+  /* Cross-browser normalization for consistent rendering */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   * {
     @apply border-border;
   }
 
   html {
     scroll-behavior: smooth;
+    /* Prevent iOS font scaling */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Prevent content shift on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Consistent line heights across browsers */
+    line-height: 1.5;
+    /* Prevent tap highlight on iOS */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Consistent image rendering */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Consistent button styling across browsers */
+  button {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Consistent input styling */
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    font-size: 16px; /* Prevents zoom on iOS */
   }
 
   h1, h2, h3, h4, h5, h6 {

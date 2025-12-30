@@ -32,7 +32,7 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: HouzzIcon, href: "https://www.houzz.fr/pro/qualiconcept/qualirenovation-by-qualiconcept", label: "Houzz", isComponent: true },
+    { icon: HouzzIcon, href: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618", label: "Houzz", isComponent: true },
     { icon: Instagram, href: "https://www.instagram.com/qualirenovation__travaux/", label: "Instagram", isComponent: false },
   ];
 
