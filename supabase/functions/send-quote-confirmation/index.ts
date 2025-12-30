@@ -23,6 +23,9 @@ interface QuoteRequestData {
   email: string;
   phone: string;
   city: string;
+  address: string;
+  latitude?: number;
+  longitude?: number;
   surface: string;
   budget: string;
   timeline: string;
@@ -83,11 +86,18 @@ function validateQuoteData(data: unknown): { valid: true; data: QuoteRequestData
     errors.push({ field: 'phone', message: 'Numéro de téléphone invalide (format français attendu)' });
   }
 
-  // City validation
+  // City validation (optional now, extracted from address)
   const city = sanitizeString(input.city, 100);
-  if (!city || city.length < 2) {
-    errors.push({ field: 'city', message: 'La ville doit contenir au moins 2 caractères' });
+
+  // Address validation (required)
+  const address = sanitizeString(input.address, 500);
+  if (!address || address.length < 5) {
+    errors.push({ field: 'address', message: 'L\'adresse doit contenir au moins 5 caractères' });
   }
+
+  // Coordinates (optional)
+  const latitude = typeof input.latitude === 'number' ? input.latitude : undefined;
+  const longitude = typeof input.longitude === 'number' ? input.longitude : undefined;
 
   // Surface validation
   const surface = sanitizeString(input.surface, 10);
@@ -119,7 +129,7 @@ function validateQuoteData(data: unknown): { valid: true; data: QuoteRequestData
 
   return {
     valid: true,
-    data: { name, email, phone, city, surface, budget, timeline, message }
+    data: { name, email, phone, city, address, latitude, longitude, surface, budget, timeline, message }
   };
 }
 
@@ -235,7 +245,10 @@ const handler = async (req: Request): Promise<Response> => {
         name: data.name,
         email: data.email,
         phone: data.phone,
-        city: data.city,
+        city: data.city || null,
+        address: data.address,
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
         surface: data.surface,
         budget: data.budget,
         timeline: data.timeline,
@@ -262,7 +275,8 @@ const handler = async (req: Request): Promise<Response> => {
          .replace(/'/g, '&#039;');
 
     const safeName = escapeHtml(data.name);
-    const safeCity = escapeHtml(data.city);
+    const safeCity = escapeHtml(data.city || '');
+    const safeAddress = escapeHtml(data.address);
     const safeSurface = escapeHtml(data.surface);
     const safeMessage = escapeHtml(data.message);
     const safeEmail = escapeHtml(data.email);
@@ -345,7 +359,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <!-- Récapitulatif -->
                 <div class="recap">
                   <h3 class="recap-title">RÉCAPITULATIF DE VOTRE DEMANDE</h3>
-                  <div class="recap-item"><span class="recap-label">Ville du bien</span> <span class="recap-value">${safeCity}</span></div>
+                  <div class="recap-item"><span class="recap-label">Adresse du chantier</span> <span class="recap-value">${safeAddress}</span></div>
                   <div class="recap-item"><span class="recap-label">Surface</span> <span class="recap-value">${safeSurface} m²</span></div>
                   <div class="recap-item"><span class="recap-label">Budget envisagé</span> <span class="recap-value">${budgetLabel}</span></div>
                   <div class="recap-item"><span class="recap-label">Démarrage souhaité</span> <span class="recap-value">${timelineLabel}</span></div>
@@ -410,7 +424,7 @@ const handler = async (req: Request): Promise<Response> => {
     const teamEmailResponse = await resend.emails.send({
       from: "Qualirenovation <contact@qualiconcept.fr>",
       to: ["contact@qualiconcept.fr"],
-      subject: `Nouvelle demande de devis - ${safeName} (${safeCity})`,
+      subject: `Nouvelle demande de devis - ${safeName} (${safeAddress.substring(0, 50)})`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -440,7 +454,8 @@ const handler = async (req: Request): Promise<Response> => {
                 <tr><td>Nom</td><td><strong>${safeName}</strong></td></tr>
                 <tr><td>Email</td><td><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
                 <tr><td>Téléphone</td><td><a href="tel:${safePhone}">${safePhone}</a></td></tr>
-                <tr><td>Ville du bien</td><td>${safeCity}</td></tr>
+                <tr><td>Adresse du chantier</td><td>${safeAddress}</td></tr>${data.latitude && data.longitude ? `
+                <tr><td>Carte</td><td><a href="https://www.google.com/maps?q=${data.latitude},${data.longitude}" target="_blank">Voir sur Google Maps</a></td></tr>` : ''}
                 <tr><td>Surface</td><td>${safeSurface} m²</td></tr>
                 <tr><td>Budget</td><td><strong>${budgetLabel}</strong></td></tr>
                 <tr><td>Démarrage</td><td>${timelineLabel}</td></tr>

@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Send } from "lucide-react";
 import { z } from "zod";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 // =============================================
 // VALIDATION SCHEMA
@@ -46,9 +47,16 @@ const quoteFormSchema = z.object({
     ),
   city: z
     .string()
-    .min(2, "La ville doit contenir au moins 2 caractères")
     .max(100, "La ville ne peut pas dépasser 100 caractères")
+    .optional()
+    .transform(val => val?.trim() || ''),
+  address: z
+    .string()
+    .min(5, "L'adresse doit contenir au moins 5 caractères")
+    .max(500, "L'adresse ne peut pas dépasser 500 caractères")
     .transform(val => val.trim()),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   surface: z
     .string()
     .refine(val => /^\d+$/.test(val), "La surface doit être un nombre")
@@ -102,6 +110,7 @@ interface FormErrors {
   email?: string;
   phone?: string;
   city?: string;
+  address?: string;
   surface?: string;
   budget?: string;
   timeline?: string;
@@ -115,6 +124,9 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
     email: "",
     phone: "",
     city: "",
+    address: "",
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
     surface: "",
     budget: "",
     timeline: "",
@@ -147,6 +159,29 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
     // Clear error when user selects
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleAddressChange = (result: { address: string; latitude: number; longitude: number; city?: string } | null) => {
+    if (result) {
+      setFormData((prev) => ({
+        ...prev,
+        address: result.address,
+        latitude: result.latitude,
+        longitude: result.longitude,
+        city: result.city || prev.city,
+      }));
+      // Clear address error
+      if (errors.address) {
+        setErrors((prev) => ({ ...prev, address: undefined }));
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        address: "",
+        latitude: undefined,
+        longitude: undefined,
+      }));
     }
   };
 
@@ -222,6 +257,9 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         email: "",
         phone: "",
         city: "",
+        address: "",
+        latitude: undefined,
+        longitude: undefined,
         surface: "",
         budget: "",
         timeline: "",
@@ -311,44 +349,31 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             </div>
           </div>
 
-          {/* Ville & Surface */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="modal-city" className="block text-sm font-medium text-foreground mb-1.5">
-                Ville du bien *
-              </label>
-              <input
-                type="text"
-                id="modal-city"
-                name="city"
-                maxLength={100}
-                value={formData.city}
-                onChange={handleChange}
-                className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
-                  errors.city ? 'border-destructive' : 'border-input'
-                }`}
-                placeholder="Paris 16ème"
-              />
-              {errors.city && <p className="text-sm text-destructive mt-1">{errors.city}</p>}
-            </div>
-            <div>
-              <label htmlFor="modal-surface" className="block text-sm font-medium text-foreground mb-1.5">
-                Surface (m²) *
-              </label>
-              <input
-                type="text"
-                id="modal-surface"
-                name="surface"
-                maxLength={5}
-                value={formData.surface}
-                onChange={handleChange}
-                className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
-                  errors.surface ? 'border-destructive' : 'border-input'
-                }`}
-                placeholder="85"
-              />
-              {errors.surface && <p className="text-sm text-destructive mt-1">{errors.surface}</p>}
-            </div>
+          {/* Adresse du chantier */}
+          <AddressAutocomplete
+            value={formData.address}
+            onChange={handleAddressChange}
+            error={errors.address}
+          />
+
+          {/* Surface */}
+          <div>
+            <label htmlFor="modal-surface" className="block text-sm font-medium text-foreground mb-1.5">
+              Surface (m²) *
+            </label>
+            <input
+              type="text"
+              id="modal-surface"
+              name="surface"
+              maxLength={5}
+              value={formData.surface}
+              onChange={handleChange}
+              className={`w-full px-4 py-2.5 rounded-sm border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
+                errors.surface ? 'border-destructive' : 'border-input'
+              }`}
+              placeholder="85"
+            />
+            {errors.surface && <p className="text-sm text-destructive mt-1">{errors.surface}</p>}
           </div>
 
           {/* Budget */}
