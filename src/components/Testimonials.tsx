@@ -1,5 +1,4 @@
 import { Star, Quote, ChevronRight } from "lucide-react";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,8 +8,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
 
 interface Testimonial {
   id: string;
@@ -23,10 +20,6 @@ interface Testimonial {
 }
 
 const Testimonials = () => {
-  const { ref, animationClasses } = useScrollAnimation();
-  const autoplayPlugin = useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true })
-  );
 
   // Debug: Log environment info
   console.log("=== TESTIMONIALS DEBUG ===");
@@ -117,7 +110,7 @@ const Testimonials = () => {
   }
 
   return (
-    <section ref={ref} id="testimonials" className={`section-padding bg-secondary/30 ${animationClasses}`}>
+    <section id="testimonials" className="section-padding bg-secondary/30">
       <div className="container-tight">
         {/* Header */}
         <div className="text-center mb-12">
@@ -147,9 +140,9 @@ const Testimonials = () => {
           opts={{
             align: "start",
             loop: true,
+            containScroll: "trimSnaps",
           }}
-          plugins={[autoplayPlugin.current]}
-          className="w-full"
+          className="w-full overflow-hidden"
         >
           <CarouselContent className="-ml-4">
             {testimonials.map((testimonial) => (
