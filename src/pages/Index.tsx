@@ -8,6 +8,7 @@ import Testimonials from "@/components/Testimonials";
 import InstagramFeed from "@/components/InstagramFeed";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -88,6 +89,7 @@ const Index = () => {
           <Contact />
         </main>
         <Footer />
+        <CookieConsent />
       </div>
     </>
   );
