@@ -449,18 +449,9 @@ function toHighResolution(url: string): string {
   return highRes;
 }
 
-// Known generic/placeholder image IDs to skip (appear on all Houzz pages)
+// Known generic/placeholder image IDs to skip (only the Qualirenovation logo)
 const GENERIC_IMAGE_IDS = [
-  'c2a344b60455efef_5281', // Qualirenovation logo  
-  '81912ca803582c51_9-2898', // Houzz placeholder 1
-  '15e1f4c30358399f_16-6307', // Houzz generic image
-  '221176c101fc2cf7_16-6566', // Houzz generic image
-  '4fd134ac03585a99_16-4748', // Houzz generic image
-  '91219cfa02d8687c_16-9774', // Houzz generic image
-  '975135c203d2e0c8_9-4489', // Houzz generic image
-  'b231ddda0321f9f3_14-1064', // Houzz generic image
-  'aea5f95808ab2bc8_9-8332', // Houzz generic image
-  'home-design', // Generic placeholder indicator
+  'c2a344b60455efef_5281', // Qualirenovation logo
 ];
 
 function isGenericImage(url: string): boolean {
