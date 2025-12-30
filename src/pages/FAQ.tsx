@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import CarinIA from "@/components/CarinIA";
 
 const faqSections = [
   {
@@ -86,8 +87,10 @@ const FAQPage = () => {
   return (
     <>
       <Helmet>
-        <title>FAQ - Questions Fréquentes | Qualirénovation</title>
-        <meta name="description" content="Retrouvez les réponses aux questions les plus fréquentes sur nos services de rénovation à Paris et Île-de-France." />
+        <title>FAQ - Questions Fréquentes sur la Rénovation | Qualirénovation Paris</title>
+        <meta name="description" content="Retrouvez les réponses aux questions les plus fréquentes sur nos services de rénovation d'intérieur à Paris et Île-de-France. Devis gratuit, garanties décennales." />
+        <meta name="keywords" content="FAQ rénovation, questions rénovation appartement, devis rénovation Paris, garantie décennale, rénovation salle de bain questions" />
+        <link rel="canonical" href="https://qualirenovation.fr/faq" />
         <script type="application/ld+json">
           {JSON.stringify(faqSchema)}
         </script>
@@ -151,6 +154,7 @@ const FAQPage = () => {
             </Link>
           </div>
         </div>
+        <CarinIA />
       </div>
     </>
   );
