@@ -89,13 +89,6 @@ const CGV = () => {
                 <li><strong>Acompte 5</strong> - Une fois l'acompte 4 consommé : <strong>15%</strong></li>
                 <li><strong>Paiement final</strong> - À la réception des travaux : <strong>5%</strong></li>
               </ul>
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <p className="font-semibold text-foreground">Coordonnées bancaires :</p>
-                <p className="mt-2">IBAN : FR76 1695 8000 0182 9710 6027 617</p>
-                <p>Titulaire : QUALICONCEPT</p>
-                <p>Adresse : 6 rue d'Armaillé, 75017 Paris - FR</p>
-                <p className="text-sm mt-2">(Compte détenu auprès de Qonto)</p>
-              </div>
             </section>
 
             {/* Article 6 - Pénalités de Retard de paiement */}
