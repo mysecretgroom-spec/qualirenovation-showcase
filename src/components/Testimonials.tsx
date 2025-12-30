@@ -29,19 +29,31 @@ const Testimonials = () => {
   );
 
   // Fetch visible testimonials from database
-  const { data: testimonials = [], isLoading } = useQuery({
+  const { data: testimonials = [], isLoading, error } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
+      console.log("Fetching testimonials...");
       const { data, error } = await supabase
         .from("houzz_testimonials")
         .select("id, name, role, rating, text, date, project_type")
         .eq("hidden", false)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching testimonials:", error);
+        throw error;
+      }
+      console.log("Testimonials fetched:", data?.length);
       return data as Testimonial[];
     },
+    retry: 3,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Log any errors
+  if (error) {
+    console.error("Testimonials query error:", error);
+  }
 
   // Calculate stats from testimonials
   const testimonialStats = {
