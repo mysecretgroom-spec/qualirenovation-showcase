@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
@@ -22,6 +23,7 @@ const Header = () => {
     { href: "#projects", label: "Projets" },
     { href: "#services", label: "Services" },
     { href: "#testimonials", label: "Avis" },
+    { href: "/faq", label: "FAQ", isPage: true },
     { href: "#contact", label: "Contact" },
   ];
 
@@ -47,13 +49,23 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium transition-colors duration-300 text-primary-foreground/90 hover:text-gold"
-              >
-                {link.label}
-              </a>
+              link.isPage ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-sm font-medium transition-colors duration-300 text-primary-foreground/90 hover:text-gold"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium transition-colors duration-300 text-primary-foreground/90 hover:text-gold"
+                >
+                  {link.label}
+                </a>
+              )
             ))}
           </nav>
 
@@ -98,14 +110,25 @@ const Header = () => {
         >
           <nav className="container-tight py-6 flex flex-col gap-4">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-primary-foreground/90 text-lg font-medium py-2 hover:text-gold transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </a>
+              link.isPage ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-primary-foreground/90 text-lg font-medium py-2 hover:text-gold transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-primary-foreground/90 text-lg font-medium py-2 hover:text-gold transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </a>
+              )
             ))}
             <Button 
               variant="outline"

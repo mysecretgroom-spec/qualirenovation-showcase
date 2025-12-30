@@ -13,6 +13,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CGV from "./pages/CGV";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import FAQPage from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/projet/:slug" element={<ProjectDetail />} />
             <Route path="/cgv" element={<CGV />} />
             <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+            <Route path="/faq" element={<FAQPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin/import" element={<AdminImport />} />
             <Route path="/admin/devis" element={<AdminQuotes />} />
