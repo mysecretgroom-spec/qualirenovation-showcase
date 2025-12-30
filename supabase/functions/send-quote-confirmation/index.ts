@@ -173,43 +173,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify hCaptcha token first
-    const captchaToken = (rawData as Record<string, unknown>)?.captchaToken;
-    if (!captchaToken || typeof captchaToken !== 'string') {
-      console.error("[send-quote-confirmation] Missing captcha token");
-      return new Response(
-        JSON.stringify({ error: "Captcha verification required" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const hcaptchaSecret = Deno.env.get("HCAPTCHA_SECRET_KEY");
-    // Clé de test hCaptcha - utilisée en dev/preview
-    const isTestToken = captchaToken === "10000000-aaaa-bbbb-cccc-000000000001" || 
-                        captchaToken.startsWith("10000000-");
-    const isTestSecret = hcaptchaSecret === "0x0000000000000000000000000000000000000000";
-    
-    // Si on utilise les clés de test, on skip la vérification
-    if (!isTestToken && hcaptchaSecret && !isTestSecret) {
-      const captchaResponse = await fetch("https://api.hcaptcha.com/siteverify", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `response=${captchaToken}&secret=${hcaptchaSecret}`,
-      });
-      
-      const captchaResult = await captchaResponse.json();
-      console.log("[send-quote-confirmation] hCaptcha verification result:", captchaResult.success);
-      
-      if (!captchaResult.success) {
-        console.error("[send-quote-confirmation] hCaptcha verification failed:", captchaResult);
-        return new Response(
-          JSON.stringify({ error: "Captcha verification failed" }),
-          { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-        );
-      }
-    } else {
-      console.log("[send-quote-confirmation] Skipping hCaptcha verification (test mode)");
-    }
+    // Captcha verification removed - form now works without captcha
+    console.log("[send-quote-confirmation] Processing quote request without captcha verification");
 
     const validationResult = validateQuoteData(rawData);
     
