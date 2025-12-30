@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, User, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import carinaPhoto from "@/assets/carina.jpg";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -165,12 +166,14 @@ const CarinIA = () => {
       >
         {/* Header */}
         <div className="bg-accent text-accent-foreground p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-background/20 flex items-center justify-center">
-            <Bot className="w-5 h-5" />
-          </div>
+          <img 
+            src={carinaPhoto} 
+            alt="Carina" 
+            className="w-10 h-10 rounded-full object-cover border-2 border-background/20"
+          />
           <div>
-            <h3 className="font-semibold font-display">Carin-IA</h3>
-            <p className="text-xs opacity-80">Assistant Qualirénovation</p>
+            <h3 className="font-semibold font-display">Carina</h3>
+            <p className="text-xs opacity-80">Votre conseillère rénovation</p>
           </div>
         </div>
 
@@ -184,18 +187,17 @@ const CarinIA = () => {
                 message.role === "user" ? "flex-row-reverse" : "flex-row"
               )}
             >
-              <div
-                className={cn(
-                  "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0",
-                  message.role === "user" ? "bg-accent text-accent-foreground" : "bg-muted"
-                )}
-              >
-                {message.role === "user" ? (
+              {message.role === "user" ? (
+                <div className="w-7 h-7 rounded-full bg-accent text-accent-foreground flex items-center justify-center flex-shrink-0">
                   <User className="w-4 h-4" />
-                ) : (
-                  <Bot className="w-4 h-4" />
-                )}
-              </div>
+                </div>
+              ) : (
+                <img 
+                  src={carinaPhoto} 
+                  alt="Carina" 
+                  className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                />
+              )}
               <div
                 className={cn(
                   "max-w-[75%] rounded-lg px-3 py-2 text-sm",
