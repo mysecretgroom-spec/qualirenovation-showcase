@@ -28,11 +28,19 @@ const Testimonials = () => {
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
 
+  // Debug: Log environment info
+  console.log("=== TESTIMONIALS DEBUG ===");
+  console.log("Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
+  console.log("Environment:", import.meta.env.MODE);
+  console.log("Has Supabase client:", !!supabase);
+
   // Fetch visible testimonials from database
   const { data: testimonials = [], isLoading, error } = useQuery({
     queryKey: ["testimonials"],
     queryFn: async () => {
-      console.log("Fetching testimonials...");
+      console.log("Fetching testimonials from Supabase...");
+      console.log("Query URL:", import.meta.env.VITE_SUPABASE_URL);
+      
       const { data, error } = await supabase
         .from("houzz_testimonials")
         .select("id, name, role, rating, text, date, project_type")
@@ -40,20 +48,24 @@ const Testimonials = () => {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching testimonials:", error);
+        console.error("Supabase error details:", {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
-      console.log("Testimonials fetched:", data?.length);
+      
+      console.log("Testimonials fetched successfully:", data?.length);
       return data as Testimonial[];
     },
     retry: 3,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Log any errors
-  if (error) {
-    console.error("Testimonials query error:", error);
-  }
+  // Log query state
+  console.log("Query state:", { isLoading, hasError: !!error, count: testimonials.length });
 
   // Calculate stats from testimonials
   const testimonialStats = {
@@ -69,6 +81,24 @@ const Testimonials = () => {
       <section id="testimonials" className="section-padding bg-secondary/30">
         <div className="container-tight flex justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error state visibly
+  if (error) {
+    console.error("Rendering error state:", error);
+    return (
+      <section id="testimonials" className="section-padding bg-secondary/30">
+        <div className="container-tight text-center py-12">
+          <p className="text-destructive font-medium">Erreur de chargement des avis</p>
+          <p className="text-muted-foreground text-sm mt-2">
+            {error instanceof Error ? error.message : "Une erreur est survenue"}
+          </p>
+          <p className="text-xs text-muted-foreground mt-4">
+            URL: {import.meta.env.VITE_SUPABASE_URL || "Non définie"}
+          </p>
         </div>
       </section>
     );
