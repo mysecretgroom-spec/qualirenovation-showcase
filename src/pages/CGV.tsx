@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const CGV = () => {
   return (
@@ -180,6 +181,7 @@ const CGV = () => {
             </section>
           </div>
         </div>
+        <WhatsAppButton />
       </div>
     </>
   );
