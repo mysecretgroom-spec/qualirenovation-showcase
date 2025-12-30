@@ -382,7 +382,9 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 <p class="footer-info">
                   QUALIRÉNOVATION BY QUALICONCEPT<br>
+                  6 rue d'Armaillé - 75017 Paris<br>
                   SIRET : 85286728200034<br>
+                  Assuré par MIC Assurance<br>
                   <a href="mailto:contact@qualiconcept.fr" class="footer-link">contact@qualiconcept.fr</a><br>
                   <a href="https://qualirenovation.fr" class="footer-link">qualirenovation.fr</a>
                 </p>

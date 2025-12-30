@@ -114,7 +114,7 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-gold-light flex-shrink-0 mt-0.5" />
                 <span className="text-primary-foreground/70 text-sm">
-                  Paris & Île-de-France
+                  6 rue d'Armaillé<br />75017 Paris
                 </span>
               </li>
               <li className="flex items-center gap-3">
@@ -126,10 +126,13 @@ const Footer = () => {
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gold-light" />
                 <span className="text-primary-foreground/70 text-sm">
-                  contact@qualirenovation.fr
+                  contact@qualiconcept.fr
                 </span>
               </li>
             </ul>
+            <p className="text-primary-foreground/60 text-xs mt-6">
+              Assuré par MIC Assurance
+            </p>
           </div>
         </div>
       </div>

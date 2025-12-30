@@ -7,8 +7,8 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 const contactInfo = [
   {
     icon: MapPin,
-    title: "Zone d'intervention",
-    details: ["Paris & Île-de-France", "Neuilly, Boulogne, Levallois...", "Créteil, Ivry, Alfortville..."],
+    title: "Adresse",
+    details: ["6 rue d'Armaillé", "75017 Paris"],
   },
   {
     icon: Phone,
@@ -18,7 +18,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    details: ["contact@qualirenovation.fr"],
+    details: ["contact@qualiconcept.fr"],
   },
   {
     icon: Clock,
@@ -76,6 +76,8 @@ const Contact = () => {
                   <strong className="text-foreground">QUALIRENOVATION BY QUALICONCEPT</strong>
                   <br />
                   SIRET : 85286728200034
+                  <br />
+                  Assuré par MIC Assurance
                 </p>
               </div>
             </div>
