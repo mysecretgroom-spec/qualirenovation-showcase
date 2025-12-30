@@ -98,32 +98,83 @@ function generateSlug(title: string): string {
     .substring(0, 100);
 }
 
-// Scrape a page with Firecrawl
-async function scrapeWithFirecrawl(url: string, apiKey: string, waitTime: number = 15000): Promise<any> {
+// Retryable HTTP errors (temporary failures)
+const RETRYABLE_STATUS_CODES = [502, 503, 504, 429, 408, 500];
+
+// Sleep helper with exponential backoff
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Scrape a page with Firecrawl - with automatic retry for transient errors
+async function scrapeWithFirecrawl(
+  url: string, 
+  apiKey: string, 
+  waitTime: number = 15000,
+  maxHttpRetries: number = 3
+): Promise<any> {
   console.log('[Firecrawl] Scraping:', url, 'with wait:', waitTime);
   
-  const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      url,
-      formats: ['markdown', 'html', 'links', 'rawHtml', 'screenshot'],
-      onlyMainContent: false,
-      waitFor: waitTime,
-    }),
-  });
+  let lastError: Error | null = null;
+  
+  for (let httpAttempt = 1; httpAttempt <= maxHttpRetries; httpAttempt++) {
+    try {
+      const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url,
+          formats: ['markdown', 'html', 'links', 'rawHtml', 'screenshot'],
+          onlyMainContent: false,
+          waitFor: waitTime,
+        }),
+      });
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('[Firecrawl] Error:', error);
-    throw new Error(`Firecrawl scrape failed: ${response.status}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (httpAttempt > 1) {
+          console.log(`[Firecrawl] Success on HTTP attempt ${httpAttempt}`);
+        }
+        return data.data || data;
+      }
+
+      const statusCode = response.status;
+      const errorText = await response.text();
+      
+      // Check if this is a retryable error
+      if (RETRYABLE_STATUS_CODES.includes(statusCode) && httpAttempt < maxHttpRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, httpAttempt - 1), 10000); // 1s, 2s, 4s... max 10s
+        console.warn(`[Firecrawl] HTTP ${statusCode} error (attempt ${httpAttempt}/${maxHttpRetries}), retrying in ${backoffMs}ms...`);
+        console.warn(`[Firecrawl] Error details: ${errorText.substring(0, 200)}`);
+        await sleep(backoffMs);
+        lastError = new Error(`Firecrawl HTTP ${statusCode}: ${errorText.substring(0, 100)}`);
+        continue;
+      }
+
+      // Non-retryable error or max retries reached
+      console.error('[Firecrawl] Error:', errorText);
+      throw new Error(`Firecrawl scrape failed: ${statusCode}`);
+      
+    } catch (error) {
+      // Network errors (connection refused, timeout, etc.) - retry these too
+      if (error instanceof TypeError && httpAttempt < maxHttpRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, httpAttempt - 1), 10000);
+        console.warn(`[Firecrawl] Network error (attempt ${httpAttempt}/${maxHttpRetries}): ${error.message}, retrying in ${backoffMs}ms...`);
+        await sleep(backoffMs);
+        lastError = error;
+        continue;
+      }
+      
+      // If it's our own error or max retries reached, throw
+      throw error;
+    }
   }
-
-  const data = await response.json();
-  return data.data || data;
+  
+  // Should not reach here, but just in case
+  throw lastError || new Error('Firecrawl scrape failed after retries');
 }
 
 // Check if we only got generic placeholder images
