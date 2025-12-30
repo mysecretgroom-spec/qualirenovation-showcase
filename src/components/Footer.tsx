@@ -23,12 +23,11 @@ const Footer = () => {
   ];
 
   const zones = [
-    "Paris",
-    "Neuilly-sur-Seine",
-    "Boulogne-Billancourt",
-    "Levallois-Perret",
-    "Issy-les-Moulineaux",
-    "Saint-Cloud",
+    "Paris intramuros",
+    "Hauts-de-Seine",
+    "Val-de-Marne",
+    "Seine-Saint-Denis",
+    "Île-de-France",
   ];
 
   const socialLinks = [
