@@ -1,4 +1,5 @@
 import { MapPin, Phone, Mail, Instagram } from "lucide-react";
+import { Link } from "react-router-dom";
 import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
 
 // Houzz icon component
@@ -140,12 +141,12 @@ const Footer = () => {
             © {currentYear} QUALIRENOVATION by Qualiconcept. Tous droits réservés.
           </p>
           <div className="flex gap-6 text-sm">
-            <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-              Mentions légales
-            </a>
-            <a href="#" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
+            <Link to="/cgv" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
+              CGV
+            </Link>
+            <Link to="/politique-confidentialite" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
               Politique de confidentialité
-            </a>
+            </Link>
           </div>
         </div>
       </div>
