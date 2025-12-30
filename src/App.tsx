@@ -11,6 +11,8 @@ import AdminQuotes from "./pages/AdminQuotes";
 import AdminTestimonials from "./pages/AdminTestimonials";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import CGV from "./pages/CGV";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/projet/:slug" element={<ProjectDetail />} />
+            <Route path="/cgv" element={<CGV />} />
+            <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin/import" element={<AdminImport />} />
             <Route path="/admin/devis" element={<AdminQuotes />} />
