@@ -39,38 +39,71 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>QUALIRENOVATION - Rénovation d'intérieur à Paris & Île-de-France</title>
+        <title>Rénovation Appartement Paris | Qualirénovation - Devis Gratuit</title>
         <meta 
           name="description" 
-          content="Entreprise de rénovation d'intérieur à Paris. Salle de bain, cuisine, appartement complet. 10+ ans d'expérience, 53 avis clients, lauréat Best of Houzz. Devis gratuit." 
+          content="Entreprise de rénovation d'intérieur à Paris et Île-de-France. Salle de bain, cuisine, appartement complet. 10+ ans d'expérience, Best of Houzz. Devis gratuit sous 48h." 
         />
-        <meta name="keywords" content="rénovation paris, rénovation appartement, rénovation salle de bain, rénovation cuisine, entreprise rénovation île-de-france" />
+        <meta name="keywords" content="rénovation appartement paris, rénovation salle de bain paris, rénovation cuisine paris, entreprise rénovation île-de-france, travaux rénovation paris, devis rénovation gratuit" />
         <link rel="canonical" href="https://qualirenovation.fr" />
         
         {/* Open Graph */}
-        <meta property="og:title" content="QUALIRENOVATION - Rénovation d'intérieur à Paris" />
-        <meta property="og:description" content="Rénovation de qualité en toute sérénité. Plus de 10 ans d'expérience à Paris et Île-de-France." />
+        <meta property="og:title" content="Qualirénovation - Rénovation d'Appartement à Paris | Devis Gratuit" />
+        <meta property="og:description" content="Rénovation de qualité en toute sérénité. Plus de 10 ans d'expérience à Paris et Île-de-France. Lauréat Best of Houzz." />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="fr_FR" />
+        <meta property="og:url" content="https://qualirenovation.fr" />
+        <meta property="og:site_name" content="Qualirénovation" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Qualirénovation - Rénovation d'Appartement à Paris" />
+        <meta name="twitter:description" content="Rénovation de qualité à Paris. 10+ ans d'expérience, Best of Houzz. Devis gratuit." />
+        
+        {/* Additional SEO */}
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="Qualirénovation" />
+        <meta name="geo.region" content="FR-IDF" />
+        <meta name="geo.placename" content="Paris" />
         
         {/* Schema.org */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "HomeAndConstructionBusiness",
-            "name": "QUALIRENOVATION by Qualiconcept",
-            "description": "Entreprise de rénovation d'intérieur à Paris et Île-de-France",
+            "name": "QUALIRÉNOVATION by Qualiconcept",
+            "description": "Entreprise de rénovation d'intérieur à Paris et Île-de-France. Salle de bain, cuisine, appartement complet.",
+            "url": "https://qualirenovation.fr",
+            "telephone": "+33 1 XX XX XX XX",
+            "email": "contact@qualirenovation.fr",
             "address": {
               "@type": "PostalAddress",
               "addressLocality": "Paris",
               "addressRegion": "Île-de-France",
+              "postalCode": "75000",
               "addressCountry": "FR"
             },
-            "areaServed": ["Paris", "Neuilly-sur-Seine", "Boulogne-Billancourt", "Levallois-Perret"],
+            "areaServed": [
+              { "@type": "City", "name": "Paris" },
+              { "@type": "City", "name": "Neuilly-sur-Seine" },
+              { "@type": "City", "name": "Boulogne-Billancourt" },
+              { "@type": "City", "name": "Levallois-Perret" },
+              { "@type": "City", "name": "Issy-les-Moulineaux" },
+              { "@type": "City", "name": "Saint-Cloud" }
+            ],
             "aggregateRating": {
               "@type": "AggregateRating",
               "ratingValue": String(avgRating),
-              "reviewCount": String(reviewCount)
+              "reviewCount": String(reviewCount),
+              "bestRating": "5",
+              "worstRating": "1"
+            },
+            "priceRange": "€€",
+            "openingHoursSpecification": {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+              "opens": "09:00",
+              "closes": "18:00"
             },
             "sameAs": ["https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618"]
           })}
