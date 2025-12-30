@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircl
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { useProject } from "@/hooks/use-projects";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -439,6 +440,7 @@ const ProjectDetail = () => {
         )}
 
         <Footer />
+        <WhatsAppButton />
       </div>
     </>
   );

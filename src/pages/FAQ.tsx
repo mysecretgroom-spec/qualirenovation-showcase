@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import CarinIA from "@/components/CarinIA";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const faqSections = [
   {
@@ -205,6 +206,7 @@ const FAQPage = () => {
           </div>
         </div>
         <CarinIA />
+        <WhatsAppButton />
       </div>
     </>
   );
