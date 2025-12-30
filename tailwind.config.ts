@@ -15,7 +15,8 @@ export default {
     extend: {
       fontFamily: {
         // LOCKED FONTS - No system fallbacks to ensure identical rendering
-        display: ["'Imperial Script'", "cursive"],
+        display: ["'Cormorant Garamond'", "serif"],
+        script: ["'Imperial Script'", "cursive"],
         sans: ["'Inter'", "sans-serif"],
       },
       colors: {
