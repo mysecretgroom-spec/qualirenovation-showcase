@@ -65,8 +65,7 @@ const Hero = () => {
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-tight mb-6 animate-fade-in-up">
             Rénovation d'excellence
             <br />
-            <span className="font-display font-normal">à </span>
-            <span className="font-script text-[1.15em]">Paris & Île-de-France</span>
+            à <span className="font-script text-[1.15em]">Paris & Île-de-France</span>
           </h1>
 
           {/* Subtitle */}
