@@ -334,9 +334,32 @@ function toHighResolution(url: string): string {
   return highRes;
 }
 
-function extractImagesFromHtml(html: string): { url: string; caption?: string }[] {
+function extractImagesFromHtml(html: string, markdown?: string): { url: string; caption?: string }[] {
   const images: { url: string; caption?: string }[] = [];
   const seenBaseIds = new Set<string>();
+  
+  // Also extract from markdown if available (Houzz loads images dynamically)
+  if (markdown) {
+    const mdImagePattern = /!\[([^\]]*)\]\((https:\/\/st\.hzcdn\.com\/fimgs\/[^)]+)\)/g;
+    let mdMatch;
+    while ((mdMatch = mdImagePattern.exec(markdown)) !== null) {
+      const url = mdMatch[2];
+      if (!url) continue;
+      
+      // Skip the logo image
+      if (url.includes('c2a344b60455efef_5281')) continue;
+      
+      const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i);
+      const baseId = baseIdMatch ? baseIdMatch[1] : url;
+      
+      if (seenBaseIds.has(baseId)) continue;
+      seenBaseIds.add(baseId);
+      
+      const highResUrl = toHighResolution(url);
+      images.push({ url: highResUrl, caption: mdMatch[1] || undefined });
+    }
+    console.log('[Extract] Found', images.length, 'images from markdown');
+  }
   
   const patterns = [
     /"imageUrl":"([^"]+)"/g,
@@ -357,6 +380,8 @@ function extractImagesFromHtml(html: string): { url: string; caption?: string }[
       if (!url.includes('st.hzcdn.com')) continue;
       if (url.includes('avatar') || url.includes('profile') || url.includes('logo')) continue;
       if (url.includes('.svg') || url.includes('.gif')) continue;
+      // Skip the logo image
+      if (url.includes('c2a344b60455efef_5281')) continue;
       
       const baseIdMatch = url.match(/\/([a-f0-9]+)_\d+-w/i) || url.match(/\/fimgs\/([a-f0-9]+)/i);
       const baseId = baseIdMatch ? baseIdMatch[1] : url;
@@ -369,8 +394,8 @@ function extractImagesFromHtml(html: string): { url: string; caption?: string }[
     }
   }
   
-  console.log('[Extract] Found', images.length, 'unique high-res images');
-  return images.slice(0, 20);
+  console.log('[Extract] Total unique images found:', images.length);
+  return images.slice(0, 30);
 }
 
 function extractProjectDetails(data: any, url: string): HouzzProject {
@@ -434,7 +459,7 @@ function extractProjectDetails(data: any, url: string): HouzzProject {
     location = locationMatch[0];
   }
   
-  const images = extractImagesFromHtml(html);
+  const images = extractImagesFromHtml(html, markdown);
   
   return {
     url,
@@ -666,6 +691,63 @@ Deno.serve(async (req) => {
             skippedInvalidUrls: invalidUrls.length,
             houzzProfileUrl: HOUZZ_PROFILE_URL,
             message: `${result.imported} projets importés sur ${validUrls.length}`,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      case 'reimport-projects': {
+        // Re-import specific projects without deleting others
+        if (!urls || !Array.isArray(urls) || urls.length === 0) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Aucune URL fournie',
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const { valid: validUrls, invalid: invalidUrls } = validateAndFilterUrls(urls);
+        
+        if (validUrls.length === 0) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Aucune URL Houzz valide.',
+              invalidUrls,
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        console.log('[Handler] Re-importing', validUrls.length, 'projects (update mode)');
+        
+        const projects: HouzzProject[] = [];
+        for (const url of validUrls) {
+          try {
+            console.log('[Handler] Scraping project:', url);
+            const projectData = await scrapeWithFirecrawl(url, FIRECRAWL_API_KEY);
+            const project = extractProjectDetails(projectData, url);
+            projects.push(project);
+            
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Slightly longer delay
+          } catch (error) {
+            console.error('[Handler] Error scraping project:', url, error);
+          }
+        }
+        
+        console.log('[Handler] Updating', projects.length, 'projects in database...');
+        const result = await saveProjectsToDatabase(supabase, projects);
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            total: validUrls.length,
+            scraped: projects.length,
+            updated: result.imported,
+            errors: result.errors,
+            message: `${result.imported} projets mis à jour sur ${validUrls.length}`,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

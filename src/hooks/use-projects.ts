@@ -137,10 +137,10 @@ export function useProjects() {
           imagesByProject[img.project_id].push(img);
         });
 
-        // Convert to app format
-        const appProjects = dbProjects.map(project => 
-          dbToAppProject(project, imagesByProject[project.id] || [])
-        );
+        // Convert to app format and filter out projects with only the logo (no real photos)
+        const appProjects = dbProjects
+          .map(project => dbToAppProject(project, imagesByProject[project.id] || []))
+          .filter(project => project.image !== "/placeholder.svg");
 
         // Extract unique categories
         const uniqueCategories = ["Tous", ...new Set(appProjects.map(p => p.category))];
