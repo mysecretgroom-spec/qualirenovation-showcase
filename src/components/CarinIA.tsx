@@ -150,7 +150,7 @@ const CarinIA = () => {
           "fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center",
           isOpen
             ? "bg-muted text-muted-foreground hover:bg-muted/80"
-            : "bg-accent text-accent-foreground hover:bg-accent/90 animate-pulse hover:animate-none"
+            : "bg-accent text-accent-foreground hover:bg-accent/90"
         )}
         aria-label={isOpen ? "Fermer le chat" : "Ouvrir Carin-IA"}
       >
