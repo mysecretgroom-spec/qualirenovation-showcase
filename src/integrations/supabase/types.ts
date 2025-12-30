@@ -185,6 +185,7 @@ export type Database = {
           message: string
           name: string
           phone: string
+          postal_code: string | null
           status: string
           surface: string
           timeline: string
@@ -202,6 +203,7 @@ export type Database = {
           message: string
           name: string
           phone: string
+          postal_code?: string | null
           status?: string
           surface: string
           timeline: string
@@ -219,6 +221,7 @@ export type Database = {
           message?: string
           name?: string
           phone?: string
+          postal_code?: string | null
           status?: string
           surface?: string
           timeline?: string

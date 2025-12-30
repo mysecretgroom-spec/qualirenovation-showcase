@@ -23,6 +23,7 @@ interface QuoteRequestData {
   email: string;
   phone: string;
   city: string;
+  postalCode: string;
   address: string;
   latitude?: number;
   longitude?: number;
@@ -86,8 +87,9 @@ function validateQuoteData(data: unknown): { valid: true; data: QuoteRequestData
     errors.push({ field: 'phone', message: 'Numéro de téléphone invalide (format français attendu)' });
   }
 
-  // City validation (optional now, extracted from address)
+  // City and postal code validation (optional now, extracted from address)
   const city = sanitizeString(input.city, 100);
+  const postalCode = sanitizeString(input.postalCode, 10);
 
   // Address validation (required)
   const address = sanitizeString(input.address, 500);
@@ -129,7 +131,7 @@ function validateQuoteData(data: unknown): { valid: true; data: QuoteRequestData
 
   return {
     valid: true,
-    data: { name, email, phone, city, address, latitude, longitude, surface, budget, timeline, message }
+    data: { name, email, phone, city, postalCode, address, latitude, longitude, surface, budget, timeline, message }
   };
 }
 
@@ -246,6 +248,7 @@ const handler = async (req: Request): Promise<Response> => {
         email: data.email,
         phone: data.phone,
         city: data.city || null,
+        postal_code: data.postalCode || null,
         address: data.address,
         latitude: data.latitude || null,
         longitude: data.longitude || null,
@@ -276,11 +279,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     const safeName = escapeHtml(data.name);
     const safeCity = escapeHtml(data.city || '');
+    const safePostalCode = escapeHtml(data.postalCode || '');
     const safeAddress = escapeHtml(data.address);
     const safeSurface = escapeHtml(data.surface);
     const safeMessage = escapeHtml(data.message);
     const safeEmail = escapeHtml(data.email);
     const safePhone = escapeHtml(data.phone);
+    
+    // Format location for display
+    const locationDisplay = [safePostalCode, safeCity].filter(Boolean).join(' ');
 
     // Email to client (confirmation) - Design cohérent avec le site
     const clientEmailResponse = await resend.emails.send({
@@ -359,7 +366,8 @@ const handler = async (req: Request): Promise<Response> => {
                 <!-- Récapitulatif -->
                 <div class="recap">
                   <h3 class="recap-title">RÉCAPITULATIF DE VOTRE DEMANDE</h3>
-                  <div class="recap-item"><span class="recap-label">Adresse du chantier</span> <span class="recap-value">${safeAddress}</span></div>
+                  <div class="recap-item"><span class="recap-label">Adresse du chantier</span> <span class="recap-value">${safeAddress}</span></div>${locationDisplay ? `
+                  <div class="recap-item"><span class="recap-label">Ville</span> <span class="recap-value">${locationDisplay}</span></div>` : ''}
                   <div class="recap-item"><span class="recap-label">Surface</span> <span class="recap-value">${safeSurface} m²</span></div>
                   <div class="recap-item"><span class="recap-label">Budget envisagé</span> <span class="recap-value">${budgetLabel}</span></div>
                   <div class="recap-item"><span class="recap-label">Démarrage souhaité</span> <span class="recap-value">${timelineLabel}</span></div>
@@ -454,7 +462,8 @@ const handler = async (req: Request): Promise<Response> => {
                 <tr><td>Nom</td><td><strong>${safeName}</strong></td></tr>
                 <tr><td>Email</td><td><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
                 <tr><td>Téléphone</td><td><a href="tel:${safePhone}">${safePhone}</a></td></tr>
-                <tr><td>Adresse du chantier</td><td>${safeAddress}</td></tr>${data.latitude && data.longitude ? `
+                <tr><td>Adresse du chantier</td><td>${safeAddress}</td></tr>${locationDisplay ? `
+                <tr><td>Ville</td><td><strong>${locationDisplay}</strong></td></tr>` : ''}${data.latitude && data.longitude ? `
                 <tr><td>Carte</td><td><a href="https://www.google.com/maps?q=${data.latitude},${data.longitude}" target="_blank">Voir sur Google Maps</a></td></tr>` : ''}
                 <tr><td>Surface</td><td>${safeSurface} m²</td></tr>
                 <tr><td>Budget</td><td><strong>${budgetLabel}</strong></td></tr>
