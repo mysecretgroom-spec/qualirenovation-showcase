@@ -370,7 +370,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <div class="signature-content">
                     <p class="signature-greeting">À très bientôt,</p>
                     <p class="signature-name">Carina</p>
-                    <p class="signature-role">Fondatrice de Qualirénovation</p>
+                    <p class="signature-role">Chargée de Projets Qualirenovation</p>
                     <p class="signature-phone">📞 <a href="tel:+33659764685">+33 6 59 76 46 85</a></p>
                   </div>
                 </div>
