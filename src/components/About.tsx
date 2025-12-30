@@ -135,47 +135,112 @@ const About = () => {
             </h3>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {steps.map((step, index) => (
-              <div
-                key={step.number}
-                className="bg-card p-6 rounded-sm shadow-elegant hover:shadow-card hover:-translate-y-1 transition-all duration-300 relative"
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                {/* Step number */}
-                <span className="absolute -top-3 -left-3 w-10 h-10 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-display text-lg font-bold shadow-md">
-                  {step.number}
-                </span>
+          {/* Timeline Steps - Zigzag Layout */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Central Timeline Line - Only visible on lg+ */}
+            <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent/20 via-accent to-accent/20 transform -translate-x-1/2" />
+            
+            {/* Animated dots on the timeline */}
+            <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 transform -translate-x-1/2">
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="absolute w-3 h-3 bg-accent rounded-full animate-pulse"
+                  style={{ 
+                    top: `${(i * 20) + 5}%`,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    animationDelay: `${i * 0.3}s`
+                  }}
+                />
+              ))}
+            </div>
+
+            <div className="space-y-8 lg:space-y-12">
+              {steps.map((step, index) => {
+                const isEven = index % 2 === 0;
                 
-                <div className="flex flex-col items-center text-center pt-4">
-                  <div className="w-14 h-14 rounded-sm bg-secondary flex items-center justify-center mb-4">
-                    <step.icon className="w-7 h-7 text-accent" />
+                return (
+                  <div 
+                    key={step.number}
+                    className={`relative flex flex-col lg:flex-row items-center gap-6 lg:gap-12 ${
+                      isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                    }`}
+                    style={{ 
+                      animationDelay: `${index * 150}ms`
+                    }}
+                  >
+                    {/* Step Card */}
+                    <div 
+                      className={`w-full lg:w-[calc(50%-3rem)] group ${
+                        isEven ? 'lg:text-right' : 'lg:text-left'
+                      }`}
+                    >
+                      <div 
+                        className="bg-card p-6 rounded-lg shadow-elegant hover:shadow-card hover:-translate-y-1 transition-all duration-500 relative overflow-hidden"
+                      >
+                        {/* Decorative gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        
+                        <div className={`relative flex items-start gap-4 ${isEven ? 'lg:flex-row-reverse' : ''}`}>
+                          <div className="w-14 h-14 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                            <step.icon className="w-7 h-7 text-accent" />
+                          </div>
+                          <div className={`flex-1 ${isEven ? 'lg:text-right' : ''}`}>
+                            <h4 className="font-display text-lg font-semibold text-foreground mb-2">
+                              {step.title}
+                            </h4>
+                            <p className="text-muted-foreground text-sm leading-relaxed">
+                              {step.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Connector line to center - Desktop only */}
+                      <div 
+                        className={`hidden lg:block absolute top-1/2 h-0.5 w-12 bg-gradient-to-r ${
+                          isEven 
+                            ? 'right-0 translate-x-full from-accent/50 to-accent' 
+                            : 'left-0 -translate-x-full from-accent to-accent/50'
+                        }`}
+                        style={{ transform: `translateY(-50%) ${isEven ? 'translateX(100%)' : 'translateX(-100%)'}` }}
+                      />
+                    </div>
+
+                    {/* Center Number Badge */}
+                    <div className="relative z-10 flex-shrink-0 order-first lg:order-none">
+                      <div className="w-14 h-14 bg-accent text-accent-foreground rounded-full flex items-center justify-center font-display text-2xl font-bold shadow-lg ring-4 ring-background transition-transform duration-300 hover:scale-110">
+                        {step.number}
+                      </div>
+                    </div>
+
+                    {/* Empty space for zigzag layout on desktop */}
+                    <div className="hidden lg:block w-[calc(50%-3rem)]" />
                   </div>
-                  <h4 className="font-display text-lg font-semibold text-foreground mb-2">
-                    {step.title}
-                  </h4>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
           </div>
 
           {/* Single point of contact */}
-          <div className="mt-10 bg-primary/10 border border-primary/20 rounded-sm p-6 flex flex-col md:flex-row items-center gap-4 justify-center">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-              <User className="w-6 h-6 text-primary-foreground" />
+          <div className="mt-16 bg-primary/10 border border-primary/20 rounded-lg p-6 md:p-8 flex flex-col md:flex-row items-center gap-6 justify-center max-w-2xl mx-auto relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-2xl" />
+            <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
+            
+            <div className="relative w-16 h-16 rounded-full bg-primary flex items-center justify-center flex-shrink-0 shadow-lg">
+              <User className="w-8 h-8 text-primary-foreground" />
             </div>
-            <div className="text-center md:text-left">
-              <h4 className="font-display font-semibold text-foreground text-lg">
+            <div className="relative text-center md:text-left flex-1">
+              <h4 className="font-display font-semibold text-foreground text-xl mb-1">
                 Un interlocuteur unique
               </h4>
               <p className="text-muted-foreground">
                 Pour gérer et suivre l'intégralité de votre chantier du début à la fin.
               </p>
             </div>
-            <CheckCircle2 className="w-8 h-8 text-accent hidden md:block" />
+            <CheckCircle2 className="w-10 h-10 text-accent flex-shrink-0" />
           </div>
         </div>
       </div>
