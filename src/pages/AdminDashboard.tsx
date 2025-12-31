@@ -2,51 +2,31 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield } from "lucide-react";
+import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-const adminSections = [
-  {
-    title: "Devis",
-    description: "Gérer les demandes de devis reçues",
-    href: "/admin/devis",
-    icon: FileText,
-    color: "bg-primary/10 text-primary",
-  },
-  {
-    title: "Import Houzz",
-    description: "Importer des projets et avis depuis Houzz",
-    href: "/admin/import",
-    icon: Upload,
-    color: "bg-accent/20 text-accent",
-  },
-  {
-    title: "Avis",
-    description: "Gérer les témoignages clients",
-    href: "/admin/avis",
-    icon: MessageSquare,
-    color: "bg-green-500/10 text-green-600",
-  },
-  {
-    title: "Vérificateur de liens",
-    description: "Vérifier les liens cassés du site",
-    href: "/admin/liens",
-    icon: Link2,
-    color: "bg-blue-500/10 text-blue-600",
-  },
-  {
-    title: "Tests visuels",
-    description: "Tester l'affichage des composants",
-    href: "/admin/visual",
-    icon: Eye,
-    color: "bg-purple-500/10 text-purple-600",
-  },
-];
+interface DashboardStats {
+  pendingQuotes: number;
+  totalQuotes: number;
+  totalTestimonials: number;
+  visibleTestimonials: number;
+  totalProjects: number;
+  pendingImports: number;
+}
 
 const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState<string>("");
+  const [stats, setStats] = useState<DashboardStats>({
+    pendingQuotes: 0,
+    totalQuotes: 0,
+    totalTestimonials: 0,
+    visibleTestimonials: 0,
+    totalProjects: 0,
+    pendingImports: 0,
+  });
+  const [loadingStats, setLoadingStats] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -78,15 +58,114 @@ const AdminDashboard = () => {
       }
 
       setIsAdmin(true);
+      fetchStats();
     };
 
     checkAuth();
   }, [navigate, toast]);
 
+  const fetchStats = async () => {
+    setLoadingStats(true);
+    try {
+      // Fetch all stats in parallel
+      const [
+        quotesResult,
+        pendingQuotesResult,
+        testimonialsResult,
+        visibleTestimonialsResult,
+        projectsResult,
+        pendingImportsResult,
+      ] = await Promise.all([
+        supabase.from("quote_requests").select("id", { count: "exact", head: true }),
+        supabase.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("houzz_testimonials").select("id", { count: "exact", head: true }),
+        supabase.from("houzz_testimonials").select("id", { count: "exact", head: true }).eq("hidden", false),
+        supabase.from("houzz_projects").select("id", { count: "exact", head: true }),
+        supabase.from("import_queue").select("id", { count: "exact", head: true }).eq("status", "pending"),
+      ]);
+
+      setStats({
+        totalQuotes: quotesResult.count || 0,
+        pendingQuotes: pendingQuotesResult.count || 0,
+        totalTestimonials: testimonialsResult.count || 0,
+        visibleTestimonials: visibleTestimonialsResult.count || 0,
+        totalProjects: projectsResult.count || 0,
+        pendingImports: pendingImportsResult.count || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
+
+  const adminSections = [
+    {
+      title: "Devis",
+      description: "Gérer les demandes de devis reçues",
+      href: "/admin/devis",
+      icon: FileText,
+      color: "bg-primary/10 text-primary",
+      badge: stats.pendingQuotes > 0 ? stats.pendingQuotes : null,
+      badgeColor: "bg-primary text-primary-foreground",
+      stat: `${stats.totalQuotes} total`,
+    },
+    {
+      title: "Import Houzz",
+      description: "Importer des projets et avis depuis Houzz",
+      href: "/admin/import",
+      icon: Upload,
+      color: "bg-accent/20 text-accent",
+      badge: stats.pendingImports > 0 ? stats.pendingImports : null,
+      badgeColor: "bg-accent text-accent-foreground",
+      stat: null,
+    },
+    {
+      title: "Avis",
+      description: "Gérer les témoignages clients",
+      href: "/admin/avis",
+      icon: MessageSquare,
+      color: "bg-green-500/10 text-green-600",
+      badge: null,
+      badgeColor: "",
+      stat: `${stats.visibleTestimonials}/${stats.totalTestimonials} visibles`,
+    },
+    {
+      title: "Projets",
+      description: "Voir les projets importés",
+      href: "/",
+      icon: FolderOpen,
+      color: "bg-orange-500/10 text-orange-600",
+      badge: null,
+      badgeColor: "",
+      stat: `${stats.totalProjects} projets`,
+    },
+    {
+      title: "Vérificateur de liens",
+      description: "Vérifier les liens cassés du site",
+      href: "/admin/liens",
+      icon: Link2,
+      color: "bg-blue-500/10 text-blue-600",
+      badge: null,
+      badgeColor: "",
+      stat: null,
+    },
+    {
+      title: "Tests visuels",
+      description: "Tester l'affichage des composants",
+      href: "/admin/visual",
+      icon: Eye,
+      color: "bg-purple-500/10 text-purple-600",
+      badge: null,
+      badgeColor: "",
+      stat: null,
+    },
+  ];
 
   if (isAdmin === null) {
     return (
@@ -145,10 +224,17 @@ const AdminDashboard = () => {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {adminSections.map((section) => (
                 <Link
-                  key={section.href}
+                  key={section.href + section.title}
                   to={section.href}
-                  className="group p-6 rounded-lg border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200"
+                  className="group p-6 rounded-lg border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200 relative"
                 >
+                  {/* Badge for pending items */}
+                  {section.badge && (
+                    <span className={`absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold rounded-full ${section.badgeColor}`}>
+                      {section.badge} en attente
+                    </span>
+                  )}
+                  
                   <div className={`w-12 h-12 rounded-lg ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <section.icon className="w-6 h-6" />
                   </div>
@@ -158,6 +244,18 @@ const AdminDashboard = () => {
                   <p className="text-sm text-muted-foreground">
                     {section.description}
                   </p>
+                  
+                  {/* Stats display */}
+                  {section.stat && !loadingStats && (
+                    <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
+                      {section.stat}
+                    </p>
+                  )}
+                  {section.stat && loadingStats && (
+                    <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border animate-pulse">
+                      Chargement...
+                    </p>
+                  )}
                 </Link>
               ))}
             </div>
