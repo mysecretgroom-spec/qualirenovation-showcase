@@ -361,6 +361,38 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             error={errors.address}
           />
 
+          {/* Ville & Code postal (auto-remplis) */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="modal-postal-code" className="block text-sm font-medium text-foreground mb-1.5">
+                Code postal
+              </label>
+              <input
+                type="text"
+                id="modal-postal-code"
+                name="postalCode"
+                value={formData.postalCode}
+                readOnly
+                className="w-full px-4 py-2.5 rounded-sm border border-input bg-secondary text-foreground cursor-not-allowed"
+                placeholder="Auto-rempli"
+              />
+            </div>
+            <div>
+              <label htmlFor="modal-city" className="block text-sm font-medium text-foreground mb-1.5">
+                Ville
+              </label>
+              <input
+                type="text"
+                id="modal-city"
+                name="city"
+                value={formData.city}
+                readOnly
+                className="w-full px-4 py-2.5 rounded-sm border border-input bg-secondary text-foreground cursor-not-allowed"
+                placeholder="Auto-rempli"
+              />
+            </div>
+          </div>
+
           {/* Surface */}
           <div>
             <label htmlFor="modal-surface" className="block text-sm font-medium text-foreground mb-1.5">
