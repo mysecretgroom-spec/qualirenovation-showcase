@@ -12,6 +12,7 @@ import AdminQuotes from "./pages/AdminQuotes";
 import AdminTestimonials from "./pages/AdminTestimonials";
 import AdminLinkChecker from "./pages/AdminLinkChecker";
 import AdminVisualTesting from "./pages/AdminVisualTesting";
+import AdminClients from "./pages/AdminClients";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CGV from "./pages/CGV";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/admin/import" element={<AdminImport />} />
             <Route path="/admin/devis" element={<AdminQuotes />} />
             <Route path="/admin/avis" element={<AdminTestimonials />} />
+            <Route path="/admin/clients" element={<AdminClients />} />
             <Route path="/admin/liens" element={<AdminLinkChecker />} />
             <Route path="/admin/visual" element={<AdminVisualTesting />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

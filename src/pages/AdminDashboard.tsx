@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield, FolderOpen } from "lucide-react";
+import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield, FolderOpen, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,6 +13,8 @@ interface DashboardStats {
   visibleTestimonials: number;
   totalProjects: number;
   pendingImports: number;
+  totalClients: number;
+  activeClients: number;
 }
 
 const AdminDashboard = () => {
@@ -25,6 +27,8 @@ const AdminDashboard = () => {
     visibleTestimonials: 0,
     totalProjects: 0,
     pendingImports: 0,
+    totalClients: 0,
+    activeClients: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const navigate = useNavigate();
@@ -75,6 +79,8 @@ const AdminDashboard = () => {
         visibleTestimonialsResult,
         projectsResult,
         pendingImportsResult,
+        clientsResult,
+        activeClientsResult,
       ] = await Promise.all([
         supabase.from("quote_requests").select("id", { count: "exact", head: true }),
         supabase.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -82,6 +88,8 @@ const AdminDashboard = () => {
         supabase.from("houzz_testimonials").select("id", { count: "exact", head: true }).eq("hidden", false),
         supabase.from("houzz_projects").select("id", { count: "exact", head: true }),
         supabase.from("import_queue").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("clients").select("id", { count: "exact", head: true }),
+        supabase.from("clients").select("id", { count: "exact", head: true }).eq("status", "en_cours"),
       ]);
 
       setStats({
@@ -91,6 +99,8 @@ const AdminDashboard = () => {
         visibleTestimonials: visibleTestimonialsResult.count || 0,
         totalProjects: projectsResult.count || 0,
         pendingImports: pendingImportsResult.count || 0,
+        totalClients: clientsResult.count || 0,
+        activeClients: activeClientsResult.count || 0,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -105,6 +115,16 @@ const AdminDashboard = () => {
   };
 
   const adminSections = [
+    {
+      title: "Clients",
+      description: "Gérer les fiches clients et dossiers",
+      href: "/admin/clients",
+      icon: Users,
+      color: "bg-teal-500/10 text-teal-600",
+      badge: stats.activeClients > 0 ? stats.activeClients : null,
+      badgeColor: "bg-teal-500 text-white",
+      stat: `${stats.totalClients} clients`,
+    },
     {
       title: "Devis",
       description: "Gérer les demandes de devis reçues",
