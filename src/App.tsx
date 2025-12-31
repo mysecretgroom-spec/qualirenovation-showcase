@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
 import ProjectDetail from "./pages/ProjectDetail";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminImport from "./pages/AdminImport";
 import AdminQuotes from "./pages/AdminQuotes";
 import AdminTestimonials from "./pages/AdminTestimonials";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/import" element={<AdminImport />} />
             <Route path="/admin/devis" element={<AdminQuotes />} />
             <Route path="/admin/avis" element={<AdminTestimonials />} />
