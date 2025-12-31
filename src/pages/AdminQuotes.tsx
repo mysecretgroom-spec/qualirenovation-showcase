@@ -34,13 +34,25 @@ interface QuoteRequest {
   name: string;
   email: string;
   phone: string;
-  city: string;
+  city: string | null;
+  postal_code: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   surface: string;
   budget: string;
   timeline: string;
   message: string;
   status: string;
   created_at: string;
+}
+
+// Mapbox token for static maps
+const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwcHlxdWFsaXJlbm92IiwiYSI6ImNtanQ3aThpbzFxamozZHNkYWZ2Mmo3dnMifQ.91-sJuk41-nRTKs0OGYDfQ';
+
+function getStaticMapUrl(lat: number, lng: number, zoom = 14, width = 300, height = 150): string {
+  const marker = `pin-l-building+c9a961(${lng},${lat})`;
+  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${marker}/${lng},${lat},${zoom},0/${width}x${height}@2x?access_token=${MAPBOX_TOKEN}`;
 }
 
 const budgetLabels: Record<string, string> = {
@@ -284,13 +296,23 @@ const AdminQuotes = () => {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-accent" />
-                      <span>{quote.city}</span>
+                      <span>
+                        {[quote.postal_code, quote.city].filter(Boolean).join(' ') || quote.city || 'Non renseigné'}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Ruler className="w-4 h-4 text-accent" />
                       <span>{quote.surface} m²</span>
                     </div>
                   </div>
+
+                  {/* Adresse complète */}
+                  {quote.address && (
+                    <div className="flex items-start gap-2 text-sm mb-4">
+                      <MapPin className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+                      <span className="text-muted-foreground">{quote.address}</span>
+                    </div>
+                  )}
 
                   <div className="grid sm:grid-cols-2 gap-4 mb-4">
                     <div className="flex items-center gap-2 text-sm">
@@ -302,6 +324,28 @@ const AdminQuotes = () => {
                       <span>{timelineLabels[quote.timeline] || quote.timeline}</span>
                     </div>
                   </div>
+
+                  {/* Mini-map si coordonnées disponibles */}
+                  {quote.latitude && quote.longitude && (
+                    <div className="mb-4">
+                      <a 
+                        href={`https://www.google.com/maps?q=${quote.latitude},${quote.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block overflow-hidden rounded-sm border border-border hover:border-accent transition-colors"
+                      >
+                        <img 
+                          src={getStaticMapUrl(quote.latitude, quote.longitude, 15, 600, 200)}
+                          alt="Carte du chantier"
+                          className="w-full h-auto"
+                          loading="lazy"
+                        />
+                      </a>
+                      <p className="text-xs text-muted-foreground mt-1 text-center">
+                        Cliquez pour ouvrir dans Google Maps
+                      </p>
+                    </div>
+                  )}
 
                   <div className="bg-secondary p-4 rounded-sm">
                     <p className="text-sm text-foreground whitespace-pre-wrap">{quote.message}</p>
