@@ -16,7 +16,9 @@ interface AddressResult {
 interface Suggestion {
   place_name: string;
   center: [number, number];
-  context?: Array<{ id: string; text: string }>;
+  context?: Array<{ id: string; text: string; short_code?: string }>;
+  text?: string;
+  address?: string;
 }
 
 interface AddressAutocompleteProps {
@@ -128,19 +130,59 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
   const handleSelect = (suggestion: Suggestion) => {
     const [lng, lat] = suggestion.center;
     
-    // Extract city and postal code from context
+    console.log('[AddressAutocomplete] Selected suggestion:', JSON.stringify(suggestion, null, 2));
+    
+    // Extract city and postal code from context with multiple fallbacks
     let city = '';
     let postalCode = '';
-    if (suggestion.context) {
-      const placeContext = suggestion.context.find(c => c.id.startsWith('place.'));
+    
+    if (suggestion.context && Array.isArray(suggestion.context)) {
+      // Try to find city (place, locality, or district)
+      const placeContext = suggestion.context.find(c => 
+        c.id.startsWith('place.') || 
+        c.id.startsWith('locality.') || 
+        c.id.startsWith('district.')
+      );
+      
+      // Try to find postal code
       const postcodeContext = suggestion.context.find(c => c.id.startsWith('postcode.'));
+      
       if (placeContext) {
         city = placeContext.text;
       }
       if (postcodeContext) {
         postalCode = postcodeContext.text;
       }
+      
+      // Fallback: try to extract from place_name if context doesn't have what we need
+      if (!city || !postalCode) {
+        // place_name format is usually: "123 Rue Example, 75001 Paris, France"
+        const parts = suggestion.place_name.split(',').map(p => p.trim());
+        
+        if (!postalCode && parts.length >= 2) {
+          // Look for postal code pattern in the second-to-last part (before country)
+          const addressPart = parts[parts.length - 2] || parts[1];
+          const postalMatch = addressPart.match(/\b(\d{5})\b/);
+          if (postalMatch) {
+            postalCode = postalMatch[1];
+          }
+        }
+        
+        if (!city && parts.length >= 2) {
+          // City is usually after the postal code
+          const addressPart = parts[parts.length - 2] || parts[1];
+          const cityMatch = addressPart.match(/\d{5}\s+(.+)/);
+          if (cityMatch) {
+            city = cityMatch[1].trim();
+          } else if (!addressPart.match(/^\d+/)) {
+            // If no postal code pattern, use the whole part as city
+            city = addressPart;
+          }
+        }
+      }
     }
+
+    console.log('[AddressAutocomplete] Extracted - City:', city, 'PostalCode:', postalCode);
 
     const result: AddressResult = {
       address: suggestion.place_name,
