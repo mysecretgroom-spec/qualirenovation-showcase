@@ -168,8 +168,9 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       setFormData((prev) => ({
         ...prev,
         address: result.address,
-        latitude: result.latitude,
-        longitude: result.longitude,
+        // Only update coordinates if they're valid (from Mapbox selection)
+        latitude: result.latitude !== 0 ? result.latitude : prev.latitude,
+        longitude: result.longitude !== 0 ? result.longitude : prev.longitude,
         city: result.city || prev.city,
         postalCode: result.postalCode || prev.postalCode,
       }));

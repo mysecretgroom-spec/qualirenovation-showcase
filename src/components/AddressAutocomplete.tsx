@@ -32,11 +32,25 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<AddressResult | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
+
+  // Sync query with external value (for browser autofill)
+  useEffect(() => {
+    if (value && value !== query && !hasInteracted) {
+      setQuery(value);
+      // Notify parent of the pre-filled value
+      onChange({
+        address: value,
+        latitude: 0,
+        longitude: 0,
+      });
+    }
+  }, [value]);
 
   // Initialize map when address is selected
   useEffect(() => {
@@ -88,12 +102,19 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setQuery(newValue);
+    setHasInteracted(true);
     
-    // Clear selection if user types
+    // Clear selection if user types, but still pass the raw value
     if (selectedAddress) {
       setSelectedAddress(null);
-      onChange(null);
     }
+    
+    // Pass manual input as partial result (no coordinates)
+    onChange({
+      address: newValue,
+      latitude: 0,
+      longitude: 0,
+    });
 
     // Debounce search
     if (debounceRef.current) {
