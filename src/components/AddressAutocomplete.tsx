@@ -39,6 +39,7 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
   // Sync query with external value (for browser autofill)
@@ -207,10 +208,10 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
     inputRef.current?.focus();
   };
 
-  // Close suggestions when clicking outside
+  // Close suggestions when clicking outside the entire container
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -224,7 +225,7 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
         Adresse du chantier *
       </label>
       
-      <div className="relative">
+      <div className="relative" ref={containerRef}>
         <div className="relative">
           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
