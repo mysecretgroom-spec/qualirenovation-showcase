@@ -381,7 +381,15 @@ const handler = async (req: Request): Promise<Response> => {
                   <div class="recap-item"><span class="recap-label">Budget envisagé</span> <span class="recap-value">${budgetLabel}</span></div>
                   <div class="recap-item"><span class="recap-label">Démarrage souhaité</span> <span class="recap-value">${timelineLabel}</span></div>
                   <div class="recap-item"><span class="recap-label">Votre projet</span> <span class="recap-value">${safeMessage}</span></div>
-                </div>
+                </div>${data.latitude && data.longitude ? `
+                
+                <!-- Mini-map -->
+                <div style="margin: 25px 0; text-align: center;">
+                  <p style="color: #4a4a4a; font-size: 13px; margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase;">Localisation du chantier</p>
+                  <a href="https://www.google.com/maps?q=${data.latitude},${data.longitude}" target="_blank" style="display: inline-block;">
+                    <img src="${getStaticMapUrl(data.latitude, data.longitude, 15, 540, 200)}" alt="Carte du chantier" style="width: 100%; max-width: 540px; border-radius: 4px; border: 1px solid #e5e5e5;" />
+                  </a>
+                </div>` : ''}
 
                 <!-- CTA -->
                 <div class="cta-section">
@@ -472,13 +480,20 @@ const handler = async (req: Request): Promise<Response> => {
                 <tr><td>Email</td><td><a href="mailto:${safeEmail}">${safeEmail}</a></td></tr>
                 <tr><td>Téléphone</td><td><a href="tel:${safePhone}">${safePhone}</a></td></tr>
                 <tr><td>Adresse du chantier</td><td>${safeAddress}</td></tr>${locationDisplay ? `
-                <tr><td>Ville</td><td><strong>${locationDisplay}</strong></td></tr>` : ''}${data.latitude && data.longitude ? `
-                <tr><td>Carte</td><td><a href="https://www.google.com/maps?q=${data.latitude},${data.longitude}" target="_blank">Voir sur Google Maps</a></td></tr>` : ''}
+                <tr><td>Ville</td><td><strong>${locationDisplay}</strong></td></tr>` : ''}
                 <tr><td>Surface</td><td>${safeSurface} m²</td></tr>
                 <tr><td>Budget</td><td><strong>${budgetLabel}</strong></td></tr>
                 <tr><td>Démarrage</td><td>${timelineLabel}</td></tr>
               </table>
-              
+              ${data.latitude && data.longitude ? `
+              <!-- Mini-map -->
+              <div style="margin: 20px 0; text-align: center;">
+                <a href="https://www.google.com/maps?q=${data.latitude},${data.longitude}" target="_blank" style="display: block;">
+                  <img src="${getStaticMapUrl(data.latitude, data.longitude, 15, 560, 250)}" alt="Carte du chantier" style="width: 100%; max-width: 560px; border-radius: 8px; border: 2px solid #d4af37;" />
+                </a>
+                <p style="margin-top: 8px; font-size: 12px; color: #666;">Cliquez sur la carte pour ouvrir Google Maps</p>
+              </div>
+              ` : ''}
               <h3>Description du projet :</h3>
               <div class="message-box">${safeMessage}</div>
             </div>
