@@ -184,6 +184,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         address: "",
         latitude: undefined,
         longitude: undefined,
+        city: "",
         postalCode: "",
       }));
     }
@@ -361,7 +362,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             error={errors.address}
           />
 
-          {/* Ville & Code postal (auto-remplis) */}
+          {/* Ville & Code postal (auto-remplis depuis l'adresse) */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="modal-postal-code" className="block text-sm font-medium text-foreground mb-1.5">
@@ -373,8 +374,10 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 name="postalCode"
                 value={formData.postalCode}
                 readOnly
-                className="w-full px-4 py-2.5 rounded-sm border border-input bg-secondary text-foreground cursor-not-allowed"
-                placeholder="Auto-rempli"
+                className={`w-full px-4 py-2.5 rounded-sm border border-input text-foreground cursor-not-allowed ${
+                  formData.postalCode ? 'bg-secondary' : 'bg-muted'
+                }`}
+                placeholder="Sélectionnez une adresse ci-dessus"
               />
             </div>
             <div>
@@ -387,8 +390,10 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
                 name="city"
                 value={formData.city}
                 readOnly
-                className="w-full px-4 py-2.5 rounded-sm border border-input bg-secondary text-foreground cursor-not-allowed"
-                placeholder="Auto-rempli"
+                className={`w-full px-4 py-2.5 rounded-sm border border-input text-foreground cursor-not-allowed ${
+                  formData.city ? 'bg-secondary' : 'bg-muted'
+                }`}
+                placeholder="Sélectionnez une adresse ci-dessus"
               />
             </div>
           </div>
