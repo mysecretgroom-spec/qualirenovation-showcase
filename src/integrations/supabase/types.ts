@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      clients: {
+        Row: {
+          address: string | null
+          budget: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          google_drive_folder_id: string | null
+          google_drive_folder_url: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          postal_code: string | null
+          project_description: string | null
+          quote_request_id: string | null
+          status: string
+          surface: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          budget?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          google_drive_folder_id?: string | null
+          google_drive_folder_url?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          project_description?: string | null
+          quote_request_id?: string | null
+          status?: string
+          surface?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          budget?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          google_drive_folder_id?: string | null
+          google_drive_folder_url?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          project_description?: string | null
+          quote_request_id?: string | null
+          status?: string
+          surface?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       houzz_project_images: {
         Row: {
           caption: string | null
