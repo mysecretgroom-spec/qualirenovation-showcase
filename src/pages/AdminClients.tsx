@@ -4,11 +4,12 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, Plus, Search, User, MapPin, Phone, Mail, 
-  Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink
+  Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink, FolderOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import ClientFiles from "@/components/ClientFiles";
 import {
   Dialog,
   DialogContent,
@@ -103,6 +104,8 @@ const AdminClients = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFromQuoteModalOpen, setIsFromQuoteModalOpen] = useState(false);
+  const [isFilesModalOpen, setIsFilesModalOpen] = useState(false);
+  const [selectedClientForFiles, setSelectedClientForFiles] = useState<Client | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [formData, setFormData] = useState(emptyFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -528,6 +531,13 @@ const AdminClients = () => {
                             <Edit className="w-4 h-4 mr-2" />
                             Modifier
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => {
+                            setSelectedClientForFiles(client);
+                            setIsFilesModalOpen(true);
+                          }}>
+                            <FolderOpen className="w-4 h-4 mr-2" />
+                            Documents
+                          </DropdownMenuItem>
                           {client.google_drive_folder_url && (
                             <DropdownMenuItem asChild>
                               <a href={client.google_drive_folder_url} target="_blank" rel="noopener noreferrer">
@@ -727,6 +737,25 @@ const AdminClients = () => {
                 </div>
               ))}
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Files modal */}
+      <Dialog open={isFilesModalOpen} onOpenChange={setIsFilesModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FolderOpen className="w-5 h-5" />
+              Documents - {selectedClientForFiles?.name}
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedClientForFiles && (
+            <ClientFiles 
+              clientId={selectedClientForFiles.id} 
+              clientName={selectedClientForFiles.name} 
+            />
           )}
         </DialogContent>
       </Dialog>
