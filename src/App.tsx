@@ -17,6 +17,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CGV from "./pages/CGV";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import MentionsLegales from "./pages/MentionsLegales";
 import FAQPage from "./pages/FAQ";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/projet/:slug" element={<ProjectDetail />} />
             <Route path="/cgv" element={<CGV />} />
             <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
