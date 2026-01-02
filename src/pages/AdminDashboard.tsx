@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield, FolderOpen, Users } from "lucide-react";
+import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield, FolderOpen, Users, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,6 +15,7 @@ interface DashboardStats {
   pendingImports: number;
   totalClients: number;
   activeClients: number;
+  totalPress: number;
 }
 
 const AdminDashboard = () => {
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
     pendingImports: 0,
     totalClients: 0,
     activeClients: 0,
+    totalPress: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const navigate = useNavigate();
@@ -81,6 +83,7 @@ const AdminDashboard = () => {
         pendingImportsResult,
         clientsResult,
         activeClientsResult,
+        pressResult,
       ] = await Promise.all([
         supabase.from("quote_requests").select("id", { count: "exact", head: true }),
         supabase.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -90,6 +93,7 @@ const AdminDashboard = () => {
         supabase.from("import_queue").select("id", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("clients").select("id", { count: "exact", head: true }),
         supabase.from("clients").select("id", { count: "exact", head: true }).eq("status", "en_cours"),
+        supabase.from("press_mentions").select("id", { count: "exact", head: true }),
       ]);
 
       setStats({
@@ -101,6 +105,7 @@ const AdminDashboard = () => {
         pendingImports: pendingImportsResult.count || 0,
         totalClients: clientsResult.count || 0,
         activeClients: activeClientsResult.count || 0,
+        totalPress: pressResult.count || 0,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -164,6 +169,16 @@ const AdminDashboard = () => {
       badge: null,
       badgeColor: "",
       stat: `${stats.totalProjects} projets`,
+    },
+    {
+      title: "Publications Presse",
+      description: "Gérer les mentions presse et médias",
+      href: "/admin/presse",
+      icon: Newspaper,
+      color: "bg-pink-500/10 text-pink-600",
+      badge: null,
+      badgeColor: "",
+      stat: `${stats.totalPress} publications`,
     },
     {
       title: "Vérificateur de liens",
