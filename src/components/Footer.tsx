@@ -142,15 +142,18 @@ const Footer = () => {
           <p className="text-primary-foreground/60 text-sm">
             © {currentYear} QUALIRENOVATION by Qualiconcept. Tous droits réservés.
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap gap-4 md:gap-6 text-sm">
             <Link to="/faq" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
               FAQ
+            </Link>
+            <Link to="/mentions-legales" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
+              Mentions légales
             </Link>
             <Link to="/cgv" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
               CGV
             </Link>
             <Link to="/politique-confidentialite" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-              Politique de confidentialité
+              Confidentialité
             </Link>
           </div>
         </div>
