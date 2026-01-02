@@ -287,6 +287,45 @@ export type Database = {
         }
         Relationships: []
       }
+      press_mentions: {
+        Row: {
+          article_url: string
+          created_at: string
+          date: string | null
+          display_order: number | null
+          featured: boolean | null
+          id: string
+          logo_url: string | null
+          source: string
+          source_url: string | null
+          title: string
+        }
+        Insert: {
+          article_url: string
+          created_at?: string
+          date?: string | null
+          display_order?: number | null
+          featured?: boolean | null
+          id?: string
+          logo_url?: string | null
+          source: string
+          source_url?: string | null
+          title: string
+        }
+        Update: {
+          article_url?: string
+          created_at?: string
+          date?: string | null
+          display_order?: number | null
+          featured?: boolean | null
+          id?: string
+          logo_url?: string | null
+          source?: string
+          source_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       quote_requests: {
         Row: {
           address: string | null
