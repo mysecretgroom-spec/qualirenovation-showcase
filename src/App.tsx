@@ -13,6 +13,7 @@ import AdminTestimonials from "./pages/AdminTestimonials";
 import AdminLinkChecker from "./pages/AdminLinkChecker";
 import AdminVisualTesting from "./pages/AdminVisualTesting";
 import AdminClients from "./pages/AdminClients";
+import AdminPress from "./pages/AdminPress";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CGV from "./pages/CGV";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/admin/clients" element={<AdminClients />} />
             <Route path="/admin/liens" element={<AdminLinkChecker />} />
             <Route path="/admin/visual" element={<AdminVisualTesting />} />
+            <Route path="/admin/presse" element={<AdminPress />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
