@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -10,43 +10,103 @@ import {
 } from "@/components/ui/accordion";
 import CarinIA from "@/components/CarinIA";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import Footer from "@/components/Footer";
 
 const faqSections = [
   {
-    title: "Pourquoi choisir Qualirénovation ?",
+    title: "Pourquoi choisir QualiRénovation ?",
     items: [
       {
+        question: "Pourquoi choisir QualiRénovation by QualiConcept ?",
+        answer: `Parce qu'un chantier n'est ni un décor ni une promesse commerciale.
+C'est une réalité technique, humaine et financière qui doit être anticipée, expliquée et pilotée.
+
+Chez QualiRénovation, nous parlons chantier avant décoration, faisabilité avant projection, méthode avant effet.
+Rénover, c'est transformer un lieu de vie : cela mérite du sérieux, de la clarté et du respect.`
+      },
+      {
         question: "Qu'est-ce qui vous différencie des autres entreprises de rénovation ?",
-        answer: "Chez QualiRénovation by QualiConcept, nous allions maîtrise technique, sens du détail et accompagnement personnalisé. Chaque chantier est piloté comme un projet sur mesure : plans précis, anticipation des contraintes, communication transparente et coordination rigoureuse de tous les corps de métier. Notre objectif est simple : zéro surprise et un résultat parfaitement exécuté."
+        answer: `Nous intégrons une maîtrise d'œuvre expérimentée au cœur de l'entreprise et collaborons avec un architecte d'intérieur partenaire.
+Cette organisation évite les pertes d'information, les délais inutiles et les projets irréalisables.
+
+Tout ce qui est dessiné est pensé pour être construit.
+Quand la technique est maîtrisée, le résultat peut faire rêver — et nos chantiers sont régulièrement mis en avant par la presse.`
       },
       {
         question: "Quelles garanties offrez-vous ?",
-        answer: "Nous travaillons exclusivement avec des artisans et entreprises disposant des assurances obligatoires : décennale, responsabilité civile et assurances spécifiques à chaque métier. En tant que maître d'œuvre, nous garantissons un suivi rigoureux, la conformité aux normes, la transparence des étapes et la sécurisation de votre projet du début à la fin."
+        answer: `Tous nos chantiers sont couverts par une assurance décennale en cours de validité.
+Un procès-verbal de réception est systématiquement signé en fin de travaux, déclenchant les garanties légales (parfait achèvement, biennale, décennale).
+
+Grâce à une traçabilité complète (situations de chantier, factures, références produits), nous assurons un suivi fiable dans le temps, même plusieurs années après.`
       },
       {
         question: "Proposez-vous un accompagnement déco et conseil ?",
-        answer: "Oui. Nous proposons un accompagnement complet : choix des matériaux, couleurs, optimisation des espaces, éclairages, menuiseries, ambiance globale… Nous travaillons également avec un architecte d'intérieur afin de vous fournir des plans 3D et un conseil esthétique cohérent avec votre projet."
-      },
-      {
-        question: "Comment assurez-vous la qualité des travaux ?",
-        answer: "Nous ne laissons rien au hasard : sélection d'équipes qualifiées, plans détaillés, suivi quasi quotidien du chantier, contrôles systématiques à chaque étape (structure, plomberie, électricité, étanchéité, finitions) et utilisation de matériaux fiables et conformes aux normes. Notre méthode garantit une exécution dans les règles de l'art et un résultat durable."
+        answer: `Oui.
+Nous travaillons avec Thierry, architecte d'intérieur partenaire, notamment pour les projets supérieurs à 35 m².
+
+Son rôle :
+• étude des volumes et circulations
+• conception de plans précis et exploitables
+• anticipation des contraintes techniques
+• cohérence entre esthétique et exécution
+
+L'étude de faisabilité et le devis sont gratuits.`,
+        link: {
+          url: "https://www.instagram.com/p/DMqS40QscJl/",
+          label: "Découvrez notre approche en vidéo"
+        }
       }
     ]
   },
   {
-    title: "Déroulement de votre projet",
+    title: "Déroulement de votre projet – Phase devis",
     items: [
       {
-        question: "Comment se déroule une demande de devis ?",
-        answer: "La demande commence par une prise de contact et un échange sur votre projet. Nous organisons ensuite une visite sur place pour relever les mesures, analyser les contraintes techniques et comprendre vos besoins. À partir de ces éléments, nous établissons un devis détaillé, clair et transparent, comprenant les travaux, les matériaux et les éventuelles options. Chaque poste est expliqué afin que vous puissiez valider votre projet sereinement."
+        question: "Comment se déroule la phase devis chez QualiRénovation ?",
+        answer: `La phase devis est une étape déterminante.
+Elle conditionne la fiabilité du budget et la sérénité du chantier.
+
+Nous ne chiffrons jamais à l'aveugle.
+
+1. Premier échange (téléphone ou visio)
+Compréhension de votre projet, de vos attentes et de vos contraintes.
+
+2. Visite technique sur site
+Analyse de l'existant, des accès, de la copropriété et des contraintes réelles.
+
+3. Étude de faisabilité gratuite
+Vérification de la faisabilité technique, réglementaire et budgétaire.
+
+4. Au-delà de 35 m² : plans indispensables
+Pour les projets de plus de 35 m², et a fortiori pour une rénovation complète, il est impossible d'établir un devis sérieux sans plans précis.
+Les volumes évoluent, les réseaux changent, rien n'est figé.
+
+Thierry établit d'abord son devis de mission après une première visite.
+Si vous acceptez de collaborer avec lui, je vous présente une fourchette de prix travaux lors du rendez-vous.
+Si cette fourchette vous convient, nous poursuivons et j'établis ensuite mon devis détaillé, une fois les plans suffisamment précis.
+
+5. Validation des choix indispensables avant chiffrage
+Sanitaires, robinetteries, éléments techniques sont validés en amont.
+
+6. Devis détaillé poste par poste
+Basé sur les plans, les choix arrêtés et la réalité du chantier.
+
+7. CGV et attestation de TVA intégrées
+Ces documents doivent être lus, acceptés et signés.
+
+8. Signature du devis = engagement contractuel
+
+Un devis précis peut sembler long.
+Un devis imprécis coûte toujours plus cher.`
       },
       {
-        question: "Quelle est la durée moyenne d'un chantier ?",
-        answer: "La durée dépend naturellement de la nature des travaux. Une rénovation partielle peut durer de 2 à 6 semaines ; une rénovation complète, entre 6 et 12 semaines en moyenne. Nous établissons un planning prévisionnel avant le démarrage et nous nous engageons à le respecter autant que possible, tout en vous tenant informé si une adaptation est nécessaire."
-      },
-      {
-        question: "Comment se passe le suivi du chantier ?",
-        answer: "Le suivi est assuré quotidiennement : visite du chantier, coordination des équipes, vérification des étapes clés, résolution des imprévus et contrôle des finitions. Vous recevez des points réguliers, photos, avancées et validations nécessaires. Notre rôle est d'assurer une exécution conforme aux normes, au planning et au projet validé, tout en vous offrant une totale tranquillité d'esprit."
+        question: "Pourquoi prévoir un budget plans dès l'achat ?",
+        answer: `Dans le cadre d'une rénovation lourde, penser que l'on peut se passer d'un architecte est souvent une fausse économie.
+Sauf à avoir le temps, les connaissances et la capacité de produire toutes les pièces nécessaires.
+
+Grâce au volume de chantiers réalisés avec Thierry, vous bénéficiez d'un tarif préférentiel, plus accessible et très efficace.
+
+Et n'oublions pas : le temps, c'est aussi de l'argent.`
       }
     ]
   },
@@ -55,15 +115,28 @@ const faqSections = [
     items: [
       {
         question: "Quels types de travaux réalisez-vous ?",
-        answer: "Nous réalisons tous types de travaux de rénovation : rénovation complète d'appartements et de maisons, création et optimisation d'espaces, salle de bain, cuisine, menuiseries sur mesure, électricité, plomberie, peinture, sols, isolation, faux plafonds, modifications structurelles avec validation BET, et accompagnement déco. Nous gérons l'ensemble du projet du début à la fin pour garantir cohérence, qualité et tranquillité d'esprit."
+        answer: `Nous réalisons l'ensemble des travaux de rénovation intérieure, notamment les lots suivants :
+
+• Gros œuvre & structure
+• Cloisons, doublages & isolation
+• Plomberie & sanitaires
+• Chauffage & ventilation
+• Électricité
+• Menuiseries intérieures & agencements
+• Cuisines
+• Salles de bain & WC
+• Peinture & finitions
+• Revêtements de sols
+• Staff, moulures & éléments décoratifs
+• Verrières & ouvrages métalliques
+• Plans de travail en pierre (prestations négociées, réglées directement au prestataire)
+• Pose de fenêtres par entreprise RGE (prestations négociées, réglées directement au prestataire)
+• Assistance après sinistre
+• Conception, pilotage & suivi`
       },
       {
         question: "Quelles sont vos zones d'intervention ?",
-        answer: "Nous intervenons principalement à Paris et dans toute l'Île-de-France : Paris intramuros, Hauts-de-Seine, Val-de-Marne, Seine-Saint-Denis, et communes limitrophes. Pour des projets spécifiques, nous pouvons étudier des interventions au-delà de cette zone."
-      },
-      {
-        question: "Que se passe-t-il en cas de problème après les travaux ?",
-        answer: "En cas de problème, vous n'êtes jamais seul. Nous intervenons rapidement pour diagnostiquer, corriger et assurer la bonne tenue de l'ouvrage. Chaque artisan dispose de ses assurances (décennale, RC), et nous restons votre interlocuteur unique pour coordonner les reprises si nécessaire. L'objectif : une résolution simple, rapide et transparente."
+        answer: "Nous intervenons principalement à Paris et en Île-de-France."
       }
     ]
   },
@@ -71,49 +144,93 @@ const faqSections = [
     title: "Le rôle du maître d'œuvre",
     items: [
       {
-        question: "Pourquoi faire appel à un maître d'œuvre pour ma rénovation ?",
-        answer: "Faire appel à un maître d'œuvre, c'est vous assurer un chantier cadré, organisé et parfaitement exécuté. Nous anticipons les contraintes, coordonnons tous les artisans, vérifions la conformité aux normes et gérons les imprévus pour vous éviter le stress. Vous bénéficiez d'un interlocuteur unique, d'un suivi rigoureux et d'un résultat maîtrisé du début à la fin."
+        question: "Pourquoi faire appel à un maître d'œuvre ?",
+        answer: `Le maître d'œuvre est le chef d'orchestre du chantier : coordination des entreprises, contrôle qualité, respect du budget et du planning.
+
+Chez QualiRénovation, la maîtrise d'œuvre est intégrée et incluse dans le devis.`,
+        link: {
+          url: "https://www.houzz.fr/magazine/pourquoi-est-il-judicieux-de-faire-appel-a-un-maitre-d-oeuvre-stsetivw-vs~87724005",
+          label: "En savoir plus sur le rôle du maître d'œuvre"
+        }
       },
       {
-        question: "Comment choisissez-vous les artisans et entreprises qui interviennent sur le chantier ?",
-        answer: "Nous travaillons uniquement avec des artisans expérimentés, fiables et assurés (décennale et RC). Chaque partenaire est sélectionné pour son sérieux, la qualité constante de son travail et sa capacité à respecter les délais. C'est grâce à cette exigence que nous pouvons garantir une exécution dans les règles de l'art."
-      },
-      {
-        question: "Comment garantissez-vous le respect du budget ?",
-        answer: "Le budget est établi en amont, poste par poste. Nous le suivons tout au long du chantier, validons chaque dépense avec vous et anticipons les éventuels ajustements. Aucune surprise : toutes les décisions sont transparentes et expliquées. L'objectif est simple : respecter votre budget et optimiser chaque euro investi."
-      },
-      {
-        question: "Est-ce que vous vous occupez des autorisations, des relations avec le syndic et du BET ?",
-        answer: "Oui. Nous gérons toutes les démarches nécessaires : demandes auprès du syndic, autorisations de travaux, consultations du BET en cas de mur porteur ou d'intervention structurelle, et conformité aux règles de l'immeuble. Vous êtes déchargé de toute la partie administrative et technique, tout en étant sûr que tout est fait dans les règles."
-      },
-      {
-        question: "Comment assurez-vous la coordination entre les différents corps de métier ?",
-        answer: "Nous planifions et orchestrons l'intervention de chaque artisan : plombier, électricien, plaquiste, peintre, menuisier, carreleur… Chaque étape est organisée pour éviter les temps morts et garantir une progression fluide du chantier. Le maître d'œuvre vérifie, valide et ajuste au fur et à mesure, ce qui assure une réalisation harmonieuse et conforme."
+        question: "Qui paie le maître d'œuvre ?",
+        answer: `La maîtrise d'œuvre est incluse dans notre devis global.
+Aucune facturation séparée.`
       }
     ]
   },
   {
-    title: "Préparation et suivi du chantier",
+    title: "Suivi de chantier",
     items: [
       {
-        question: "Travaillez-vous avec des plans 3D et des visuels avant travaux ?",
-        answer: "Oui, nous proposons des plans 3D, des vues réalistes et des plans techniques détaillés. Cela permet de visualiser votre futur intérieur, d'affiner les choix et de valider chaque élément avant lancement. C'est un outil essentiel pour garantir un projet cohérent et éviter les mauvaises surprises."
+        question: "Comment se passe le suivi du chantier ?",
+        answer: `Le suivi est quotidien :
+photos, vidéos, messages via WhatsApp, réunions sur site.
+
+Même à distance, vous suivez votre chantier en temps réel, sans stress inutile.`
+      }
+    ]
+  },
+  {
+    title: "Budget, paiements et commandes",
+    items: [
+      {
+        question: "Comment garantissez-vous le respect du budget ?",
+        answer: `• Devis précis dès le départ
+• Aucune plus-value sans accord écrit
+• Situation de chantier à chaque appel de fonds`
       },
       {
-        question: "Comment gérez-vous les imprévus sur un chantier ?",
-        answer: "Les imprévus font partie des travaux, mais notre rôle est de les anticiper et de les résoudre rapidement. Dès qu'un point technique se présente, nous analysons, proposons une solution, validons avec vous et mettons en œuvre sans retarder le planning. Vous êtes informé, mais jamais laissé dans la gestion du problème."
+        question: "Comment se déroulent les appels de fonds ?",
+        answer: `Échéancier : 35 % / 30 % / 25 % / 15 % / 5 % à la réception.
+Les appels sont anticipés.
+Le règlement suivant intervient sous 48 heures, afin d'assurer la continuité du chantier.`
       },
       {
-        question: "Est-ce que vous proposez un planning détaillé avant le début des travaux ?",
-        answer: "Oui. Avant le démarrage, nous établissons un planning précis avec l'ordre des interventions, les délais de chaque corps d'état et les étapes clés. Cela permet d'avoir une vision claire du déroulement du chantier et d'avancer dans un cadre structuré et maîtrisé."
+        question: "Comment sont traités les achats de marchandises ?",
+        answer: `• Majoration de 10 % sur les marchandises
+• Frais de livraison, manutention, nacelles intégrés dès le devis initial
+• Aucune commande hors devis`
+      }
+    ]
+  },
+  {
+    title: "Syndic et voisinage",
+    items: [
+      {
+        question: "Gérez-vous les relations avec le syndic ?",
+        answer: `Nous vous accompagnons pour les démarches : avis de travaux, attestations, planning.
+Le respect des parties communes et du voisinage est une priorité.`
+      }
+    ]
+  },
+  {
+    title: "Réception de chantier",
+    items: [
+      {
+        question: "Comment se déroule la réception ?",
+        answer: `• Pré-réception environ 15 jours avant la fin
+• Liste des éléments à fournir 1 mois à l'avance
+
+Le jour J, le PV de réception est signé, les garanties sont déclenchées…
+et idéalement, on sort le champagne 🍾
+La réception n'est pas un ring.`
+      }
+    ]
+  },
+  {
+    title: "Après travaux et litiges",
+    items: [
+      {
+        question: "Que se passe-t-il après les travaux ?",
+        answer: `Nous restons disponibles.
+Un chantier bien suivi ne s'arrête pas à la remise des clés.`
       },
       {
-        question: "Quel est votre processus de réception de chantier ?",
-        answer: "À la fin des travaux, nous effectuons une visite complète avec vous : contrôle des finitions, vérification des installations, tests des équipements, et liste des éventuelles petites reprises. Une fois ces points validés, la réception est prononcée. C'est une étape essentielle pour garantir un résultat impeccable."
-      },
-      {
-        question: "Pouvez-vous intervenir si le projet comprend des contraintes techniques complexes ?",
-        answer: "Oui. Nous avons l'habitude de gérer des projets avec contraintes : murs porteurs, ventilation, étanchéité, isolation, réseaux, salles de bain techniques, optimisation d'espaces compliqués… Grâce à notre expertise et à nos partenaires (BET, artisans spécialisés), chaque problématique est traitée avec méthode et sécurité."
+        question: "Et en cas de désaccord ?",
+        answer: `Je privilégie toujours le dialogue, le respect et la transparence.
+Pas d'ego, pas de rapport de force : nous avançons ensemble pour la réussite du projet.`
       }
     ]
   }
@@ -138,9 +255,9 @@ const FAQPage = () => {
   return (
     <>
       <Helmet>
-        <title>FAQ Rénovation Paris | Maître d'œuvre, Devis, Suivi Chantier | Qualirénovation</title>
-        <meta name="description" content="20 questions sur la rénovation à Paris : rôle du maître d'œuvre, garanties décennales, suivi de chantier, plans 3D, coordination artisans et respect du budget. Devis gratuit." />
-        <meta name="keywords" content="FAQ rénovation Paris, maître d'œuvre rénovation, suivi chantier, coordination artisans, plans 3D rénovation, devis rénovation appartement, garantie décennale, BET mur porteur, réception chantier, budget rénovation Île-de-France" />
+        <title>FAQ Rénovation Paris | Maître d'œuvre, Devis, Suivi Chantier | QualiRénovation</title>
+        <meta name="description" content="Questions fréquentes sur la rénovation à Paris : phase devis, rôle du maître d'œuvre, garanties, suivi de chantier, budget et réception. Entreprise de rénovation et maîtrise d'œuvre." />
+        <meta name="keywords" content="FAQ rénovation Paris, maître d'œuvre rénovation, suivi chantier, phase devis rénovation, garantie décennale, budget rénovation, réception chantier, QualiRénovation" />
         <link rel="canonical" href="https://qualirenovation.fr/faq" />
         <script type="application/ld+json">
           {JSON.stringify(faqSchema)}
@@ -158,40 +275,66 @@ const FAQPage = () => {
 
           <div className="text-center mb-12">
             <span className="text-gold font-medium text-sm uppercase tracking-wider">
-              Questions fréquentes
+              FAQ – Rénovation à Paris
             </span>
             <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mt-2 mb-4">
-              Tout savoir sur nos services
+              QualiRénovation by QualiConcept
             </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Retrouvez les réponses aux questions les plus courantes concernant nos prestations de rénovation.
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Entreprise de rénovation – Maître d'œuvre – Suivi de chantier
             </p>
           </div>
 
           <div className="max-w-3xl mx-auto">
-          {faqSections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="mb-12">
-              <h2 className="font-display text-2xl font-bold text-foreground mb-6">
-                {section.title}
-              </h2>
-              <Accordion type="single" collapsible className="space-y-4">
-                {section.items.map((item, index) => (
-                  <AccordionItem
-                    key={index}
-                    value={`section-${sectionIndex}-item-${index}`}
-                    className="bg-card border border-border rounded-lg px-6 data-[state=open]:shadow-md transition-shadow"
-                  >
-                    <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-gold hover:no-underline py-5">
-                      {item.question}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
-                      {item.answer}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+            {faqSections.map((section, sectionIndex) => (
+              <div key={sectionIndex} className="mb-12">
+                <h2 className="font-display text-2xl font-bold text-foreground mb-6">
+                  {section.title}
+                </h2>
+                <Accordion type="single" collapsible className="space-y-4">
+                  {section.items.map((item, index) => (
+                    <AccordionItem
+                      key={index}
+                      value={`section-${sectionIndex}-item-${index}`}
+                      className="bg-card border border-border rounded-lg px-6 data-[state=open]:shadow-md transition-shadow"
+                    >
+                      <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-gold hover:no-underline py-5">
+                        {item.question}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                        <div className="whitespace-pre-line">{item.answer}</div>
+                        {item.link && (
+                          <a
+                            href={item.link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 mt-4 text-gold hover:text-gold-dark font-medium transition-colors"
+                          >
+                            {item.link.label}
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            ))}
+
+            {/* Conclusion */}
+            <div className="mt-16 p-8 bg-card border border-border rounded-lg text-center">
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                Rénover, ce n'est pas seulement transformer un espace.<br />
+                C'est assumer des choix, une méthode et une responsabilité.
+              </p>
+              <p className="text-foreground font-medium mb-6">
+                Si notre philosophie vous parle, prenez rendez-vous pour votre projet et échangeons ensemble.
+              </p>
+              <p className="text-muted-foreground italic text-sm">
+                Un chantier réussi n'est pas celui qui impressionne le jour J,<br />
+                mais celui qui reste juste, solide et serein dans le temps.
+              </p>
             </div>
-          ))}
           </div>
 
           <div className="text-center mt-12">
@@ -205,6 +348,7 @@ const FAQPage = () => {
             </Link>
           </div>
         </div>
+        <Footer />
         <CarinIA />
         <WhatsAppButton />
       </div>
