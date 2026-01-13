@@ -88,12 +88,12 @@ const About = () => {
             <div className="flex items-center gap-4 pt-6 border-t border-border">
               <img 
                 src={carinaPhoto} 
-                alt="Carina - Maître d'œuvres" 
+                alt="Carina - Maître d'œuvre" 
                 className="w-20 h-20 rounded-full object-cover"
               />
               <div>
                 <p className="font-display font-semibold text-foreground">Carina</p>
-                <p className="text-muted-foreground text-sm">Maître d'œuvres</p>
+                <p className="text-muted-foreground text-sm">Maître d'œuvre</p>
               </div>
             </div>
           </div>
