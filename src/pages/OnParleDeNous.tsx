@@ -56,7 +56,7 @@ const sourceLogos: Record<string, { logo: string; color: string; bgColor: string
   },
 };
 
-const OnParlDeNous = () => {
+const OnParleDeNous = () => {
   const [mentions, setMentions] = useState<PressMention[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
@@ -396,4 +396,4 @@ const OnParlDeNous = () => {
   );
 };
 
-export default OnParlDeNous;
+export default OnParleDeNous;
