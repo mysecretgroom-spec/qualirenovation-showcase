@@ -6,8 +6,22 @@ import { SelectableCard } from '../SelectableCard';
 import { KitchenData } from '../types';
 import { 
   ChefHat, Clock, Users, DoorOpen, DoorClosed,
-  Square, LayoutGrid, Boxes, HelpCircle, CheckCircle
+  HelpCircle, CheckCircle
 } from 'lucide-react';
+
+// Import kitchen images
+import implantationLineaire from '@/assets/kitchen/implantation-lineaire.jpg';
+import implantationL from '@/assets/kitchen/implantation-l.jpg';
+import implantationU from '@/assets/kitchen/implantation-u.jpg';
+import implantationIlot from '@/assets/kitchen/implantation-ilot.jpg';
+import planStratifie from '@/assets/kitchen/plan-stratifie.jpg';
+import planQuartz from '@/assets/kitchen/plan-quartz.jpg';
+import planCeramique from '@/assets/kitchen/plan-ceramique.jpg';
+import planBois from '@/assets/kitchen/plan-bois.jpg';
+import facadeBois from '@/assets/kitchen/facade-bois.jpg';
+import facadeLaque from '@/assets/kitchen/facade-laque.jpg';
+import facadeMat from '@/assets/kitchen/facade-mat.jpg';
+import facadeEffetMatiere from '@/assets/kitchen/facade-effet-matiere.jpg';
 
 interface KitchenModuleProps {
   roomId: string;
@@ -40,11 +54,10 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
   ];
 
   const layoutTypes = [
-    { value: 'lineaire', label: 'Linéaire', emoji: '▬' },
-    { value: 'en-l', label: 'En L', emoji: '⌐' },
-    { value: 'en-u', label: 'En U', emoji: '⊔' },
-    { value: 'avec-ilot', label: 'Avec îlot', emoji: '▣' },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas encore', emoji: '❓' },
+    { value: 'lineaire', label: 'Linéaire', image: implantationLineaire },
+    { value: 'en-l', label: 'En L', image: implantationL },
+    { value: 'en-u', label: 'En U', image: implantationU },
+    { value: 'avec-ilot', label: 'Avec îlot', image: implantationIlot },
   ];
 
   const cabinetTypes = [
@@ -55,20 +68,17 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
   ];
 
   const facadeFinishes = [
-    { value: 'bois', label: 'Bois' },
-    { value: 'laque', label: 'Laqué' },
-    { value: 'mat', label: 'Mat' },
-    { value: 'effet-matiere', label: 'Effet matière' },
-    { value: 'a-definir', label: 'À définir' },
+    { value: 'bois', label: 'Bois', image: facadeBois },
+    { value: 'laque', label: 'Laqué', image: facadeLaque },
+    { value: 'mat', label: 'Mat', image: facadeMat },
+    { value: 'effet-matiere', label: 'Effet matière', image: facadeEffetMatiere },
   ];
 
   const countertopMaterials = [
-    { value: 'stratifie', label: 'Stratifié' },
-    { value: 'quartz', label: 'Quartz' },
-    { value: 'ceramique', label: 'Céramique' },
-    { value: 'bois', label: 'Bois' },
-    { value: 'autre', label: 'Autre' },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+    { value: 'stratifie', label: 'Stratifié', image: planStratifie },
+    { value: 'quartz', label: 'Quartz', image: planQuartz },
+    { value: 'ceramique', label: 'Céramique', image: planCeramique },
+    { value: 'bois', label: 'Bois', image: planBois },
   ];
 
   const backsplashTypes = [
@@ -108,13 +118,13 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
 
       {/* Layout type */}
       <FormQuestion label="Type d'implantation envisagée :">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {layoutTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.layoutType === type.value}
               onClick={() => updateData({ layoutType: type.value })}
-              emoji={type.emoji}
+              image={type.image}
               title={type.label}
               size="sm"
             />
@@ -158,12 +168,13 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
 
       {/* Facade finish */}
       <FormQuestion label="Finition des façades :">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {facadeFinishes.map((finish) => (
             <SelectableCard
               key={finish.value}
               selected={data.facadeFinish === finish.value}
               onClick={() => updateData({ facadeFinish: finish.value })}
+              image={finish.image}
               title={finish.label}
               size="sm"
             />
@@ -192,12 +203,13 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
 
       {/* Countertop material */}
       <FormQuestion label="Matériau du plan de travail souhaité :">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {countertopMaterials.map((material) => (
             <SelectableCard
               key={material.value}
               selected={data.countertopMaterial === material.value}
               onClick={() => updateData({ countertopMaterial: material.value })}
+              image={material.image}
               title={material.label}
               size="sm"
             />
