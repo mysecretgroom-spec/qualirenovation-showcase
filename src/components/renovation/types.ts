@@ -87,6 +87,13 @@ export interface BathroomData {
 }
 
 // Kitchen module
+export interface EggerReference {
+  reference: string;
+  imageUrl?: string;
+  isLoading?: boolean;
+  error?: string;
+}
+
 export interface KitchenData {
   usage: string[];
   layoutType: string;
@@ -98,6 +105,7 @@ export interface KitchenData {
   wantVisualization: string;
   backsplashType: string;
   certaintyLevel: string;
+  eggerReferences: EggerReference[];
 }
 
 // Painting module
@@ -242,4 +250,5 @@ export const initialKitchenData: KitchenData = {
   wantVisualization: '',
   backsplashType: '',
   certaintyLevel: '',
+  eggerReferences: [],
 };
