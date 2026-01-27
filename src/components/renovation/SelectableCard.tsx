@@ -33,6 +33,67 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
     lg: 'p-6 min-h-[160px]',
   };
 
+  const imageSizeClasses = {
+    sm: 'h-16',
+    md: 'h-24',
+    lg: 'h-32',
+  };
+
+  // If image is provided, use a different layout
+  if (image) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        className={cn(
+          'relative flex flex-col rounded-lg border-2 transition-all duration-200 overflow-hidden',
+          'hover:border-primary/50 hover:shadow-md',
+          'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+          selected
+            ? 'border-primary shadow-md'
+            : 'border-border bg-card',
+          disabled && 'opacity-50 cursor-not-allowed',
+          className
+        )}
+      >
+        {/* Selection indicator */}
+        {selected && (
+          <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
+            <Check className="w-4 h-4 text-primary-foreground" />
+          </div>
+        )}
+
+        {/* Image */}
+        <div className={cn('w-full overflow-hidden', imageSizeClasses[size])}>
+          <img 
+            src={image} 
+            alt={title} 
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+
+        {/* Title overlay */}
+        <div className={cn(
+          'px-3 py-2 text-center',
+          selected ? 'bg-primary/10' : 'bg-card'
+        )}>
+          <span className={cn(
+            'text-sm font-medium',
+            selected ? 'text-primary' : 'text-foreground'
+          )}>
+            {title}
+          </span>
+          {description && (
+            <span className="block text-xs text-muted-foreground mt-0.5">
+              {description}
+            </span>
+          )}
+        </div>
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -50,23 +111,6 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
         className
       )}
     >
-      {/* Selection indicator */}
-      {selected && (
-        <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-          <Check className="w-3 h-3 text-primary-foreground" />
-        </div>
-      )}
-
-      {/* Image */}
-      {image && (
-        <div className="w-full h-20 rounded overflow-hidden mb-2">
-          <img 
-            src={image} 
-            alt={title} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
 
       {/* Emoji */}
       {emoji && (
