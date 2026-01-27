@@ -12,6 +12,7 @@ import { StepIsolation } from './steps/StepIsolation';
 import { StepSummary } from './steps/StepSummary';
 import { BathroomModule } from './modules/BathroomModule';
 import { KitchenModule } from './modules/KitchenModule';
+import { WCModule } from './modules/WCModule';
 import { CustomFurnitureModule } from './modules/CustomFurnitureModule';
 import { GenericRoomModule } from './modules/GenericRoomModule';
 import { FlooringModule } from './modules/FlooringModule';
@@ -19,7 +20,7 @@ import { PaintingModule } from './modules/PaintingModule';
 import { ElectricityModule } from './modules/ElectricityModule';
 import { GlassPanelModule } from './modules/GlassPanelModule';
 import { LivingRoomModule } from './modules/LivingRoomModule';
-import { RoomType, initialBathroomData, initialKitchenData, initialPaintingData } from './types';
+import { RoomType, initialBathroomData, initialKitchenData, initialPaintingData, initialWCData } from './types';
 import { useToast } from '@/hooks/use-toast';
 import { useLeadContext } from '@/contexts/LeadContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -202,6 +203,17 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
               roomId={room.id}
               roomName={roomName}
               data={room.data.kitchenData || initialKitchenData}
+              onSkip={handleSkipSection}
+            />
+          );
+          break;
+        case 'wc':
+          component = (
+            <WCModule
+              key={room.id}
+              roomId={room.id}
+              roomName={roomName}
+              data={room.data.wcData || initialWCData}
               onSkip={handleSkipSection}
             />
           );

@@ -65,6 +65,7 @@ export type RoomType =
 export interface RoomData {
   bathroomData?: BathroomData;
   kitchenData?: KitchenData;
+  wcData?: WCData;
   paintingData?: PaintingData;
   electricityData?: ElectricityData;
   flooringData?: FlooringData;
@@ -73,6 +74,27 @@ export interface RoomData {
   customFurnitureData?: CustomFurnitureData;
   genericRoomData?: GenericRoomData;
 }
+
+// WC module
+export interface WCData {
+  toiletType: string;
+  existingSanibroyeur: string;
+  wantHandWash: string;
+  handWashType: string;
+  faucetFinish: string;
+  siphonType: string;
+  certaintyLevel: string;
+}
+
+export const initialWCData: WCData = {
+  toiletType: '',
+  existingSanibroyeur: '',
+  wantHandWash: '',
+  handWashType: '',
+  faucetFinish: '',
+  siphonType: '',
+  certaintyLevel: '',
+};
 
 // Bathroom module
 export interface BathroomData {
