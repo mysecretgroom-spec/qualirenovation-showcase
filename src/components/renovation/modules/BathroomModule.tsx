@@ -15,12 +15,11 @@ import { toast } from 'sonner';
 import { ReferenceInput } from '../ReferenceInput';
 
 // Import bathroom images
-import ambianceZellige from '@/assets/bathroom/ambiance-zellige.jpg';
-import ambianceMarbre from '@/assets/bathroom/ambiance-marbre.jpg';
-import ambianceBetonCire from '@/assets/bathroom/ambiance-beton-cire.jpg';
-import ambianceTerrazzo from '@/assets/bathroom/ambiance-terrazzo.jpg';
-import ambianceGraphique from '@/assets/bathroom/ambiance-graphique.jpg';
-import ambianceNaturel from '@/assets/bathroom/ambiance-naturel.jpg';
+import ambianceModerne from '@/assets/bathroom/ambiance-moderne.jpg';
+import ambianceEpure from '@/assets/bathroom/ambiance-epure.jpg';
+import ambianceClassique from '@/assets/bathroom/ambiance-classique.jpg';
+import ambianceNature from '@/assets/bathroom/ambiance-nature.jpg';
+import ambianceLuxe from '@/assets/bathroom/ambiance-luxe.jpg';
 import receveurAPoser from '@/assets/bathroom/receveur-a-poser.jpg';
 import receveurEncastre from '@/assets/bathroom/receveur-encastre.jpg';
 import receveurCarreler from '@/assets/bathroom/receveur-carreler.jpg';
@@ -171,15 +170,13 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
-  // Ambiance options - style-based, not tile-based
+  // Ambiance options - style-based with images
   const ambianceOptions = [
-    { value: 'moderne', label: 'Moderne', emoji: '✨' },
-    { value: 'epure', label: 'Épuré / Minimaliste', emoji: '⬜' },
-    { value: 'classique', label: 'Classique / Intemporel', emoji: '🏛️' },
-    { value: 'nature', label: 'Naturel / Organique', emoji: '🌿' },
-    { value: 'luxe', label: 'Luxe / Hôtelier', emoji: '💎' },
-    { value: 'industriel', label: 'Industriel / Loft', emoji: '🏭' },
-    { value: 'scandinave', label: 'Scandinave', emoji: '🌲' },
+    { value: 'moderne', label: 'Moderne', image: ambianceModerne },
+    { value: 'epure', label: 'Épuré / Minimaliste', image: ambianceEpure },
+    { value: 'classique', label: 'Classique / Intemporel', image: ambianceClassique },
+    { value: 'nature', label: 'Naturel / Organique', image: ambianceNature },
+    { value: 'luxe', label: 'Luxe / Hôtelier', image: ambianceLuxe },
     { value: 'autre', label: 'Autre', emoji: '🎨' },
   ];
 
@@ -319,15 +316,16 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
 
       {/* Ambiance - moved higher in the form */}
       <FormQuestion label="Quel style vous inspire ?">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {ambianceOptions.map((option) => (
             <SelectableCard
               key={option.value}
               selected={data.ambiance.includes(option.value)}
               onClick={() => toggleArrayValue('ambiance', option.value)}
+              image={option.image}
               emoji={option.emoji}
               title={option.label}
-              size="sm"
+              size="lg"
             />
           ))}
         </div>
