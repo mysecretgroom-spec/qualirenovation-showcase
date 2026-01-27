@@ -103,12 +103,20 @@ const Services = () => {
             Consultation gratuite, devis détaillé et accompagnement personnalisé. 
             Discutons de votre projet ensemble.
           </p>
-          <a 
-            href="#contact"
-            className="inline-flex items-center gap-2 bg-background text-foreground px-8 py-3.5 rounded-sm font-medium hover:bg-background/90 transition-colors duration-300"
-          >
-            Prendre rendez-vous
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a 
+              href="/renovation-complete"
+              className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-8 py-3.5 rounded-sm font-medium hover:bg-accent/90 transition-colors duration-300"
+            >
+              Configurer mon projet
+            </a>
+            <a 
+              href="#contact"
+              className="inline-flex items-center gap-2 bg-background text-foreground px-8 py-3.5 rounded-sm font-medium hover:bg-background/90 transition-colors duration-300"
+            >
+              Prendre rendez-vous
+            </a>
+          </div>
         </div>
       </div>
     </section>
