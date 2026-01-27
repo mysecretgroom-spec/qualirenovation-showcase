@@ -113,6 +113,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
             colorName: scrapeData?.colorName || colorName || colorRef,
             imageUrl: scrapeData?.imageUrl || undefined,
             hexColor: scrapeData?.hexColor || undefined,
+            productUrl: scrapeData?.productUrl || undefined,
             isLoading: false,
           };
         }
@@ -272,6 +273,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                 isLoading: c.isLoading,
                 imageUrl: c.imageUrl,
                 hexColor: c.hexColor,
+                productUrl: c.productUrl,
                 colorNumber: c.colorNumber,
                 colorName: c.colorName,
                 rooms: c.rooms,
