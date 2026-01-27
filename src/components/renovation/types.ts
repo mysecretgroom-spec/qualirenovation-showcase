@@ -16,6 +16,7 @@ export interface RenovationFormData {
   projectTypes: string[];
   projectContexts: string[];
   hasDPE: 'oui-transmis' | 'oui-obsolete' | 'non' | 'ne-sais-pas' | '';
+  uploadedDPE: File | null;
   
   // Conditions de réalisation
   occupyDuringWorks: 'oui' | 'non' | 'partiellement' | '';
@@ -185,6 +186,7 @@ export const initialFormData: RenovationFormData = {
   projectTypes: [],
   projectContexts: [],
   hasDPE: '',
+  uploadedDPE: null,
   occupyDuringWorks: '',
   constraints: [],
   constraintDetails: '',

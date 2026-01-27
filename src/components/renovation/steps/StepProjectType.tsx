@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useRenovationForm } from '../RenovationFormContext';
 import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { 
   Battery, Sofa, Palette, Home, TrendingUp, RefreshCw, HelpCircle,
-  Building2, KeyRound, DollarSign, FileText
+  Building2, KeyRound, DollarSign, Upload, FileText, X
 } from 'lucide-react';
 
 export const StepProjectType: React.FC = () => {
@@ -61,6 +63,22 @@ export const StepProjectType: React.FC = () => {
       } else {
         updateFormData('projectContexts', [...current, value]);
       }
+    }
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDPEUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      updateFormData('uploadedDPE', file);
+    }
+  };
+
+  const removeDPE = () => {
+    updateFormData('uploadedDPE', null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -121,6 +139,48 @@ export const StepProjectType: React.FC = () => {
             />
           ))}
         </div>
+        {formData.hasDPE === 'oui-transmis' && (
+          <div className="mt-4 p-4 bg-secondary/30 rounded-lg">
+            <p className="text-sm text-muted-foreground mb-3">
+              📄 Vous pouvez joindre votre DPE (PDF ou image)
+            </p>
+            {formData.uploadedDPE ? (
+              <div className="flex items-center gap-3 p-3 bg-background rounded-lg border">
+                <FileText className="w-5 h-5 text-primary" />
+                <span className="flex-1 text-sm truncate">{formData.uploadedDPE.name}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeDPE}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <Input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={handleDPEUpload}
+                  className="hidden"
+                  id="dpe-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Joindre mon DPE
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
         {(formData.hasDPE === 'non' || formData.hasDPE === 'ne-sais-pas') && (
           <p className="text-sm text-muted-foreground mt-3 p-3 bg-secondary/50 rounded-lg">
             💡 Pas d'inquiétude, nous pouvons vous accompagner dans cette démarche.
