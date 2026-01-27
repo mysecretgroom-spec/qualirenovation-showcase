@@ -18,6 +18,7 @@ const houzzIconBase64 = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgC
 
 const WHATSAPP_NUMBER = "33659764685";
 const MATERIAL_FORM_URL = "https://renovermasalledebain.fr";
+const RENOVATION_FORM_URL = "https://qualirenovation.fr/renovation-complete";
 
 // Email HTML template
 const getEmailTemplate = (content: string, name: string) => `
