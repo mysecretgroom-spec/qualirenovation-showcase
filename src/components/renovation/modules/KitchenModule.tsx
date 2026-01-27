@@ -18,7 +18,7 @@ import { ReferenceInput } from '../ReferenceInput';
 // Import kitchen images
 import implantationLineaire from '@/assets/kitchen/implantation-lineaire-3d.jpg';
 import implantationL from '@/assets/kitchen/implantation-l-3d.jpg';
-import implantationU from '@/assets/kitchen/implantation-u-3d.jpg';
+import implantationU from '@/assets/kitchen/implantation-u-3d-v2.jpg';
 import implantationIlot from '@/assets/kitchen/implantation-ilot-3d.jpg';
 import planStratifie from '@/assets/kitchen/plan-stratifie.jpg';
 import planQuartz from '@/assets/kitchen/plan-quartz.jpg';

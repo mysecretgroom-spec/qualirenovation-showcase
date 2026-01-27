@@ -47,13 +47,20 @@ import robinetterieEncastree from '@/assets/bathroom/robinetterie-encastree.jpg'
 import pommeauFixe from '@/assets/bathroom/pommeau-fixe.jpg';
 import pommeauDouchette from '@/assets/bathroom/pommeau-douchette.jpg';
 import pommeauCombo from '@/assets/bathroom/pommeau-combo.jpg';
-import finitionChrome from '@/assets/bathroom/finition-chrome.jpg';
-import finitionNoir from '@/assets/bathroom/finition-noir.jpg';
-import finitionLaiton from '@/assets/bathroom/finition-laiton.jpg';
-import finitionOr from '@/assets/bathroom/finition-or.jpg';
-import finitionNickel from '@/assets/bathroom/finition-nickel.jpg';
+import finitionChrome from '@/assets/bathroom/finition-chrome-chatelet.jpg';
+import finitionNoir from '@/assets/bathroom/finition-noir-mat.jpg';
+import finitionLaiton from '@/assets/bathroom/finition-laiton-brosse.jpg';
+import finitionOr from '@/assets/bathroom/finition-or-brosse.jpg';
+import finitionNickel from '@/assets/bathroom/finition-nickel-brosse.jpg';
+import finitionCuivre from '@/assets/bathroom/finition-cuivre.jpg';
 import wcSuspendu from '@/assets/bathroom/wc-suspendu.jpg';
 import wcSol from '@/assets/bathroom/wc-sol.jpg';
+
+// Import mirror images
+import miroirLed from '@/assets/bathroom/miroir-led.jpg';
+import miroirCadre from '@/assets/bathroom/miroir-cadre.jpg';
+import miroirRond from '@/assets/bathroom/miroir-rond.jpg';
+import miroirArmoire from '@/assets/bathroom/miroir-armoire.jpg';
 
 interface BathroomModuleProps {
   roomId: string;
@@ -251,14 +258,25 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
     { value: 'les-deux', label: 'Les deux', image: pommeauCombo },
   ];
 
-  // Faucet finishes with images
+  // Faucet finishes with images (inspired by Châtelet collection)
   const finishOptions = [
     { value: 'chrome', label: 'Chrome', image: finitionChrome },
     { value: 'noir', label: 'Noir mat', image: finitionNoir },
     { value: 'laiton-brosse', label: 'Laiton brossé', image: finitionLaiton },
     { value: 'or-brosse', label: 'Or brossé', image: finitionOr },
     { value: 'nickel-brosse', label: 'Nickel brossé', image: finitionNickel },
+    { value: 'cuivre', label: 'Cuivre', image: finitionCuivre },
     { value: 'peu-importe', label: 'Peu importe', emoji: '🤷' },
+  ];
+
+  // Mirror types with images
+  const mirrorTypes = [
+    { value: 'led', label: 'Miroir LED', image: miroirLed },
+    { value: 'cadre', label: 'Miroir avec cadre', image: miroirCadre },
+    { value: 'rond', label: 'Miroir rond', image: miroirRond },
+    { value: 'armoire', label: 'Armoire de toilette', image: miroirArmoire },
+    { value: 'sans', label: 'Sans miroir', emoji: '❌' },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
   // Toilet types with images
@@ -603,6 +621,23 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
               image={option.image}
               emoji={option.emoji}
               title={option.label}
+              size="lg"
+            />
+          ))}
+        </div>
+      </FormQuestion>
+
+      {/* Mirror & Lighting section */}
+      <FormQuestion label="Type de miroir souhaité :">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {mirrorTypes.map((type) => (
+            <SelectableCard
+              key={type.value}
+              selected={data.mirrorType === type.value}
+              onClick={() => updateData({ mirrorType: type.value })}
+              image={type.image}
+              emoji={type.emoji}
+              title={type.label}
               size="lg"
             />
           ))}

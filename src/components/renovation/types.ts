@@ -94,6 +94,9 @@ export interface BathroomData {
   showerFaucetType: string;
   showerHeadStyle: string[];
   faucetFinish: string;
+  // Mirror
+  mirrorType: string;
+  // Toilet
   toiletType: string;
   existingSanibroyeur: string; // 'oui' | 'non' | 'ne-sais-pas' | 'pas-de-wc'
   ambiance: string[];
@@ -103,6 +106,39 @@ export interface BathroomData {
   tileFormat: string;
   // EGGER references for vessel sink countertop
   eggerReferences: EggerReference[];
+}
+
+// Global module data types
+export interface GlobalFlooringData {
+  selectedRooms: string[];
+  existingAction: 'conserver' | 'remplacer' | 'etudier' | '';
+  hasLambourdes: 'oui' | 'non' | 'ne-sais-pas' | '';
+  refinishType: string;
+  floorType: string;
+  tileType: string;
+  tileFormat: string;
+  layingPattern: string;
+  woodType: string;
+  plankWidth: string;
+  finish: string;
+}
+
+export interface GlobalPaintingData {
+  selectedRooms: string[];
+  surfaces: string[];
+  intention: string;
+  finish: string;
+  hasDefinedColors: string;
+  wallCondition: string;
+  farrowBallColors: FarrowBallColor[];
+}
+
+export interface GlobalElectricityData {
+  selectedRooms: string[];
+  workType: string[];
+  lightingTypes: string[];
+  switchStyle: string;
+  additionalNeeds: string[];
 }
 
 // Kitchen module
@@ -291,6 +327,7 @@ export const initialBathroomData: BathroomData = {
   showerFaucetType: '',
   showerHeadStyle: [],
   faucetFinish: '',
+  mirrorType: '',
   toiletType: '',
   existingSanibroyeur: '',
   ambiance: [],
@@ -298,6 +335,41 @@ export const initialBathroomData: BathroomData = {
   tileType: '',
   tileFormat: '',
   eggerReferences: [],
+};
+
+// Initial global flooring data
+export const initialGlobalFlooringData: GlobalFlooringData = {
+  selectedRooms: [],
+  existingAction: '',
+  hasLambourdes: '',
+  refinishType: '',
+  floorType: '',
+  tileType: '',
+  tileFormat: '',
+  layingPattern: '',
+  woodType: '',
+  plankWidth: '',
+  finish: '',
+};
+
+// Initial global painting data
+export const initialGlobalPaintingData: GlobalPaintingData = {
+  selectedRooms: [],
+  surfaces: [],
+  intention: '',
+  finish: '',
+  hasDefinedColors: '',
+  wallCondition: '',
+  farrowBallColors: [],
+};
+
+// Initial global electricity data
+export const initialGlobalElectricityData: GlobalElectricityData = {
+  selectedRooms: [],
+  workType: [],
+  lightingTypes: [],
+  switchStyle: '',
+  additionalNeeds: [],
 };
 
 // Initial kitchen data
