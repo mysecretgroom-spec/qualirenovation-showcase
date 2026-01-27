@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,9 +16,10 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Send } from "lucide-react";
+import { Send, ArrowRight, Settings2 } from "lucide-react";
 import { z } from "zod";
 import AddressAutocomplete from "./AddressAutocomplete";
+import { useLeadContext } from "@/contexts/LeadContext";
 
 // =============================================
 // VALIDATION SCHEMA
@@ -103,6 +105,7 @@ const timelineOptions = [
 interface QuoteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  showConfigurationOption?: boolean;
 }
 
 interface FormErrors {
@@ -117,8 +120,10 @@ interface FormErrors {
   message?: string;
 }
 
-const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
+const QuoteModal = ({ open, onOpenChange, showConfigurationOption = true }: QuoteModalProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { setLeadData } = useLeadContext();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -135,29 +140,21 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Honeypot field - should stay empty (bots fill it)
+  const [showSuccessOptions, setShowSuccessOptions] = useState(false);
+  const [submittedData, setSubmittedData] = useState<typeof formData | null>(null);
   const [website, setWebsite] = useState("");
-  // Track form open time for anti-spam
   const [formOpenedAt] = useState(() => Date.now());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error when user types
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear error when user selects
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -168,13 +165,11 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       setFormData((prev) => ({
         ...prev,
         address: result.address,
-        // Only update coordinates if they're valid (from Mapbox selection)
         latitude: result.latitude !== 0 ? result.latitude : prev.latitude,
         longitude: result.longitude !== 0 ? result.longitude : prev.longitude,
         city: result.city || prev.city,
         postalCode: result.postalCode || prev.postalCode,
       }));
-      // Clear address error
       if (errors.address) {
         setErrors((prev) => ({ ...prev, address: undefined }));
       }
@@ -192,7 +187,6 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
 
   const validateForm = (): boolean => {
     const result = quoteFormSchema.safeParse(formData);
-    
     if (!result.success) {
       const newErrors: FormErrors = {};
       for (const error of result.error.errors) {
@@ -204,21 +198,15 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       setErrors(newErrors);
       return false;
     }
-    
     setErrors({});
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
-    // Check honeypot - if filled, silently reject (bot detected)
     if (website) {
-      console.log("Honeypot triggered - bot detected");
       toast({
         title: "Demande de devis envoyée !",
         description: "Un email de confirmation vous a été envoyé.",
@@ -227,23 +215,20 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       return;
     }
 
-    // Calculate time spent on form
     const timeSpentMs = Date.now() - formOpenedAt;
-
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('send-quote-confirmation', {
+      const { error } = await supabase.functions.invoke('send-quote-confirmation', {
         body: { 
           ...formData, 
-          _hp: website, // honeypot field
-          _ts: formOpenedAt, // timestamp when form was opened
-          _duration: timeSpentMs, // time spent filling form
+          _hp: website,
+          _ts: formOpenedAt,
+          _duration: timeSpentMs,
         },
       });
 
       if (error) {
-        console.error('Error sending quote request:', error);
         toast({
           title: "Erreur",
           description: "Une erreur est survenue. Veuillez réessayer ou nous contacter directement.",
@@ -252,29 +237,18 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
         return;
       }
 
-      toast({
-        title: "Demande de devis envoyée !",
-        description: "Un email de confirmation vous a été envoyé. Nous vous recontacterons sous 48h.",
-      });
-
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        city: "",
-        postalCode: "",
-        address: "",
-        latitude: undefined,
-        longitude: undefined,
-        surface: "",
-        budget: "",
-        timeline: "",
-        message: "",
-      });
-      setErrors({});
-      onOpenChange(false);
+      setSubmittedData({ ...formData });
+      
+      if (showConfigurationOption) {
+        setShowSuccessOptions(true);
+      } else {
+        toast({
+          title: "Demande de devis envoyée !",
+          description: "Un email de confirmation vous a été envoyé. Nous vous recontacterons sous 48h.",
+        });
+        resetAndClose();
+      }
     } catch (err) {
-      console.error('Unexpected error:', err);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue. Veuillez réessayer.",
@@ -284,6 +258,107 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
       setIsSubmitting(false);
     }
   };
+
+  const resetAndClose = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      city: "",
+      postalCode: "",
+      address: "",
+      latitude: undefined,
+      longitude: undefined,
+      surface: "",
+      budget: "",
+      timeline: "",
+      message: "",
+    });
+    setErrors({});
+    setShowSuccessOptions(false);
+    setSubmittedData(null);
+    onOpenChange(false);
+  };
+
+  const handleContinueToConfiguration = () => {
+    if (submittedData) {
+      setLeadData({
+        name: submittedData.name,
+        email: submittedData.email,
+        phone: submittedData.phone,
+        address: submittedData.address,
+        city: submittedData.city,
+        postalCode: submittedData.postalCode,
+        latitude: submittedData.latitude,
+        longitude: submittedData.longitude,
+        surface: submittedData.surface,
+        budget: submittedData.budget,
+        timeline: submittedData.timeline,
+        message: submittedData.message,
+      });
+    }
+    resetAndClose();
+    navigate('/renovation-complete');
+  };
+
+  const handleCloseWithoutConfig = () => {
+    toast({
+      title: "Demande de devis envoyée !",
+      description: "Un email de confirmation vous a été envoyé. Nous vous recontacterons sous 48h.",
+    });
+    resetAndClose();
+  };
+
+  // Success options screen after form submission
+  if (showSuccessOptions) {
+    return (
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        if (!isOpen) handleCloseWithoutConfig();
+      }}>
+        <DialogContent className="sm:max-w-lg bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl font-semibold text-foreground text-center">
+              🎉 Demande envoyée !
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="py-6 text-center space-y-4">
+            <p className="text-muted-foreground">
+              Un email de confirmation vous a été envoyé. 
+              Nous vous recontacterons sous 48h.
+            </p>
+
+            <div className="bg-secondary/50 rounded-lg p-6 mt-6">
+              <h3 className="font-semibold text-foreground mb-2 flex items-center justify-center gap-2">
+                <Settings2 className="w-5 h-5 text-accent" />
+                Aller plus loin
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configurez les détails de chaque pièce (matériaux, finitions, équipements...) 
+                pour recevoir une estimation plus précise.
+              </p>
+              <Button 
+                onClick={handleContinueToConfiguration} 
+                className="w-full"
+                size="lg"
+              >
+                Configurer mon projet
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCloseWithoutConfig}
+              className="text-sm text-muted-foreground hover:text-foreground underline transition-colors"
+            >
+              Non merci, fermer
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -362,7 +437,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             error={errors.address}
           />
 
-          {/* Ville & Code postal (auto-remplis depuis l'adresse) */}
+          {/* Ville & Code postal */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="modal-postal-code" className="block text-sm font-medium text-foreground mb-1.5">
@@ -434,11 +509,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
               </SelectTrigger>
               <SelectContent className="bg-card border border-input z-[100]">
                 {budgetRanges.map((range) => (
-                  <SelectItem
-                    key={range.value}
-                    value={range.value}
-                    className="cursor-pointer hover:bg-secondary"
-                  >
+                  <SelectItem key={range.value} value={range.value} className="cursor-pointer hover:bg-secondary">
                     {range.label}
                   </SelectItem>
                 ))}
@@ -463,11 +534,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
               </SelectTrigger>
               <SelectContent className="bg-card border border-input z-[100]">
                 {timelineOptions.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value}
-                    className="cursor-pointer hover:bg-secondary"
-                  >
+                  <SelectItem key={option.value} value={option.value} className="cursor-pointer hover:bg-secondary">
                     {option.label}
                   </SelectItem>
                 ))}
@@ -496,7 +563,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
             {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
           </div>
 
-          {/* Honeypot field - hidden from users, bots will fill it */}
+          {/* Honeypot */}
           <div className="absolute -left-[9999px] opacity-0 h-0 overflow-hidden" aria-hidden="true">
             <label htmlFor="website">Website</label>
             <input
@@ -511,9 +578,7 @@ const QuoteModal = ({ open, onOpenChange }: QuoteModalProps) => {
           </div>
 
           <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-            {isSubmitting ? (
-              "Envoi en cours..."
-            ) : (
+            {isSubmitting ? "Envoi en cours..." : (
               <>
                 Demander mon devis gratuit
                 <Send className="w-4 h-4" />

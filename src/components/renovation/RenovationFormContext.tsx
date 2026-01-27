@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { 
   RenovationFormData, 
   RenovationFormContextType, 
@@ -9,6 +9,7 @@ import {
   initialBathroomData,
   initialKitchenData
 } from './types';
+import { useLeadContext, LeadData } from '@/contexts/LeadContext';
 
 const RenovationFormContext = createContext<RenovationFormContextType | undefined>(undefined);
 
@@ -27,9 +28,34 @@ interface RenovationFormProviderProps {
 // Simple ID generator
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
+// Helper to get initial form data with lead data pre-filled
+const getInitialFormDataWithLead = (leadData: LeadData | null): RenovationFormData => {
+  if (!leadData) return initialFormData;
+  
+  return {
+    ...initialFormData,
+    surface: leadData.surface || '',
+    city: leadData.city || '',
+  };
+};
+
 export const RenovationFormProvider: React.FC<RenovationFormProviderProps> = ({ children }) => {
-  const [formData, setFormData] = useState<RenovationFormData>(initialFormData);
+  const { leadData } = useLeadContext();
+  const [formData, setFormData] = useState<RenovationFormData>(() => 
+    getInitialFormDataWithLead(leadData)
+  );
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Sync lead data when it changes (e.g., coming from quote modal)
+  useEffect(() => {
+    if (leadData) {
+      setFormData(prev => ({
+        ...prev,
+        surface: leadData.surface || prev.surface,
+        city: leadData.city || prev.city,
+      }));
+    }
+  }, [leadData]);
 
   const updateFormData = useCallback(<K extends keyof RenovationFormData>(
     key: K, 
