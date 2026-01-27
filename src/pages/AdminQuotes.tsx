@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useDuplicateDetection } from "@/hooks/useDuplicateDetection";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -25,9 +26,13 @@ import {
   AlertCircle,
   ArrowLeft,
   RefreshCw,
-  MessageCircle
+  MessageCircle,
+  Play,
+  UserPlus
 } from "lucide-react";
 import ProspectEmailDialog from "@/components/admin/ProspectEmailDialog";
+import DuplicateBadge from "@/components/admin/DuplicateBadge";
+import AdminSimulationLauncher from "@/components/admin/AdminSimulationLauncher";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -83,16 +88,32 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
   rejected: { label: "Refusé", color: "bg-red-100 text-red-800", icon: XCircle },
 };
 
+interface Client {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  postal_code: string | null;
+  quote_request_id: string | null;
+}
+
 const AdminQuotes = () => {
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
+  const [simulationDialogOpen, setSimulationDialogOpen] = useState(false);
   const { user, isAdmin, loading: authLoading, adminLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Duplicate detection
+  const { getDuplicate } = useDuplicateDetection(quotes, clients);
 
   const openEmailDialog = (quote: QuoteRequest) => {
     setSelectedQuote(quote);
@@ -119,6 +140,7 @@ const AdminQuotes = () => {
   useEffect(() => {
     if (user && isAdmin) {
       fetchQuotes();
+      fetchClients();
     }
   }, [user, isAdmin]);
 
@@ -140,6 +162,16 @@ const AdminQuotes = () => {
       setQuotes(data || []);
     }
     setLoading(false);
+  };
+
+  const fetchClients = async () => {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("id, name, email, phone, address, city, postal_code, quote_request_id");
+
+    if (!error) {
+      setClients(data || []);
+    }
   };
 
   const updateStatus = async (id: string, newStatus: string) => {
@@ -261,9 +293,14 @@ const AdminQuotes = () => {
                 <div key={quote.id} className="bg-card p-6 rounded-sm shadow-card">
                   <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                     <div>
-                      <h3 className="font-display text-lg font-semibold text-foreground">
-                        {quote.name}
-                      </h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-display text-lg font-semibold text-foreground">
+                          {quote.name}
+                        </h3>
+                        {getDuplicate(quote.id) && (
+                          <DuplicateBadge duplicate={getDuplicate(quote.id)!} />
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         Reçue le {format(new Date(quote.created_at), "d MMMM yyyy 'à' HH:mm", { locale: fr })}
                       </p>
@@ -371,6 +408,15 @@ const AdminQuotes = () => {
                       <MessageCircle className="w-4 h-4" />
                       Discussion prospect
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/admin/clients?from_quote=${quote.id}`)}
+                      className="flex items-center gap-2"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Créer client
+                    </Button>
                     <a
                       href={`mailto:${quote.email}`}
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-sm hover:bg-secondary transition-colors"
@@ -399,6 +445,12 @@ const AdminQuotes = () => {
         onOpenChange={setEmailDialogOpen}
         quote={selectedQuote}
         onEmailSent={fetchQuotes}
+      />
+
+      {/* Simulation Launcher */}
+      <AdminSimulationLauncher
+        open={simulationDialogOpen}
+        onOpenChange={setSimulationDialogOpen}
       />
     </div>
   );

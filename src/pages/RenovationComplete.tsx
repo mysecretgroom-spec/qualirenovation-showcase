@@ -1,16 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { RenovationForm } from '@/components/renovation/RenovationForm';
 import { useLeadContext } from '@/contexts/LeadContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, FileText, Clock, CheckCircle } from 'lucide-react';
+import { ArrowRight, FileText, Clock, CheckCircle, ArrowLeft, Shield } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
 
 const RenovationComplete: React.FC = () => {
-  const { hasLead, leadData } = useLeadContext();
+  const { hasLead, leadData, initFromAdminSession } = useLeadContext();
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const isAdminMode = searchParams.get('admin') === 'true';
+
+  // Initialize from admin session if in admin mode
+  useEffect(() => {
+    if (isAdminMode && !hasLead) {
+      const success = initFromAdminSession();
+      if (!success) {
+        // No admin session data, redirect back
+        navigate('/admin/clients');
+      }
+    }
+  }, [isAdminMode, hasLead, initFromAdminSession, navigate]);
 
   // If no lead data, show a prompt to fill the quote form first
   if (!hasLead) {
@@ -108,6 +123,17 @@ const RenovationComplete: React.FC = () => {
             <div className="container-tight">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
+                  {isAdminMode && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => navigate('/admin/clients')}
+                      className="text-primary-foreground/70 hover:text-primary-foreground mb-2 -ml-2"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      Retour admin
+                    </Button>
+                  )}
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-display font-semibold mb-2">
                     Configuration de votre projet
                   </h1>
@@ -115,15 +141,22 @@ const RenovationComplete: React.FC = () => {
                     {leadData?.name} • {leadData?.city} • {leadData?.surface}m²
                   </p>
                 </div>
-                <div className="text-sm text-primary-foreground/70">
-                  Nous vous recontacterons sous 48h
+                <div className="flex items-center gap-2 text-sm text-primary-foreground/70">
+                  {leadData?.isAdminSimulation ? (
+                    <>
+                      <Shield className="w-4 h-4" />
+                      Mode administrateur
+                    </>
+                  ) : (
+                    "Nous vous recontacterons sous 48h"
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Form */}
-          <RenovationForm />
+          <RenovationForm isAdminMode={isAdminMode} />
         </main>
         <Footer />
       </div>

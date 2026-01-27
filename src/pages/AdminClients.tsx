@@ -4,13 +4,14 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, Plus, Search, User, MapPin, Phone, Mail, 
-  Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink, FolderOpen, Settings2
+  Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink, FolderOpen, Settings2, Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import ClientFiles from "@/components/ClientFiles";
 import ClientSimulationTab from "@/components/admin/ClientSimulationTab";
+import AdminSimulationLauncher from "@/components/admin/AdminSimulationLauncher";
 import {
   Dialog,
   DialogContent,
@@ -107,7 +108,9 @@ const AdminClients = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isFromQuoteModalOpen, setIsFromQuoteModalOpen] = useState(false);
   const [isFilesModalOpen, setIsFilesModalOpen] = useState(false);
+  const [isSimulationModalOpen, setIsSimulationModalOpen] = useState(false);
   const [selectedClientForFiles, setSelectedClientForFiles] = useState<Client | null>(null);
+  const [selectedClientForSimulation, setSelectedClientForSimulation] = useState<Client | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [formData, setFormData] = useState(emptyFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -774,6 +777,18 @@ const AdminClients = () => {
               </TabsContent>
               
               <TabsContent value="simulation" className="flex-1 overflow-y-auto mt-4">
+                <div className="mb-4">
+                  <Button
+                    onClick={() => {
+                      setSelectedClientForSimulation(selectedClientForFiles);
+                      setIsSimulationModalOpen(true);
+                    }}
+                    className="w-full sm:w-auto"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    Nouvelle simulation
+                  </Button>
+                </div>
                 <ClientSimulationTab 
                   clientId={selectedClientForFiles.id}
                   quoteRequestId={selectedClientForFiles.quote_request_id}
@@ -783,6 +798,23 @@ const AdminClients = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Simulation Launcher Modal */}
+      <AdminSimulationLauncher
+        open={isSimulationModalOpen}
+        onOpenChange={setIsSimulationModalOpen}
+        preselectedClient={selectedClientForSimulation ? {
+          id: selectedClientForSimulation.id,
+          name: selectedClientForSimulation.name,
+          email: selectedClientForSimulation.email,
+          phone: selectedClientForSimulation.phone,
+          address: selectedClientForSimulation.address,
+          city: selectedClientForSimulation.city,
+          postal_code: selectedClientForSimulation.postal_code,
+          surface: selectedClientForSimulation.surface,
+          quote_request_id: selectedClientForSimulation.quote_request_id,
+        } : null}
+      />
     </>
   );
 };
