@@ -15,10 +15,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 // Import kitchen images
-import implantationLineaire from '@/assets/kitchen/implantation-lineaire.jpg';
-import implantationL from '@/assets/kitchen/implantation-l.jpg';
-import implantationU from '@/assets/kitchen/implantation-u.jpg';
-import implantationIlot from '@/assets/kitchen/implantation-ilot.jpg';
+import implantationLineaire from '@/assets/kitchen/implantation-lineaire-plan.jpg';
+import implantationL from '@/assets/kitchen/implantation-l-plan.jpg';
+import implantationU from '@/assets/kitchen/implantation-u-plan.jpg';
+import implantationIlot from '@/assets/kitchen/implantation-ilot-plan.jpg';
 import planStratifie from '@/assets/kitchen/plan-stratifie.jpg';
 import planQuartz from '@/assets/kitchen/plan-quartz.jpg';
 import planCeramique from '@/assets/kitchen/plan-ceramique.jpg';
@@ -27,6 +27,11 @@ import facadeBois from '@/assets/kitchen/facade-bois.jpg';
 import facadeLaque from '@/assets/kitchen/facade-laque.jpg';
 import facadeMat from '@/assets/kitchen/facade-mat.jpg';
 import facadeEffetMatiere from '@/assets/kitchen/facade-effet-matiere.jpg';
+
+// Import backsplash images
+import credenceCarrelage from '@/assets/kitchen/credence-carrelage.jpg';
+import credencePleineHauteur from '@/assets/kitchen/credence-pleine-hauteur.jpg';
+import credenceVerre from '@/assets/kitchen/credence-verre.jpg';
 
 interface KitchenModuleProps {
   roomId: string;
@@ -219,11 +224,11 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, 
   ];
 
   const backsplashTypes = [
-    { value: 'carrelage', label: 'Carrelage' },
-    { value: 'pleine-hauteur', label: 'Pleine hauteur' },
-    { value: 'verre', label: 'Verre' },
-    { value: 'autre', label: 'Autre' },
-    { value: 'a-definir', label: 'À définir' },
+    { value: 'carrelage', label: 'Carrelage', image: credenceCarrelage },
+    { value: 'pleine-hauteur', label: 'Pleine hauteur', image: credencePleineHauteur },
+    { value: 'verre', label: 'Verre', image: credenceVerre },
+    { value: 'autre', label: 'Autre', emoji: '🎨' },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
   const certaintyLevels = [
@@ -536,14 +541,16 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, 
 
       {/* Backsplash type */}
       <FormQuestion label="Type de crédence :">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {backsplashTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.backsplashType === type.value}
               onClick={() => updateData({ backsplashType: type.value })}
+              image={type.image}
+              emoji={type.emoji}
               title={type.label}
-              size="sm"
+              size="lg"
             />
           ))}
         </div>

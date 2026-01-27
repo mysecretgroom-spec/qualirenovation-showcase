@@ -1,6 +1,6 @@
 // Shared tile options for renovation modules
 // Import flooring tile images
-import carrelageZellige from '@/assets/flooring/carrelage-zellige.jpg';
+import carrelageZellige from '@/assets/flooring/carrelage-zellige-new.jpg';
 import carrelageMarbre from '@/assets/flooring/carrelage-marbre.jpg';
 import carrelageTravertin from '@/assets/flooring/carrelage-travertin.jpg';
 import carrelagePierre from '@/assets/flooring/carrelage-pierre.jpg';
