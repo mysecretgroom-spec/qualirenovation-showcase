@@ -10,12 +10,14 @@ interface CustomFurnitureModuleProps {
   roomId: string;
   roomName: string;
   data: CustomFurnitureData;
+  onSkip?: () => void;
 }
 
 export const CustomFurnitureModule: React.FC<CustomFurnitureModuleProps> = ({ 
   roomId, 
   roomName, 
-  data 
+  data,
+  onSkip 
 }) => {
   const { updateRoomData } = useRenovationForm();
 
@@ -57,6 +59,8 @@ export const CustomFurnitureModule: React.FC<CustomFurnitureModuleProps> = ({
     <FormSection
       title={roomName}
       subtitle="Définissez vos besoins en aménagements sur mesure"
+      showSkip={!!onSkip}
+      onSkip={onSkip}
     >
       <FormQuestion label="Quel type d'aménagement ?">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">

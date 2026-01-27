@@ -32,9 +32,10 @@ interface KitchenModuleProps {
   roomId: string;
   roomName: string;
   data: KitchenData;
+  onSkip?: () => void;
 }
 
-export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, data }) => {
+export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, data, onSkip }) => {
   const { updateRoomData } = useRenovationForm();
   const [newReference, setNewReference] = useState('');
   const [newPlaniziaReference, setNewPlaniziaReference] = useState('');
@@ -322,6 +323,8 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, 
     <FormSection
       title={roomName}
       subtitle="Configurez votre cuisine selon vos besoins"
+      showSkip={!!onSkip}
+      onSkip={onSkip}
     >
       {/* Usage */}
       <FormQuestion label="Cette cuisine sera :">
