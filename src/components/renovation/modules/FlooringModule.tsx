@@ -117,8 +117,15 @@ export const FlooringModule: React.FC<FlooringModuleProps> = ({ roomId, roomName
               {tileTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
-                  selected={data.tileType === type.value}
-                  onClick={() => updateData({ tileType: type.value })}
+                  selected={(data.tileTypes || []).includes(type.value)}
+                  onClick={() => {
+                    const current = data.tileTypes || [];
+                    if (current.includes(type.value)) {
+                      updateData({ tileTypes: current.filter(v => v !== type.value) });
+                    } else {
+                      updateData({ tileTypes: [...current, type.value] });
+                    }
+                  }}
                   image={type.image}
                   emoji={type.emoji}
                   title={type.label}

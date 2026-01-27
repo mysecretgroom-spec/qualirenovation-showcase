@@ -35,7 +35,7 @@ export interface GlobalFlooringData {
   refinishType: string;
   // Remplacement options  
   floorType: string;
-  tileType: string;
+  tileTypes: string[];
   tileFormat: string;
   layingPattern: string;
   woodType: string;
@@ -236,8 +236,15 @@ export const GlobalFlooringModule: React.FC<GlobalFlooringModuleProps> = ({
                   {tileTypes.map((type) => (
                     <SelectableCard
                       key={type.value}
-                      selected={data.tileType === type.value}
-                      onClick={() => onUpdate({ tileType: type.value })}
+                      selected={(data.tileTypes || []).includes(type.value)}
+                      onClick={() => {
+                        const current = data.tileTypes || [];
+                        if (current.includes(type.value)) {
+                          onUpdate({ tileTypes: current.filter(v => v !== type.value) });
+                        } else {
+                          onUpdate({ tileTypes: [...current, type.value] });
+                        }
+                      }}
                       image={type.image}
                       emoji={type.emoji}
                       title={type.label}

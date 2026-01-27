@@ -101,8 +101,8 @@ export interface BathroomData {
   existingSanibroyeur: string; // 'oui' | 'non' | 'ne-sais-pas' | 'pas-de-wc'
   ambiance: string[];
   certaintyLevel: string;
-  // Tile options
-  tileType: string;
+  // Tile options - now supports multiple selection
+  tileTypes: string[];
   tileFormat: string;
   // EGGER references for vessel sink countertop
   eggerReferences: EggerReference[];
@@ -115,7 +115,7 @@ export interface GlobalFlooringData {
   hasLambourdes: 'oui' | 'non' | 'ne-sais-pas' | '';
   refinishType: string;
   floorType: string;
-  tileType: string;
+  tileTypes: string[];
   tileFormat: string;
   layingPattern: string;
   woodType: string;
@@ -210,8 +210,8 @@ export interface ElectricityData {
 // Flooring module
 export interface FlooringData {
   floorType: string;
-  // Carrelage options
-  tileType: string;
+  // Carrelage options - now supports multiple selection
+  tileTypes: string[];
   tileFormat: string;
   // Parquet options
   layingPattern: string;
@@ -332,7 +332,7 @@ export const initialBathroomData: BathroomData = {
   existingSanibroyeur: '',
   ambiance: [],
   certaintyLevel: '',
-  tileType: '',
+  tileTypes: [],
   tileFormat: '',
   eggerReferences: [],
 };
@@ -344,7 +344,7 @@ export const initialGlobalFlooringData: GlobalFlooringData = {
   hasLambourdes: '',
   refinishType: '',
   floorType: '',
-  tileType: '',
+  tileTypes: [],
   tileFormat: '',
   layingPattern: '',
   woodType: '',

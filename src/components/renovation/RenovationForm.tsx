@@ -227,7 +227,7 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
               roomId={room.id}
               roomName={roomName}
               paintingData={room.data.paintingData || initialPaintingData}
-              flooringData={room.data.flooringData || { floorType: '', tileType: '', tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' }}
+              flooringData={room.data.flooringData || { floorType: '', tileTypes: [], tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' }}
               electricityData={room.data.electricityData || { workType: [], lightingTypes: [], switchStyle: '', additionalNeeds: [] }}
               glassPanelData={room.data.glassPanelData || { purpose: [], panelType: '' }}
               showGlassPanel={room.type === 'salon-sejour' || room.type === 'entree-couloir'}
