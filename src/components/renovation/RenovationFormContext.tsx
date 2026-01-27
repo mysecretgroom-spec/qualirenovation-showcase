@@ -133,7 +133,7 @@ function getInitialRoomData(type: RoomType): RoomData {
     case 'entree-couloir':
     case 'bureau':
       return {
-        paintingData: { surfaces: [], intention: '', hasDefinedColors: '', wallCondition: '' },
+        paintingData: { surfaces: [], intention: '', finish: '', hasDefinedColors: '', wallCondition: '', farrowBallColors: [] },
         flooringData: { floorType: '', tileType: '', tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' },
         electricityData: { workType: [], switchStyle: '', additionalNeeds: [] },
       };

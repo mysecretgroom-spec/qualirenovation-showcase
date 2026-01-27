@@ -100,6 +100,12 @@ export interface EggerReference {
   error?: string;
 }
 
+export interface FarrowBallColor {
+  colorNumber: string;
+  colorName: string;
+  rooms: string[];
+}
+
 export interface KitchenData {
   usage: string[];
   layoutType: string;
@@ -120,8 +126,10 @@ export interface KitchenData {
 export interface PaintingData {
   surfaces: string[];
   intention: string;
+  finish: string;
   hasDefinedColors: string;
   wallCondition: string;
+  farrowBallColors: FarrowBallColor[];
 }
 
 // Electricity module
