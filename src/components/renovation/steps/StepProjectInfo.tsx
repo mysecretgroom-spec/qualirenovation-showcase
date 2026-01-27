@@ -9,14 +9,6 @@ import { Building2, Home } from 'lucide-react';
 export const StepProjectInfo: React.FC = () => {
   const { formData, updateFormData } = useRenovationForm();
 
-  const constructionPeriods = [
-    { value: 'avant-1949', label: 'Avant 1949' },
-    { value: '1949-1974', label: '1949 – 1974' },
-    { value: '1975-1999', label: '1975 – 1999' },
-    { value: 'apres-2000', label: 'Après 2000' },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas' },
-  ];
-
   return (
     <FormSection
       title="Parlons de votre projet dans sa globalité"
@@ -55,21 +47,6 @@ export const StepProjectInfo: React.FC = () => {
             className="text-center"
           />
           <span className="text-muted-foreground">m²</span>
-        </div>
-      </FormQuestion>
-
-      {/* Construction Period */}
-      <FormQuestion label="Année de construction (ou période)">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {constructionPeriods.map((period) => (
-            <SelectableCard
-              key={period.value}
-              selected={formData.constructionPeriod === period.value}
-              onClick={() => updateFormData('constructionPeriod', period.value as typeof formData.constructionPeriod)}
-              title={period.label}
-              size="sm"
-            />
-          ))}
         </div>
       </FormQuestion>
 
