@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRenovationForm } from '../RenovationFormContext';
 import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
-import { BathroomData } from '../types';
+import { BathroomData, EggerReference } from '../types';
 import { 
   User, Users, Users2, Baby, UserCheck,
   Home, Building2, Bed, Bath,
-  Droplets, Square, HelpCircle, CheckCircle
+  Droplets, Square, HelpCircle, CheckCircle,
+  ExternalLink, Plus, Trash2, Loader2, Image as ImageIcon
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // Import bathroom images
 import ambianceZellige from '@/assets/bathroom/ambiance-zellige.jpg';
@@ -50,6 +55,7 @@ interface BathroomModuleProps {
 
 export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instanceNumber, data }) => {
   const { updateRoomData } = useRenovationForm();
+  const [newReference, setNewReference] = useState('');
 
   const updateData = (updates: Partial<BathroomData>) => {
     updateRoomData(roomId, { bathroomData: { ...data, ...updates } });
@@ -62,6 +68,72 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     } else {
       updateData({ [key]: [...current, value] });
     }
+  };
+
+  const addEggerReference = async () => {
+    if (!newReference.trim()) return;
+    
+    const cleanRef = newReference.trim().toUpperCase();
+    
+    // Check if reference already exists
+    if (data.eggerReferences?.some(r => r.reference === cleanRef)) {
+      toast.error('Cette référence a déjà été ajoutée');
+      return;
+    }
+
+    // Add reference with loading state
+    const newRef: EggerReference = {
+      reference: cleanRef,
+      isLoading: true,
+    };
+    
+    updateData({ 
+      eggerReferences: [...(data.eggerReferences || []), newRef] 
+    });
+    setNewReference('');
+
+    // Try to scrape the image
+    try {
+      const { data: scrapeData, error } = await supabase.functions.invoke('scrape-egger-ref', {
+        body: { reference: cleanRef },
+      });
+
+      if (error) throw error;
+
+      // Update the reference with the scraped image
+      const updatedRefs = [...(data.eggerReferences || []), {
+        reference: cleanRef,
+        imageUrl: scrapeData?.imageUrl || undefined,
+        isLoading: false,
+      }].filter((r, i, arr) => 
+        // Remove the loading version if we're adding the completed one
+        !(r.reference === cleanRef && r.isLoading) || i === arr.length - 1
+      );
+
+      updateData({ eggerReferences: updatedRefs });
+      
+      if (scrapeData?.imageUrl) {
+        toast.success(`Image trouvée pour ${cleanRef}`);
+      } else {
+        toast.info(`Référence ${cleanRef} ajoutée (image non trouvée)`);
+      }
+    } catch (error) {
+      console.error('Error scraping EGGER:', error);
+      // Keep the reference but mark as error
+      const updatedRefs = (data.eggerReferences || []).map(r => 
+        r.reference === cleanRef && r.isLoading
+          ? { ...r, isLoading: false, error: 'Erreur lors de la recherche' }
+          : r
+      );
+      updateData({ eggerReferences: updatedRefs });
+      toast.error('Erreur lors de la recherche de l\'image');
+    }
+  };
+
+  const removeEggerReference = (reference: string) => {
+    updateData({ 
+      eggerReferences: (data.eggerReferences || []).filter(r => r.reference !== reference) 
+    });
   };
 
   const usageOptions = [
@@ -364,6 +436,97 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
           ))}
         </div>
       </FormQuestion>
+
+      {/* EGGER Catalog References - Only show for vessel sink (vasque à poser) */}
+      {data.vanityType === 'vasque-seule' && (
+        <FormQuestion label="Références finitions EGGER pour plan sous vasque (optionnel) :">
+          <div className="space-y-4">
+            {/* Link to EGGER catalog */}
+            <a 
+              href="https://www.vds-egger.com/?country=FR&language=fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              Voir le catalogue EGGER pour choisir vos finitions de plan
+            </a>
+            
+            {/* Reference input */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Entrez une référence EGGER (ex: H3157 ST12)"
+                value={newReference}
+                onChange={(e) => setNewReference(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
+                className="flex-1"
+              />
+              <Button 
+                type="button" 
+                onClick={addEggerReference}
+                disabled={!newReference.trim()}
+                size="icon"
+                variant="outline"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            {/* References list */}
+            {data.eggerReferences && data.eggerReferences.length > 0 && (
+              <div className="space-y-2">
+                {data.eggerReferences.map((ref, index) => (
+                  <div 
+                    key={`${ref.reference}-${index}`}
+                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
+                  >
+                    {/* Image or placeholder */}
+                    <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                      {ref.isLoading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      ) : ref.imageUrl ? (
+                        <img 
+                          src={ref.imageUrl} 
+                          alt={ref.reference}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    
+                    {/* Reference info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{ref.reference}</p>
+                      {ref.error && (
+                        <p className="text-xs text-destructive">{ref.error}</p>
+                      )}
+                      {!ref.isLoading && !ref.imageUrl && !ref.error && (
+                        <p className="text-xs text-muted-foreground">Image non disponible</p>
+                      )}
+                    </div>
+                    
+                    {/* Remove button */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeEggerReference(ref.reference)}
+                      className="flex-shrink-0 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </FormQuestion>
+      )}
 
       <FormQuestion label="Nombre de vasques :">
         <div className="grid grid-cols-3 gap-3 max-w-md">

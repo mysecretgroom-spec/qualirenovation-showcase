@@ -321,94 +321,96 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
         </div>
       </FormQuestion>
 
-      {/* EGGER Catalog References */}
-      <FormQuestion label="Références finitions EGGER (optionnel) :">
-        <div className="space-y-4">
-          {/* Link to EGGER catalog */}
-          <a 
-            href="https://www.vds-egger.com/?country=FR&language=fr"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
-          >
-            <ExternalLink className="w-4 h-4" />
-            Voir le catalogue EGGER pour choisir vos finitions
-          </a>
-          
-          {/* Reference input */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="Entrez une référence EGGER (ex: H3157 ST12)"
-              value={newReference}
-              onChange={(e) => setNewReference(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
-              className="flex-1"
-            />
-            <Button 
-              type="button" 
-              onClick={addEggerReference}
-              disabled={!newReference.trim()}
-              size="icon"
-              variant="outline"
+      {/* EGGER Catalog References - Only show for stratifié countertop */}
+      {data.countertopMaterial === 'stratifie' && (
+        <FormQuestion label="Références finitions EGGER pour plan stratifié (optionnel) :">
+          <div className="space-y-4">
+            {/* Link to EGGER catalog */}
+            <a 
+              href="https://www.vds-egger.com/?country=FR&language=fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
             >
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
-          
-          {/* References list */}
-          {data.eggerReferences && data.eggerReferences.length > 0 && (
-            <div className="space-y-2">
-              {data.eggerReferences.map((ref, index) => (
-                <div 
-                  key={`${ref.reference}-${index}`}
-                  className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
-                >
-                  {/* Image or placeholder */}
-                  <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                    {ref.isLoading ? (
-                      <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                    ) : ref.imageUrl ? (
-                      <img 
-                        src={ref.imageUrl} 
-                        alt={ref.reference}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                          (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                    ) : (
-                      <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                    )}
-                  </div>
-                  
-                  {/* Reference info */}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm">{ref.reference}</p>
-                    {ref.error && (
-                      <p className="text-xs text-destructive">{ref.error}</p>
-                    )}
-                    {!ref.isLoading && !ref.imageUrl && !ref.error && (
-                      <p className="text-xs text-muted-foreground">Image non disponible</p>
-                    )}
-                  </div>
-                  
-                  {/* Remove button */}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeEggerReference(ref.reference)}
-                    className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
+              <ExternalLink className="w-4 h-4" />
+              Voir le catalogue EGGER pour choisir vos finitions stratifiées
+            </a>
+            
+            {/* Reference input */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Entrez une référence EGGER (ex: H3157 ST12)"
+                value={newReference}
+                onChange={(e) => setNewReference(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
+                className="flex-1"
+              />
+              <Button 
+                type="button" 
+                onClick={addEggerReference}
+                disabled={!newReference.trim()}
+                size="icon"
+                variant="outline"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
-          )}
-        </div>
-      </FormQuestion>
+            
+            {/* References list */}
+            {data.eggerReferences && data.eggerReferences.length > 0 && (
+              <div className="space-y-2">
+                {data.eggerReferences.map((ref, index) => (
+                  <div 
+                    key={`${ref.reference}-${index}`}
+                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
+                  >
+                    {/* Image or placeholder */}
+                    <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                      {ref.isLoading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      ) : ref.imageUrl ? (
+                        <img 
+                          src={ref.imageUrl} 
+                          alt={ref.reference}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    
+                    {/* Reference info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{ref.reference}</p>
+                      {ref.error && (
+                        <p className="text-xs text-destructive">{ref.error}</p>
+                      )}
+                      {!ref.isLoading && !ref.imageUrl && !ref.error && (
+                        <p className="text-xs text-muted-foreground">Image non disponible</p>
+                      )}
+                    </div>
+                    
+                    {/* Remove button */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeEggerReference(ref.reference)}
+                      className="flex-shrink-0 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </FormQuestion>
+      )}
 
       {/* Certainty level */}
       <FormQuestion label="Pour cette cuisine :">

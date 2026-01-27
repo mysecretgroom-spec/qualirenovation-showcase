@@ -84,6 +84,8 @@ export interface BathroomData {
   toiletType: string;
   ambiance: string[];
   certaintyLevel: string;
+  // EGGER references for vessel sink countertop
+  eggerReferences: EggerReference[];
 }
 
 // Kitchen module
@@ -236,6 +238,7 @@ export const initialBathroomData: BathroomData = {
   toiletType: '',
   ambiance: [],
   certaintyLevel: '',
+  eggerReferences: [],
 };
 
 // Initial kitchen data
