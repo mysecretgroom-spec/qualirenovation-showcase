@@ -51,7 +51,7 @@ const RenovationFormContent: React.FC = () => {
     setIsSubmitting(true);
     try {
       // Save simulation to database
-      const simulationData = {
+      const simulationDataForDB = {
         quote_request_id: leadData?.id || null,
         property_type: formData.propertyType || null,
         surface: formData.surface || null,
@@ -72,13 +72,62 @@ const RenovationFormContent: React.FC = () => {
         isolation_data: JSON.parse(JSON.stringify(formData.isolation)),
       };
 
-      const { error } = await supabase
+      const { error: dbError } = await supabase
         .from('renovation_simulations')
-        .insert([simulationData]);
+        .insert([simulationDataForDB]);
 
-      if (error) {
-        console.error('Error saving simulation:', error);
-        throw error;
+      if (dbError) {
+        console.error('Error saving simulation:', dbError);
+        throw dbError;
+      }
+
+      // Send email recap to team
+      if (leadData) {
+        try {
+          const { error: emailError } = await supabase.functions.invoke('send-simulation-recap', {
+            body: {
+              leadData: {
+                id: leadData.id,
+                name: leadData.name,
+                email: leadData.email,
+                phone: leadData.phone,
+                address: leadData.address,
+                city: leadData.city,
+                postalCode: leadData.postalCode,
+                surface: leadData.surface,
+                budget: leadData.budget,
+                timeline: leadData.timeline,
+                message: leadData.message,
+              },
+              simulationData: {
+                propertyType: formData.propertyType,
+                surface: formData.surface,
+                constructionPeriod: formData.constructionPeriod,
+                city: formData.city,
+                hasArchitect: formData.hasArchitect,
+                modifyLayout: formData.modifyLayout,
+                projectTypes: formData.projectTypes,
+                projectContexts: formData.projectContexts,
+                hasDPE: formData.hasDPE,
+                occupyDuringWorks: formData.occupyDuringWorks,
+                constraints: formData.constraints,
+                constraintDetails: formData.constraintDetails,
+                startDate: formData.startDate,
+                startDateValue: formData.startDateValue,
+                endDateMax: formData.endDateMax,
+                selectedRooms: formData.selectedRooms,
+                isolation: formData.isolation,
+              },
+            },
+          });
+
+          if (emailError) {
+            console.error('Error sending email recap:', emailError);
+            // Don't throw - email is secondary, DB save succeeded
+          }
+        } catch (emailErr) {
+          console.error('Error calling email function:', emailErr);
+        }
       }
       
       toast({
