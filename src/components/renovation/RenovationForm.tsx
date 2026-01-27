@@ -45,7 +45,11 @@ const formatRoomName = (type: RoomType, instanceNumber: number, totalOfType: num
   return baseName;
 };
 
-const RenovationFormContent: React.FC = () => {
+interface RenovationFormContentProps {
+  isAdminMode?: boolean;
+}
+
+const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMode = false }) => {
   const { formData, currentStep, setCurrentStep } = useRenovationForm();
   const { leadData, clearLeadData } = useLeadContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +62,7 @@ const RenovationFormContent: React.FC = () => {
       // Save simulation to database
       const simulationDataForDB = {
         quote_request_id: leadData?.id || null,
+        client_id: leadData?.clientId || null, // Support admin mode with client_id
         property_type: formData.propertyType || null,
         surface: formData.surface || null,
         construction_period: formData.constructionPeriod || null,
@@ -136,13 +141,15 @@ const RenovationFormContent: React.FC = () => {
       }
       
       toast({
-        title: "Demande envoyée !",
-        description: "Nous vous recontactons sous 48h pour organiser une visite technique.",
+        title: isAdminMode ? "Simulation enregistrée !" : "Demande envoyée !",
+        description: isAdminMode 
+          ? "La simulation a été sauvegardée dans la fiche client."
+          : "Nous vous recontactons sous 48h pour organiser une visite technique.",
       });
 
       // Clear lead data and redirect
       clearLeadData();
-      navigate('/');
+      navigate(isAdminMode ? '/admin/clients' : '/');
     } catch (error) {
       toast({
         title: "Erreur",
@@ -291,10 +298,14 @@ const RenovationFormContent: React.FC = () => {
   );
 };
 
-export const RenovationForm: React.FC = () => {
+interface RenovationFormProps {
+  isAdminMode?: boolean;
+}
+
+export const RenovationForm: React.FC<RenovationFormProps> = ({ isAdminMode = false }) => {
   return (
     <RenovationFormProvider>
-      <RenovationFormContent />
+      <RenovationFormContent isAdminMode={isAdminMode} />
     </RenovationFormProvider>
   );
 };
