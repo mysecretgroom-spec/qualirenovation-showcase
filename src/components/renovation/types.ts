@@ -102,6 +102,16 @@ export interface EggerReference {
   error?: string;
 }
 
+export interface PlaniziaReference {
+  reference: string;
+  productName?: string;
+  imageUrl?: string;
+  productUrl?: string;
+  brand?: string;
+  isLoading?: boolean;
+  error?: string;
+}
+
 export interface FarrowBallColor {
   colorNumber: string;
   colorName: string;
@@ -126,6 +136,7 @@ export interface KitchenData {
   backsplashTileFormat: string;
   certaintyLevel: string;
   eggerReferences: EggerReference[];
+  planiziaReferences: PlaniziaReference[];
 }
 
 // Painting module
@@ -286,6 +297,7 @@ export const initialKitchenData: KitchenData = {
   backsplashTileFormat: '',
   certaintyLevel: '',
   eggerReferences: [],
+  planiziaReferences: [],
 };
 
 // Initial painting data

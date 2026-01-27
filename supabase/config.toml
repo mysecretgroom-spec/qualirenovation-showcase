@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.send-prospect-followup]
 verify_jwt = false
+
+[functions.scrape-planizia]
+verify_jwt = false
