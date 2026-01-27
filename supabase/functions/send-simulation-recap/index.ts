@@ -398,7 +398,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send to team
     const teamEmailResponse = await resend.emails.send({
       from: "Qualirenovation <contact@qualiconcept.fr>",
-      to: ["contact@qualirenovation.com", "carina@qualirenovation.com"],
+      to: ["contact@qualirenovation.fr", "carina@qualirenovation.fr"],
       subject: `🏠 Simulation détaillée - ${leadData.name} (${leadData.city || 'Ville non précisée'})`,
       html: emailHtml,
     });
