@@ -383,6 +383,96 @@ export type Database = {
         }
         Relationships: []
       }
+      renovation_simulations: {
+        Row: {
+          city: string | null
+          client_id: string | null
+          constraint_details: string | null
+          constraints: string[] | null
+          construction_period: string | null
+          created_at: string
+          end_date_max: string | null
+          has_architect: string | null
+          has_dpe: string | null
+          id: string
+          isolation_data: Json | null
+          modify_layout: string | null
+          occupy_during_works: string | null
+          project_contexts: string[] | null
+          project_types: string[] | null
+          property_type: string | null
+          quote_request_id: string | null
+          selected_rooms: Json | null
+          start_date: string | null
+          start_date_value: string | null
+          surface: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          client_id?: string | null
+          constraint_details?: string | null
+          constraints?: string[] | null
+          construction_period?: string | null
+          created_at?: string
+          end_date_max?: string | null
+          has_architect?: string | null
+          has_dpe?: string | null
+          id?: string
+          isolation_data?: Json | null
+          modify_layout?: string | null
+          occupy_during_works?: string | null
+          project_contexts?: string[] | null
+          project_types?: string[] | null
+          property_type?: string | null
+          quote_request_id?: string | null
+          selected_rooms?: Json | null
+          start_date?: string | null
+          start_date_value?: string | null
+          surface?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          client_id?: string | null
+          constraint_details?: string | null
+          constraints?: string[] | null
+          construction_period?: string | null
+          created_at?: string
+          end_date_max?: string | null
+          has_architect?: string | null
+          has_dpe?: string | null
+          id?: string
+          isolation_data?: Json | null
+          modify_layout?: string | null
+          occupy_during_works?: string | null
+          project_contexts?: string[] | null
+          project_types?: string[] | null
+          property_type?: string | null
+          quote_request_id?: string | null
+          selected_rooms?: Json | null
+          start_date?: string | null
+          start_date_value?: string | null
+          surface?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "renovation_simulations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "renovation_simulations_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

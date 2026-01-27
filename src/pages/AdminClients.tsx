@@ -4,12 +4,13 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, Plus, Search, User, MapPin, Phone, Mail, 
-  Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink, FolderOpen
+  Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink, FolderOpen, Settings2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import ClientFiles from "@/components/ClientFiles";
+import ClientSimulationTab from "@/components/admin/ClientSimulationTab";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 interface Client {
@@ -536,7 +538,7 @@ const AdminClients = () => {
                             setIsFilesModalOpen(true);
                           }}>
                             <FolderOpen className="w-4 h-4 mr-2" />
-                            Documents
+                            Fiche client
                           </DropdownMenuItem>
                           {client.google_drive_folder_url && (
                             <DropdownMenuItem asChild>
@@ -741,21 +743,43 @@ const AdminClients = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Files modal */}
+      {/* Client detail modal with tabs */}
       <Dialog open={isFilesModalOpen} onOpenChange={setIsFilesModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FolderOpen className="w-5 h-5" />
-              Documents - {selectedClientForFiles?.name}
+              <User className="w-5 h-5" />
+              Fiche client - {selectedClientForFiles?.name}
             </DialogTitle>
           </DialogHeader>
 
           {selectedClientForFiles && (
-            <ClientFiles 
-              clientId={selectedClientForFiles.id} 
-              clientName={selectedClientForFiles.name} 
-            />
+            <Tabs defaultValue="documents" className="flex-1 overflow-hidden flex flex-col">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="documents" className="gap-2">
+                  <FolderOpen className="w-4 h-4" />
+                  Documents
+                </TabsTrigger>
+                <TabsTrigger value="simulation" className="gap-2">
+                  <Settings2 className="w-4 h-4" />
+                  Simulation Client
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="documents" className="flex-1 overflow-y-auto mt-4">
+                <ClientFiles 
+                  clientId={selectedClientForFiles.id} 
+                  clientName={selectedClientForFiles.name} 
+                />
+              </TabsContent>
+              
+              <TabsContent value="simulation" className="flex-1 overflow-y-auto mt-4">
+                <ClientSimulationTab 
+                  clientId={selectedClientForFiles.id}
+                  quoteRequestId={selectedClientForFiles.quote_request_id}
+                />
+              </TabsContent>
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
