@@ -7,12 +7,13 @@ import { KitchenData, EggerReference, PlaniziaReference } from '../types';
 import { backsplashTileTypes, tileFormats } from '../tileOptions';
 import { 
   ChefHat, Clock, Users, DoorOpen, DoorClosed,
-  HelpCircle, CheckCircle, ExternalLink, Plus, Trash2, Loader2, Image as ImageIcon
+  HelpCircle, CheckCircle
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ReferenceInput } from '../ReferenceInput';
 
 // Import kitchen images
 import implantationLineaire from '@/assets/kitchen/implantation-lineaire-plan.jpg';
@@ -237,93 +238,6 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, 
     { value: 'accompagnement-complet', label: "J'ai besoin d'un accompagnement complet", icon: <Users className="w-5 h-5" /> },
   ];
 
-  // Helper to render reference list with inline images
-  const renderReferenceList = (
-    references: EggerReference[] | PlaniziaReference[] | undefined,
-    type: 'egger' | 'planizia'
-  ) => {
-    if (!references || references.length === 0) return null;
-
-    return (
-      <div className="space-y-2">
-        {references.map((ref, index) => (
-          <div 
-            key={`${ref.reference}-${index}`}
-            className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
-          >
-            {/* Image inline next to reference */}
-            <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-              {ref.isLoading ? (
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-              ) : ref.imageUrl ? (
-                <img 
-                  src={ref.imageUrl} 
-                  alt={'decorName' in ref ? ref.decorName || ref.reference : 'productName' in ref ? ref.productName || ref.reference : ref.reference}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <ImageIcon className="w-6 h-6 text-muted-foreground" />
-              )}
-            </div>
-            
-            {/* Reference info */}
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm">{ref.reference}</p>
-              {'decorName' in ref && ref.decorName && (
-                <p className="text-xs text-muted-foreground truncate">
-                  {ref.decorName.replace(ref.reference, '').trim()}
-                </p>
-              )}
-              {'brand' in ref && ref.brand && (
-                <p className="text-xs text-muted-foreground">{ref.brand}</p>
-              )}
-              {ref.error && (
-                <p className="text-xs text-destructive">{ref.error}</p>
-              )}
-              {!ref.isLoading && !ref.imageUrl && !ref.error && (
-                <p className="text-xs text-muted-foreground">Image non disponible</p>
-              )}
-              {'decorUrl' in ref && ref.decorUrl && (
-                <a 
-                  href={ref.decorUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  Voir sur EGGER <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-              {'productUrl' in ref && ref.productUrl && (
-                <a 
-                  href={ref.productUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  Voir sur Planizia <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-            
-            {/* Remove button */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => type === 'egger' ? removeEggerReference(ref.reference) : removePlaniziaReference(ref.reference)}
-              className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <FormSection
       title={roomName}
@@ -449,92 +363,66 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, roomName, 
 
         {/* EGGER Catalog References - directly below for stratifié */}
         {data.countertopMaterial === 'stratifie' && (
-          <div className="mt-6 space-y-4">
-            <p className="text-sm font-medium text-foreground">
-              Références finitions EGGER pour plan stratifié (optionnel) :
-            </p>
-            
-            <a 
-              href="https://www.vds-egger.com/?country=FR&language=fr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Voir le catalogue EGGER pour choisir vos finitions stratifiées
-            </a>
-            
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                Format : code décor + structure (ex: H1312 ST10). Trouvez les références sur le catalogue EGGER.
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: H1312 ST10"
-                  value={newReference}
-                  onChange={(e) => setNewReference(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
-                  className="flex-1"
-                />
-                <Button 
-                  type="button" 
-                  onClick={addEggerReference}
-                  disabled={!newReference.trim()}
-                  size="icon"
-                  variant="outline"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            
-            {renderReferenceList(data.eggerReferences, 'egger')}
+          <div className="mt-6">
+            <ReferenceInput
+              type="egger"
+              title="Références finitions EGGER pour plan stratifié (optionnel) :"
+              catalogUrl="https://www.vds-egger.com/?country=FR&language=fr"
+              catalogLabel="Voir le catalogue EGGER pour choisir vos finitions"
+              placeholder="Ex: H1312 ST10"
+              formatHint={
+                <>
+                  Entrez le <strong>code décor</strong> suivi de la <strong>structure</strong> (facultatif).
+                  Ces codes se trouvent sur le catalogue EGGER sous chaque échantillon.
+                </>
+              }
+              formatExamples={['H1312 ST10', 'U702 ST89', 'H3403', 'W1100 ST9']}
+              value={newReference}
+              onChange={setNewReference}
+              onAdd={addEggerReference}
+              references={(data.eggerReferences || []).map(r => ({
+                reference: r.reference,
+                isLoading: r.isLoading,
+                imageUrl: r.imageUrl,
+                decorName: r.decorName,
+                decorUrl: r.decorUrl,
+                error: r.error,
+              }))}
+              onRemove={(ref) => removeEggerReference(ref as string)}
+            />
           </div>
         )}
 
         {/* Planizia Catalog References - directly below for quartz or ceramique */}
         {(data.countertopMaterial === 'quartz' || data.countertopMaterial === 'ceramique') && (
-          <div className="mt-6 space-y-4">
-            <p className="text-sm font-medium text-foreground">
-              Références Planizia pour plan {data.countertopMaterial === 'quartz' ? 'quartz' : 'céramique'} (optionnel) :
-            </p>
-            
-            <a 
-              href="https://www.planizia.fr/coloris/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Voir le catalogue Planizia pour choisir vos coloris
-            </a>
-            
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                Format : marque + nom du coloris (ex: <strong>Silestone Persian white</strong>). 
-                Marques disponibles : Silestone, Dekton, Neolith, Lapitec, Caesarstone...
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: Silestone Persian white"
-                  value={newPlaniziaReference}
-                  onChange={(e) => setNewPlaniziaReference(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addPlaniziaReference())}
-                  className="flex-1"
-                />
-                <Button 
-                  type="button" 
-                  onClick={addPlaniziaReference}
-                  disabled={!newPlaniziaReference.trim()}
-                  size="icon"
-                  variant="outline"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            
-            {renderReferenceList(data.planiziaReferences, 'planizia')}
+          <div className="mt-6">
+            <ReferenceInput
+              type="planizia"
+              title={`Références Planizia pour plan ${data.countertopMaterial === 'quartz' ? 'quartz' : 'céramique'} (optionnel) :`}
+              catalogUrl="https://www.planizia.fr/coloris/"
+              catalogLabel="Voir le catalogue Planizia pour choisir vos coloris"
+              placeholder="Ex: Silestone Persian white"
+              formatHint={
+                <>
+                  Entrez la <strong>marque</strong> suivie du <strong>nom du coloris</strong>.
+                  L'outil recherchera automatiquement l'image correspondante sur le catalogue Planizia.
+                </>
+              }
+              formatExamples={['Silestone Persian white', 'Dekton Arga', 'Neolith Estatuario', 'Caesarstone Calacatta']}
+              value={newPlaniziaReference}
+              onChange={setNewPlaniziaReference}
+              onAdd={addPlaniziaReference}
+              references={(data.planiziaReferences || []).map(r => ({
+                reference: r.reference,
+                isLoading: r.isLoading,
+                imageUrl: r.imageUrl,
+                productName: r.productName,
+                productUrl: r.productUrl,
+                brand: r.brand,
+                error: r.error,
+              }))}
+              onRemove={(index) => removePlaniziaReference((data.planiziaReferences || [])[index as number]?.reference || '')}
+            />
           </div>
         )}
       </FormQuestion>
