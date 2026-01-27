@@ -4,12 +4,9 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { PaintingData, FarrowBallColor } from '../types';
-import { ExternalLink, Plus, Trash2, Loader2, Palette } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ReferenceInput } from '../ReferenceInput';
 
 // Import finish images
 import finitionMat from '@/assets/painting/finition-mat.jpg';
@@ -250,142 +247,40 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
           ))}
         </div>
 
-        {/* Farrow & Ball color references - directly below the conditioning question */}
+        {/* Farrow & Ball color references - using the improved ReferenceInput */}
         {(data.hasDefinedColors === 'oui' || data.hasDefinedColors === 'en-reflexion') && (
-          <div className="mt-6 space-y-4">
-            <p className="text-sm font-medium text-foreground">
-              Références couleurs Farrow & Ball (optionnel) :
-            </p>
-            
-            {/* Link to Farrow & Ball catalog */}
-            <a 
-              href="https://www.farrow-ball.com/fr/peinture/toutes-les-couleurs-de-peinture"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Voir le nuancier Farrow & Ball
-            </a>
-            
-            {/* Color input form */}
-            <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
-              <p className="text-xs text-muted-foreground">
-                Format : numéro et/ou nom (ex: <strong>No.311 Scallop</strong>, <strong>311</strong>, ou <strong>Scallop</strong>)
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: No.311 Scallop"
-                  value={newColorRef}
-                  onChange={(e) => setNewColorRef(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFarrowBallColor())}
-                  className="flex-1"
-                />
-                <Button 
-                  type="button" 
-                  onClick={addFarrowBallColor}
-                  disabled={!newColorRef.trim()}
-                  size="icon"
-                  variant="outline"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-              
-              {/* Room selection */}
-              {availableRooms.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Pièce(s) concernée(s) :</p>
-                  <div className="flex flex-wrap gap-2">
-                    {availableRooms.map((room) => (
-                      <Badge
-                        key={room.id}
-                        variant={selectedRooms.includes(room.id) ? "default" : "outline"}
-                        className="cursor-pointer hover:bg-primary/80 transition-colors"
-                        onClick={() => toggleSelectedRoom(room.id)}
-                      >
-                        {room.label}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Colors list with images inline */}
-            {data.farrowBallColors && data.farrowBallColors.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Couleurs sélectionnées :</p>
-                {data.farrowBallColors.map((color, index) => (
-                  <div 
-                    key={index}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
-                  >
-                    {/* Color swatch - shown inline next to reference */}
-                    <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center border">
-                      {color.isLoading ? (
-                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                      ) : color.imageUrl ? (
-                        <img 
-                          src={color.imageUrl} 
-                          alt={`${color.colorNumber} ${color.colorName}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      ) : color.hexColor ? (
-                        <div 
-                          className="w-full h-full"
-                          style={{ backgroundColor: color.hexColor }}
-                          title={color.hexColor}
-                        />
-                      ) : (
-                        <Palette className="w-6 h-6 text-muted-foreground" />
-                      )}
-                    </div>
-                    
-                    {/* Color info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">
-                        {color.colorNumber && `N° ${color.colorNumber}`}
-                        {color.colorNumber && color.colorName && ' - '}
-                        {color.colorName}
-                      </p>
-                      {color.hexColor && (
-                        <p className="text-xs text-muted-foreground">{color.hexColor}</p>
-                      )}
-                      {color.error && (
-                        <p className="text-xs text-destructive">{color.error}</p>
-                      )}
-                      {color.rooms.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {color.rooms.map((roomId) => {
-                            const room = availableRooms.find(r => r.id === roomId);
-                            return room ? (
-                              <Badge key={roomId} variant="secondary" className="text-xs">
-                                {room.label}
-                              </Badge>
-                            ) : null;
-                          })}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Remove button */}
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeFarrowBallColor(index)}
-                      className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="mt-6">
+            <ReferenceInput
+              type="farrow-ball"
+              title="Références couleurs Farrow & Ball (optionnel) :"
+              catalogUrl="https://www.farrow-ball.com/fr/peinture/toutes-les-couleurs-de-peinture"
+              catalogLabel="Voir le nuancier Farrow & Ball"
+              placeholder="Ex: No.311 Scallop"
+              formatHint={
+                <>
+                  Entrez le <strong>numéro</strong> et/ou le <strong>nom de la couleur</strong>.
+                  L'outil recherchera automatiquement l'échantillon correspondant sur le nuancier Farrow & Ball.
+                </>
+              }
+              formatExamples={['No.311 Scallop', '311', 'Hague Blue', 'No.2001 Strong White']}
+              value={newColorRef}
+              onChange={setNewColorRef}
+              onAdd={addFarrowBallColor}
+              references={(data.farrowBallColors || []).map(c => ({
+                reference: c.colorNumber ? `No.${c.colorNumber} ${c.colorName}` : c.colorName,
+                isLoading: c.isLoading,
+                imageUrl: c.imageUrl,
+                hexColor: c.hexColor,
+                colorNumber: c.colorNumber,
+                colorName: c.colorName,
+                rooms: c.rooms,
+                error: c.error,
+              }))}
+              onRemove={(index) => removeFarrowBallColor(index as number)}
+              rooms={availableRooms}
+              selectedRooms={selectedRooms}
+              onToggleRoom={toggleSelectedRoom}
+            />
           </div>
         )}
       </FormQuestion>

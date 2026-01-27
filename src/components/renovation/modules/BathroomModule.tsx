@@ -8,13 +8,11 @@ import { tileTypes, tileFormats } from '../tileOptions';
 import { 
   User, Users, Users2, Baby, UserCheck,
   Home, Building2, Bed, Bath,
-  Droplets, Square, HelpCircle, CheckCircle,
-  ExternalLink, Plus, Trash2, Loader2, Image as ImageIcon
+  Droplets, Square, HelpCircle, CheckCircle
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ReferenceInput } from '../ReferenceInput';
 
 // Import bathroom images
 import ambianceZellige from '@/assets/bathroom/ambiance-zellige.jpg';
@@ -43,6 +41,20 @@ import pareBainRideau from '@/assets/bathroom/pare-bain-rideau.jpg';
 import vasqueSeule from '@/assets/bathroom/vasque-seule.jpg';
 import meubleSuspendu from '@/assets/bathroom/meuble-suspendu.jpg';
 import meublePieds from '@/assets/bathroom/meuble-pieds.jpg';
+
+// Import faucet and fixture images
+import robinetterieApparente from '@/assets/bathroom/robinetterie-apparente.jpg';
+import robinetterieEncastree from '@/assets/bathroom/robinetterie-encastree.jpg';
+import pommeauFixe from '@/assets/bathroom/pommeau-fixe.jpg';
+import pommeauDouchette from '@/assets/bathroom/pommeau-douchette.jpg';
+import pommeauCombo from '@/assets/bathroom/pommeau-combo.jpg';
+import finitionChrome from '@/assets/bathroom/finition-chrome.jpg';
+import finitionNoir from '@/assets/bathroom/finition-noir.jpg';
+import finitionLaiton from '@/assets/bathroom/finition-laiton.jpg';
+import finitionOr from '@/assets/bathroom/finition-or.jpg';
+import finitionNickel from '@/assets/bathroom/finition-nickel.jpg';
+import wcSuspendu from '@/assets/bathroom/wc-suspendu.jpg';
+import wcSol from '@/assets/bathroom/wc-sol.jpg';
 
 interface BathroomModuleProps {
   roomId: string;
@@ -228,34 +240,34 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
     { value: 'a-definir', label: 'À définir ensemble' },
   ];
 
-  // Faucet type options with emojis (based on Châtelet range style)
+  // Faucet type options with images
   const faucetTypes = [
-    { value: 'apparente', label: 'Apparente', emoji: '🚿' },
-    { value: 'encastree', label: 'Encastrée', emoji: '📐' },
+    { value: 'apparente', label: 'Apparente', image: robinetterieApparente },
+    { value: 'encastree', label: 'Encastrée', image: robinetterieEncastree },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore', emoji: '❓' },
   ];
 
-  // Showerhead styles with emojis
+  // Showerhead styles with images
   const showerHeadStyles = [
-    { value: 'fixe', label: 'Fixe (plafond/mural)', emoji: '🌧️' },
-    { value: 'douchette', label: 'Douchette', emoji: '🚿' },
-    { value: 'les-deux', label: 'Les deux', emoji: '💧' },
+    { value: 'fixe', label: 'Fixe (plafond/mural)', image: pommeauFixe },
+    { value: 'douchette', label: 'Douchette', image: pommeauDouchette },
+    { value: 'les-deux', label: 'Les deux', image: pommeauCombo },
   ];
 
-  // Faucet finishes with emojis (inspired by Châtelet range from Masalledebain.com)
+  // Faucet finishes with images
   const finishOptions = [
-    { value: 'chrome', label: 'Chrome', emoji: '🪞' },
-    { value: 'noir', label: 'Noir mat', emoji: '⬛' },
-    { value: 'laiton-brosse', label: 'Laiton brossé', emoji: '🥇' },
-    { value: 'or-brosse', label: 'Or brossé', emoji: '✨' },
-    { value: 'nickel-brosse', label: 'Nickel brossé', emoji: '🔘' },
+    { value: 'chrome', label: 'Chrome', image: finitionChrome },
+    { value: 'noir', label: 'Noir mat', image: finitionNoir },
+    { value: 'laiton-brosse', label: 'Laiton brossé', image: finitionLaiton },
+    { value: 'or-brosse', label: 'Or brossé', image: finitionOr },
+    { value: 'nickel-brosse', label: 'Nickel brossé', image: finitionNickel },
     { value: 'peu-importe', label: 'Peu importe', emoji: '🤷' },
   ];
 
-  // Toilet types with emojis
+  // Toilet types with images
   const toiletTypes = [
-    { value: 'suspendu', label: 'WC suspendu', emoji: '🪽' },
-    { value: 'au-sol', label: 'WC au sol', emoji: '🚽' },
+    { value: 'suspendu', label: 'WC suspendu', image: wcSuspendu },
+    { value: 'au-sol', label: 'WC au sol', image: wcSol },
     { value: 'conserver', label: "Conserver l'existant", emoji: '✅' },
     { value: 'pas-de-wc', label: 'Ne pas intégrer de WC', emoji: '❌' },
   ];
@@ -470,104 +482,33 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
 
         {/* EGGER Catalog References - directly below sink style when vessel sink selected */}
         {data.sinkStyle === 'a-poser' && (
-          <div className="mt-6 space-y-4">
-            <p className="text-sm font-medium text-foreground">
-              Références finitions EGGER pour plan sous vasque (optionnel) :
-            </p>
-            
-            <a 
-              href="https://www.vds-egger.com/?country=FR&language=fr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 underline transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Voir le catalogue EGGER pour choisir vos finitions de plan
-            </a>
-            
-            <div className="flex gap-2">
-              <Input
-                placeholder="Entrez une référence EGGER (ex: H3157 ST12)"
-                value={newReference}
-                onChange={(e) => setNewReference(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
-                className="flex-1"
-              />
-              <Button 
-                type="button" 
-                onClick={addEggerReference}
-                disabled={!newReference.trim()}
-                size="icon"
-                variant="outline"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            </div>
-            
-            {/* References list with images inline */}
-            {data.eggerReferences && data.eggerReferences.length > 0 && (
-              <div className="space-y-2">
-                {data.eggerReferences.map((ref, index) => (
-                  <div 
-                    key={`${ref.reference}-${index}`}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
-                  >
-                    <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                      {ref.isLoading ? (
-                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-                      ) : ref.imageUrl ? (
-                        <img 
-                          src={ref.imageUrl} 
-                          alt={ref.reference}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                          }}
-                        />
-                      ) : (
-                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                      )}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm">{ref.reference}</p>
-                      {ref.decorName && (
-                        <p className="text-xs text-muted-foreground truncate">
-                          {ref.decorName.replace(ref.reference, '').trim()}
-                        </p>
-                      )}
-                      {ref.error && (
-                        <p className="text-xs text-destructive">{ref.error}</p>
-                      )}
-                      {!ref.isLoading && !ref.imageUrl && !ref.error && (
-                        <p className="text-xs text-muted-foreground">Image non disponible</p>
-                      )}
-                      {ref.decorUrl && (
-                        <a 
-                          href={ref.decorUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                        >
-                          Voir sur EGGER <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                    
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeEggerReference(ref.reference)}
-                      className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="mt-6">
+            <ReferenceInput
+              type="egger"
+              title="Références finitions EGGER pour plan sous vasque (optionnel) :"
+              catalogUrl="https://www.vds-egger.com/?country=FR&language=fr"
+              catalogLabel="Voir le catalogue EGGER pour choisir vos finitions de plan"
+              placeholder="Ex: H3157 ST12"
+              formatHint={
+                <>
+                  Entrez le <strong>code décor</strong> suivi de la <strong>structure</strong> (facultatif).
+                  Ces codes se trouvent sur le catalogue EGGER sous chaque échantillon.
+                </>
+              }
+              formatExamples={['H3157 ST12', 'U702 ST89', 'H1180 ST37', 'W1000']}
+              value={newReference}
+              onChange={setNewReference}
+              onAdd={addEggerReference}
+              references={(data.eggerReferences || []).map(r => ({
+                reference: r.reference,
+                isLoading: r.isLoading,
+                imageUrl: r.imageUrl,
+                decorName: r.decorName,
+                decorUrl: r.decorUrl,
+                error: r.error,
+              }))}
+              onRemove={(ref) => removeEggerReference(ref as string)}
+            />
           </div>
         )}
       </FormQuestion>
@@ -620,65 +561,68 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
         </div>
       </FormQuestion>
 
-      {/* Faucet type with emojis */}
+      {/* Faucet type with images */}
       <FormQuestion label="Type de robinetterie douche :">
-        <div className="grid grid-cols-3 gap-3 max-w-md">
+        <div className="grid grid-cols-3 gap-4">
           {faucetTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.showerFaucetType === type.value}
               onClick={() => updateData({ showerFaucetType: type.value })}
+              image={type.image}
               emoji={type.emoji}
               title={type.label}
-              size="sm"
+              size="lg"
             />
           ))}
         </div>
       </FormQuestion>
 
-      {/* Showerhead style with emojis */}
+      {/* Showerhead style with images */}
       <FormQuestion label="Style de pommeau :">
-        <div className="grid grid-cols-3 gap-3 max-w-md">
+        <div className="grid grid-cols-3 gap-4">
           {showerHeadStyles.map((style) => (
             <SelectableCard
               key={style.value}
               selected={data.showerHeadStyle.includes(style.value)}
               onClick={() => toggleArrayValue('showerHeadStyle', style.value)}
-              emoji={style.emoji}
+              image={style.image}
               title={style.label}
-              size="sm"
+              size="lg"
             />
           ))}
         </div>
       </FormQuestion>
 
-      {/* Faucet finish with emojis */}
+      {/* Faucet finish with images */}
       <FormQuestion label="Finition robinetterie souhaitée :">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {finishOptions.map((option) => (
             <SelectableCard
               key={option.value}
               selected={data.faucetFinish === option.value}
               onClick={() => updateData({ faucetFinish: option.value })}
+              image={option.image}
               emoji={option.emoji}
               title={option.label}
-              size="sm"
+              size="lg"
             />
           ))}
         </div>
       </FormQuestion>
 
-      {/* Toilet with emojis */}
+      {/* Toilet with images */}
       <FormQuestion label="WC (si présents dans la pièce) :">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {toiletTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.toiletType === type.value}
               onClick={() => updateData({ toiletType: type.value })}
+              image={type.image}
               emoji={type.emoji}
               title={type.label}
-              size="sm"
+              size="lg"
             />
           ))}
         </div>
