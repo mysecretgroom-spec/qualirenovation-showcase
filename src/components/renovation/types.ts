@@ -95,7 +95,9 @@ export interface BathroomData {
 // Kitchen module
 export interface EggerReference {
   reference: string;
+  decorName?: string;
   imageUrl?: string;
+  decorUrl?: string;
   isLoading?: boolean;
   error?: string;
 }

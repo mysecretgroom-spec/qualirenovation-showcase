@@ -28,12 +28,24 @@ Deno.serve(async (req) => {
     }
 
     // Clean the reference (remove spaces, uppercase)
+    // Expected format: "H1312 ST10" -> "H1312_10"
     const cleanRef = reference.trim().toUpperCase();
     
-    // Search for the EGGER reference on their website
-    const searchUrl = `https://www.vds-egger.com/?country=FR&language=fr&search=${encodeURIComponent(cleanRef)}`;
+    // Parse reference to get the EGGER URL format
+    // EGGER uses format like H1312_10 (decor code + surface code without ST)
+    const match = cleanRef.match(/^([A-Z]\d+)\s*(?:ST)?(\d+)?$/i);
     
-    console.log('Scraping EGGER reference:', cleanRef, 'URL:', searchUrl);
+    let eggerUrlRef = cleanRef.replace(/\s+/g, '_');
+    if (match) {
+      const decorCode = match[1];
+      const surfaceCode = match[2] || '';
+      eggerUrlRef = surfaceCode ? `${decorCode}_${surfaceCode}` : decorCode;
+    }
+    
+    // Use the official EGGER website with the correct URL format
+    const decorUrl = `https://www.egger.com/en/furniture-interior-design/decors/${eggerUrlRef}?country=GB`;
+    
+    console.log('Scraping EGGER reference:', cleanRef, 'URL:', decorUrl);
 
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
@@ -42,9 +54,9 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: searchUrl,
+        url: decorUrl,
         formats: ['html', 'links'],
-        waitFor: 3000, // Wait for dynamic content to load
+        waitFor: 2000,
       }),
     });
 
@@ -60,47 +72,93 @@ Deno.serve(async (req) => {
 
     // Try to extract image URL from the scraped content
     let imageUrl = null;
+    let decorName = null;
     const html = data.data?.html || data.html || '';
     
-    // Look for product images in the HTML
-    // EGGER typically uses specific patterns for their product images
-    const imgPatterns = [
-      // Pattern for EGGER decor images
-      /https:\/\/[^"'\s]*egger[^"'\s]*decor[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // Pattern for product thumbnails
-      /https:\/\/[^"'\s]*egger[^"'\s]*product[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // General EGGER image pattern
-      /https:\/\/[^"'\s]*vds-egger[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // CDN pattern
-      /https:\/\/[^"'\s]*cdn[^"'\s]*egger[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
+    console.log('HTML length:', html.length);
+    
+    // Check if it's a 404 page
+    if (html.includes('404_error_page') || html.includes('Page introuvable') || html.includes('Page not found')) {
+      console.log('404 page detected');
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          reference: cleanRef,
+          imageUrl: null,
+          decorName: null,
+          decorUrl,
+          error: 'Decor not found'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Extract decor name from title (format: "H1312 ST10 Sand Beige Whiteriver Oak")
+    const titleMatch = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+    if (titleMatch) {
+      decorName = titleMatch[1].trim();
+    }
+    
+    // Look for EGGER CDN product images - they use a specific pattern
+    // Pattern: https://cdn.egger.com/img/pim/XXXXX/XXXXX/original.png (or .jpg, .webp)
+    const cdnPatterns = [
+      // Main decor texture image (usually the second one is the close-up decor swatch)
+      /https:\/\/cdn\.egger\.com\/img\/pim\/\d+\/\d+\/(?:AR_\d+_\d+\.webp|original\.(?:png|jpg))/gi,
     ];
     
-    for (const pattern of imgPatterns) {
+    const allMatches: string[] = [];
+    for (const pattern of cdnPatterns) {
       const matches = html.match(pattern);
-      if (matches && matches.length > 0) {
-        // Filter to find the most relevant image (usually the first product image)
-        imageUrl = matches[0];
-        break;
+      if (matches) {
+        allMatches.push(...matches);
       }
     }
-
-    // If no specific pattern found, try to find any image with the reference in its URL
-    if (!imageUrl) {
-      const refPattern = new RegExp(`https://[^"'\\s]*${cleanRef.replace(/[^A-Z0-9]/g, '')}[^"'\\s]*\\.(jpg|jpeg|png|webp)`, 'gi');
-      const refMatches = html.match(refPattern);
-      if (refMatches && refMatches.length > 0) {
-        imageUrl = refMatches[0];
+    
+    console.log('Found CDN matches:', allMatches.length);
+    
+    if (allMatches.length > 0) {
+      // Prefer AR_16_9 or AR_4_3 formats for a better thumbnail, or original.png
+      // The second image is usually the decor texture (first is the board)
+      const uniqueImages = [...new Set(allMatches)];
+      
+      // Find the best image - prefer the decor close-up (usually has AR_4_3)
+      const ar43Image = uniqueImages.find(img => img.includes('AR_4_3'));
+      const ar169Image = uniqueImages.find(img => img.includes('AR_16_9'));
+      const originalImage = uniqueImages.find(img => img.includes('/original.'));
+      
+      // Get the second unique base path (decor swatch, not the board)
+      const basePaths = uniqueImages
+        .map(img => {
+          const match = img.match(/https:\/\/cdn\.egger\.com\/img\/pim\/(\d+)\/(\d+)/);
+          return match ? `${match[1]}/${match[2]}` : null;
+        })
+        .filter((v, i, a) => v && a.indexOf(v) === i);
+      
+      if (basePaths.length > 1) {
+        // Use the second image (decor swatch)
+        imageUrl = `https://cdn.egger.com/img/pim/${basePaths[1]}/AR_4_3.webp?width=300&srcext=png`;
+      } else if (ar43Image) {
+        // Add width parameter for thumbnail
+        imageUrl = ar43Image.includes('?') ? ar43Image : `${ar43Image}?width=300`;
+      } else if (ar169Image) {
+        imageUrl = ar169Image.includes('?') ? ar169Image : `${ar169Image}?width=400`;
+      } else if (originalImage) {
+        imageUrl = `${originalImage}?width=300`;
+      } else {
+        imageUrl = uniqueImages[0];
       }
     }
 
     console.log('Found image URL:', imageUrl);
+    console.log('Found decor name:', decorName);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         reference: cleanRef,
         imageUrl,
-        searchUrl,
+        decorName,
+        decorUrl,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
