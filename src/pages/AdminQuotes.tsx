@@ -24,8 +24,10 @@ import {
   XCircle,
   AlertCircle,
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  MessageCircle
 } from "lucide-react";
+import ProspectEmailDialog from "@/components/admin/ProspectEmailDialog";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -86,9 +88,16 @@ const AdminQuotes = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState<QuoteRequest | null>(null);
   const { user, isAdmin, loading: authLoading, adminLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const openEmailDialog = (quote: QuoteRequest) => {
+    setSelectedQuote(quote);
+    setEmailDialogOpen(true);
+  };
 
   useEffect(() => {
     // Wait for both auth and admin check to complete
@@ -350,12 +359,47 @@ const AdminQuotes = () => {
                   <div className="bg-secondary p-4 rounded-sm">
                     <p className="text-sm text-foreground whitespace-pre-wrap">{quote.message}</p>
                   </div>
+
+                  {/* Action buttons */}
+                  <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEmailDialog(quote)}
+                      className="flex items-center gap-2"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Discussion prospect
+                    </Button>
+                    <a
+                      href={`mailto:${quote.email}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-sm hover:bg-secondary transition-colors"
+                    >
+                      <Mail className="w-4 h-4" />
+                      Email direct
+                    </a>
+                    <a
+                      href={`tel:${quote.phone}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-sm hover:bg-secondary transition-colors"
+                    >
+                      <Phone className="w-4 h-4" />
+                      Appeler
+                    </a>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </main>
+
+      {/* Prospect Email Dialog */}
+      <ProspectEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        quote={selectedQuote}
+        onEmailSent={fetchQuotes}
+      />
     </div>
   );
 };

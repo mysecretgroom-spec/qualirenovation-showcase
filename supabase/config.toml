@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.carin-ia]
 verify_jwt = false
+
+[functions.send-prospect-followup]
+verify_jwt = false
