@@ -9,7 +9,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Support both old format (colorNumber, colorName) and new format (colorReference)
     const body = await req.json();
     let colorReference = body.colorReference;
     
@@ -47,176 +46,177 @@ Deno.serve(async (req) => {
     const colorNumber = match?.[1] || '';
     const colorName = match?.[2]?.trim() || '';
     
-    // Build the direct URL to the Farrow & Ball color page
-    // F&B uses slug format like "hague-blue" or "no-311-scallop"
-    let colorSlug = '';
-    if (colorNumber && colorName) {
-      colorSlug = `no-${colorNumber}-${colorName.toLowerCase().replace(/\s+/g, '-')}`;
-    } else if (colorName) {
-      colorSlug = colorName.toLowerCase().replace(/\s+/g, '-');
-    } else if (colorNumber) {
-      colorSlug = `no-${colorNumber}`;
-    }
-    
-    // Try the French version of the site first
-    const directUrl = `https://www.farrow-ball.com/fr/peinture/couleurs-de-peinture/${colorSlug}`;
-    
-    console.log('Trying direct URL for Farrow & Ball:', directUrl);
+    console.log('Searching for Farrow & Ball color:', { colorNumber, colorName, cleanRef });
 
-    // First, try to scrape the direct URL
-    const directResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    // Use Firecrawl search to find the color page on F&B site
+    const searchQuery = colorNumber 
+      ? `site:farrow-ball.com/fr No.${colorNumber} ${colorName}`.trim()
+      : `site:farrow-ball.com/fr ${colorName || cleanRef}`;
+    
+    console.log('Search query:', searchQuery);
+
+    const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: directUrl,
-        formats: ['html'],
-        waitFor: 2000,
+        query: searchQuery,
+        limit: 5,
+        scrapeOptions: {
+          formats: ['html'],
+        },
       }),
     });
 
-    const directData = await directResponse.json();
-    let html = directData.data?.html || directData.html || '';
-    let productUrl = directUrl;
+    const searchData = await searchResponse.json();
+    const results = searchData.data || [];
     
-    console.log('Direct scrape HTML length:', html.length);
+    console.log('Search results count:', results.length);
     
-    // Check if it's a 404 or redirect page - if so, try search
-    const is404 = html.includes('404') || html.includes('Page introuvable') || 
-                  html.includes('page not found') || html.length < 5000;
-    
-    if (is404 || !directResponse.ok) {
-      console.log('Direct URL failed, trying search...');
+    let imageUrl = null;
+    let hexColor = null;
+    let productUrl = null;
+    let foundColorNumber = colorNumber;
+    let foundColorName = colorName;
+
+    // Find the best matching result (color page)
+    for (const result of results) {
+      const url = result.url || '';
+      const html = result.html || '';
       
-      // Fallback to search
-      const searchQuery = colorNumber ? `No.${colorNumber} ${colorName}`.trim() : colorName || cleanRef;
+      // Skip non-color pages
+      if (url.includes('/inspiration') || url.includes('/blog') || url.includes('/recherche')) {
+        continue;
+      }
       
-      const searchResponse = await fetch('https://api.firecrawl.dev/v1/search', {
+      console.log('Checking result URL:', url);
+      
+      // Look for color swatch images in the HTML
+      // F&B uses specific patterns for color swatches
+      const imgPatterns = [
+        // OG image (usually high quality color swatch)
+        /property="og:image"\s+content="([^"]+)"/gi,
+        /content="([^"]+)"\s+property="og:image"/gi,
+        // Product images with color
+        /(https:\/\/[^"'\s]*(?:swatch|colour|color|paint)[^"'\s]*\.(?:jpg|jpeg|png|webp))/gi,
+        // CDN images
+        /(https:\/\/[^"'\s]*media[^"'\s]*farrow[^"'\s]*\.(?:jpg|jpeg|png|webp))/gi,
+        /(https:\/\/[^"'\s]*cdn[^"'\s]*\.(?:jpg|jpeg|png|webp))/gi,
+      ];
+      
+      for (const pattern of imgPatterns) {
+        let imgMatch;
+        while ((imgMatch = pattern.exec(html)) !== null) {
+          const potentialUrl = imgMatch[1];
+          // Skip tiny icons and logos
+          if (potentialUrl.includes('logo') || potentialUrl.includes('icon') || potentialUrl.includes('favicon')) {
+            continue;
+          }
+          if (!imageUrl) {
+            imageUrl = potentialUrl;
+            console.log('Found image URL:', imageUrl);
+          }
+          break;
+        }
+        if (imageUrl) break;
+      }
+
+      // Extract hex color from CSS or meta tags
+      const hexPatterns = [
+        // Meta theme color
+        /name="theme-color"\s+content="#([A-Fa-f0-9]{6})"/gi,
+        /content="#([A-Fa-f0-9]{6})"\s+name="theme-color"/gi,
+        // CSS background colors
+        /background(?:-color)?\s*:\s*#([A-Fa-f0-9]{6})/gi,
+        // Data attributes
+        /data-(?:color|hex|bg)[^=]*=["']#?([A-Fa-f0-9]{6})["']/gi,
+        // Inline styles
+        /style="[^"]*(?:background|color)[^:]*:\s*#([A-Fa-f0-9]{6})/gi,
+      ];
+      
+      for (const pattern of hexPatterns) {
+        let hexMatch;
+        while ((hexMatch = pattern.exec(html)) !== null) {
+          const foundHex = hexMatch[1].toUpperCase();
+          // Skip common neutral colors
+          if (['FFFFFF', '000000', 'F5F5F5', 'EEEEEE', 'E5E5E5', 'CCCCCC'].includes(foundHex)) {
+            continue;
+          }
+          if (!hexColor) {
+            hexColor = `#${foundHex}`;
+            console.log('Found hex color:', hexColor);
+          }
+          break;
+        }
+        if (hexColor) break;
+      }
+
+      // Extract title for color name if needed
+      if (!foundColorName) {
+        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+        if (titleMatch) {
+          const title = titleMatch[1];
+          const numMatch = title.match(/No\.?\s*(\d+)/i);
+          const nameMatch = title.match(/No\.?\s*\d+\s+([A-Za-zÀ-ÿ\s]+)/i) || title.match(/^([A-Za-zÀ-ÿ\s]+)\s*[|–-]/i);
+          if (numMatch && !foundColorNumber) {
+            foundColorNumber = numMatch[1];
+          }
+          if (nameMatch) {
+            foundColorName = nameMatch[1].trim().replace(/\s*[|–-].*$/, '');
+          }
+        }
+      }
+
+      // Save product URL
+      if (!productUrl && (url.includes('/peinture/') || url.includes('/couleur'))) {
+        productUrl = url;
+      }
+
+      // If we found both image and color, we're done
+      if ((imageUrl || hexColor) && productUrl) {
+        break;
+      }
+    }
+
+    // If no image found but we have results, try to scrape the product page directly
+    if (!imageUrl && productUrl) {
+      console.log('Trying direct scrape of product page:', productUrl);
+      
+      const scrapeResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: `site:farrow-ball.com/fr ${searchQuery}`,
-          limit: 3,
-          scrapeOptions: {
-            formats: ['html'],
-          },
+          url: productUrl,
+          formats: ['html', 'screenshot'],
+          waitFor: 3000,
         }),
       });
 
-      const searchData = await searchResponse.json();
-      const results = searchData.data || [];
+      const scrapeData = await scrapeResponse.json();
+      const html = scrapeData.data?.html || '';
       
-      console.log('Search results count:', results.length);
+      // Try to find OG image first
+      const ogMatch = html.match(/property="og:image"\s+content="([^"]+)"/i) || 
+                      html.match(/content="([^"]+)"\s+property="og:image"/i);
+      if (ogMatch) {
+        imageUrl = ogMatch[1];
+        console.log('Found OG image:', imageUrl);
+      }
       
-      // Find the best matching result
-      for (const result of results) {
-        const url = result.url || '';
-        if (url.includes('/couleur') || url.includes('/color') || url.includes('/peinture')) {
-          html = result.html || '';
-          productUrl = url;
-          console.log('Found color page:', url);
-          break;
-        }
+      // Use screenshot URL as fallback (not base64)
+      if (!imageUrl && scrapeData.data?.screenshot) {
+        // Firecrawl returns a URL to the screenshot, not base64
+        imageUrl = scrapeData.data.screenshot;
+        console.log('Using screenshot URL as image:', imageUrl);
       }
     }
 
-    // Extract color information from HTML
-    let imageUrl = null;
-    let hexColor = null;
-    let foundColorNumber = colorNumber;
-    let foundColorName = colorName;
-
-    // Look for the color swatch image
-    // Pattern 1: Main color image with high quality
-    const imgPatterns = [
-      // F&B product images with color swatch
-      /(https:\/\/[^"'\s]*farrow-ball\.com[^"'\s]*\/Colour[^"'\s]*\.(jpg|jpeg|png|webp))/gi,
-      // CDN images
-      /(https:\/\/[^"'\s]*cdn[^"'\s]*farrow[^"'\s]*\.(jpg|jpeg|png|webp))/gi,
-      // Any image containing the color name or number
-      /(https:\/\/[^"'\s]*\.(jpg|jpeg|png|webp))/gi,
-    ];
-    
-    for (const pattern of imgPatterns) {
-      const matches = html.match(pattern);
-      if (matches) {
-        // Filter to find color-related images
-        for (const imgUrl of matches) {
-          const lowerUrl = imgUrl.toLowerCase();
-          if (lowerUrl.includes('colour') || lowerUrl.includes('color') || 
-              lowerUrl.includes('swatch') || lowerUrl.includes('paint') ||
-              (colorName && lowerUrl.includes(colorName.toLowerCase().split(' ')[0]))) {
-            imageUrl = imgUrl;
-            break;
-          }
-        }
-        if (imageUrl) break;
-      }
-    }
-
-    // Extract hex color from CSS or data attributes
-    // Look for inline styles with background color that might be the actual color
-    const hexPatterns = [
-      // data-color attribute
-      /data-(?:color|hex)[^=]*=["']#?([A-Fa-f0-9]{6})["']/gi,
-      // CSS background with hex
-      /(?:background-color|background)\s*:\s*#([A-Fa-f0-9]{6})/gi,
-      // style attribute with background
-      /style="[^"]*background[^:]*:\s*#([A-Fa-f0-9]{6})/gi,
-    ];
-    
-    for (const pattern of hexPatterns) {
-      let hexMatch;
-      while ((hexMatch = pattern.exec(html)) !== null) {
-        const foundHex = hexMatch[1].toUpperCase();
-        // Skip pure white and black
-        if (foundHex !== 'FFFFFF' && foundHex !== '000000' && foundHex !== 'F5F5F5') {
-          hexColor = `#${foundHex}`;
-          break;
-        }
-      }
-      if (hexColor) break;
-    }
-    
-    // Also look for RGB
-    if (!hexColor) {
-      const rgbPattern = /(?:background-color|background)\s*:\s*rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/gi;
-      let rgbMatch;
-      while ((rgbMatch = rgbPattern.exec(html)) !== null) {
-        const r = parseInt(rgbMatch[1]);
-        const g = parseInt(rgbMatch[2]);
-        const b = parseInt(rgbMatch[3]);
-        // Skip white/black/grey
-        if (!(r > 240 && g > 240 && b > 240) && !(r < 15 && g < 15 && b < 15)) {
-          const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-          hexColor = `#${hex}`;
-          break;
-        }
-      }
-    }
-
-    // Extract title if we don't have the full name
-    if (!foundColorName) {
-      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-      if (titleMatch) {
-        const title = titleMatch[1];
-        const numMatch = title.match(/No\.?\s*(\d+)/i);
-        const nameMatch = title.match(/No\.?\s*\d+\s+([A-Za-z\s]+)/i);
-        if (numMatch && !foundColorNumber) {
-          foundColorNumber = numMatch[1];
-        }
-        if (nameMatch) {
-          foundColorName = nameMatch[1].trim();
-        }
-      }
-    }
-
-    console.log('Found - Image URL:', imageUrl, 'Hex color:', hexColor, 'Product URL:', productUrl);
+    console.log('Final result:', { imageUrl: !!imageUrl, hexColor, productUrl });
 
     return new Response(
       JSON.stringify({ 
