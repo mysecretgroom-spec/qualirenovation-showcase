@@ -3,6 +3,7 @@ import { useRenovationForm } from '../RenovationFormContext';
 import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
+import { CityAutocomplete } from '../CityAutocomplete';
 import { Input } from '@/components/ui/input';
 import { Building2, Home } from 'lucide-react';
 
@@ -52,11 +53,9 @@ export const StepProjectInfo: React.FC = () => {
 
       {/* City */}
       <FormQuestion label="Ville du projet" required>
-        <Input
-          type="text"
+        <CityAutocomplete
           value={formData.city}
-          onChange={(e) => updateFormData('city', e.target.value)}
-          placeholder="Ex: Paris 16ème, Neuilly-sur-Seine..."
+          onChange={(city) => updateFormData('city', city)}
           className="max-w-md"
         />
       </FormQuestion>
