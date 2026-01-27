@@ -1,5 +1,13 @@
 // Types for the renovation form
 
+// Inspiration image uploaded by user
+export interface InspirationImage {
+  id: string;
+  url: string;
+  fileName: string;
+  uploadedAt: string;
+}
+
 export interface RenovationFormData {
   // Socle commun - Votre projet
   propertyType: 'appartement' | 'maison' | '';
@@ -25,6 +33,9 @@ export interface RenovationFormData {
   startDate: 'asap' | 'from-date' | 'flexible' | '';
   startDateValue: string;
   endDateMax: string; // Date de fin maximum pour délais impératifs
+  
+  // Photos d'inspiration
+  inspirationImages: InspirationImage[];
   
   // Pièces sélectionnées
   selectedRooms: RoomSelection[];
@@ -247,6 +258,7 @@ export const initialFormData: RenovationFormData = {
   startDate: '',
   startDateValue: '',
   endDateMax: '',
+  inspirationImages: [],
   selectedRooms: [],
   isolation: {
     wantIsolation: '',

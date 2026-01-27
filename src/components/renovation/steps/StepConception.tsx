@@ -4,7 +4,8 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { Input } from '@/components/ui/input';
-import { Upload, UserCheck, UserX, HelpCircle, CheckCircle, XCircle } from 'lucide-react';
+import { Upload, UserCheck, UserX, HelpCircle, CheckCircle, XCircle, Camera } from 'lucide-react';
+import { InspirationUpload } from '../InspirationUpload';
 
 export const StepConception: React.FC = () => {
   const { formData, updateFormData } = useRenovationForm();
@@ -99,6 +100,25 @@ export const StepConception: React.FC = () => {
           </div>
         </FormQuestion>
       )}
+
+      {/* Inspiration photos upload */}
+      <FormQuestion 
+        label="Avez-vous des photos d'inspiration ?"
+        hint="Partagez des images qui illustrent l'ambiance ou le style que vous recherchez (Pinterest, magazines, photos de projets...)"
+      >
+        <div className="flex items-start gap-2 mb-4 p-3 bg-secondary/50 rounded-lg">
+          <Camera className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-muted-foreground">
+            Ces photos nous aideront à mieux comprendre vos goûts et à vous proposer des solutions adaptées à vos envies.
+          </p>
+        </div>
+        <InspirationUpload
+          images={formData.inspirationImages}
+          onImagesChange={(images) => updateFormData('inspirationImages', images)}
+          maxImages={10}
+          context="projet"
+        />
+      </FormQuestion>
     </FormSection>
   );
 };
