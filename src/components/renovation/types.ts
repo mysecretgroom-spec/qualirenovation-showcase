@@ -85,6 +85,9 @@ export interface BathroomData {
   toiletType: string;
   ambiance: string[];
   certaintyLevel: string;
+  // Tile options
+  tileType: string;
+  tileFormat: string;
   // EGGER references for vessel sink countertop
   eggerReferences: EggerReference[];
 }
@@ -107,6 +110,8 @@ export interface KitchenData {
   countertopMaterial: string;
   wantVisualization: string;
   backsplashType: string;
+  backsplashTileType: string;
+  backsplashTileFormat: string;
   certaintyLevel: string;
   eggerReferences: EggerReference[];
 }
@@ -247,6 +252,8 @@ export const initialBathroomData: BathroomData = {
   toiletType: '',
   ambiance: [],
   certaintyLevel: '',
+  tileType: '',
+  tileFormat: '',
   eggerReferences: [],
 };
 
@@ -261,6 +268,8 @@ export const initialKitchenData: KitchenData = {
   countertopMaterial: '',
   wantVisualization: '',
   backsplashType: '',
+  backsplashTileType: '',
+  backsplashTileFormat: '',
   certaintyLevel: '',
   eggerReferences: [],
 };

@@ -4,6 +4,7 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { FlooringData } from '../types';
+import { tileTypes, tileFormats } from '../tileOptions';
 
 // Import flooring images - Floor types
 import parquetImg from '@/assets/flooring/parquet.jpg';
@@ -31,16 +32,6 @@ import parquetBrillant from '@/assets/flooring/parquet-brillant.jpg';
 import parquetMat from '@/assets/flooring/parquet-mat.jpg';
 import parquetNaturel from '@/assets/flooring/parquet-naturel.jpg';
 
-// Import tile types
-import carrelageZellige from '@/assets/flooring/carrelage-zellige.jpg';
-import carrelageMarbre from '@/assets/flooring/carrelage-marbre.jpg';
-import carrelageTravertin from '@/assets/flooring/carrelage-travertin.jpg';
-import carrelagePierre from '@/assets/flooring/carrelage-pierre.jpg';
-import carrelageCiment from '@/assets/flooring/carrelage-ciment.jpg';
-import carrelageBeton from '@/assets/flooring/carrelage-beton.jpg';
-import carrelageUnicolore from '@/assets/flooring/carrelage-unicolore.jpg';
-import carrelageGrandFormat from '@/assets/flooring/carrelage-grand-format.jpg';
-
 interface FlooringModuleProps {
   roomId: string;
   roomName: string;
@@ -58,25 +49,6 @@ export const FlooringModule: React.FC<FlooringModuleProps> = ({ roomId, roomName
     { value: 'parquet', label: 'Parquet', image: parquetImg },
     { value: 'carrelage', label: 'Carrelage', image: carrelageImg },
     { value: 'sol-souple', label: 'Sol souple', image: solSoupleImg },
-    { value: 'a-definir', label: 'À définir', emoji: '❓' },
-  ];
-
-  // Tile types
-  const tileTypes = [
-    { value: 'zellige', label: 'Zellige', image: carrelageZellige },
-    { value: 'marbre', label: 'Effet marbre', image: carrelageMarbre },
-    { value: 'travertin', label: 'Travertin', image: carrelageTravertin },
-    { value: 'pierre', label: 'Pierre naturelle', image: carrelagePierre },
-    { value: 'ciment', label: 'Carreau ciment', image: carrelageCiment },
-    { value: 'beton', label: 'Béton ciré', image: carrelageBeton },
-    { value: 'unicolore', label: 'Unicolore', image: carrelageUnicolore },
-    { value: 'a-definir', label: 'À définir', emoji: '❓' },
-  ];
-
-  const tileFormats = [
-    { value: 'grand-format', label: 'Grand format (60x60+)', image: carrelageGrandFormat },
-    { value: 'standard', label: 'Standard (30x60)', image: carrelageImg },
-    { value: 'petit', label: 'Petit format', image: carrelageZellige },
     { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
@@ -141,7 +113,7 @@ export const FlooringModule: React.FC<FlooringModuleProps> = ({ roomId, roomName
       {data.floorType === 'carrelage' && (
         <>
           <FormQuestion label="Type de carrelage :">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {tileTypes.map((type) => (
                 <SelectableCard
                   key={type.value}

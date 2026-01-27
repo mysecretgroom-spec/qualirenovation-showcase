@@ -4,6 +4,7 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { KitchenData, EggerReference } from '../types';
+import { backsplashTileTypes, tileFormats } from '../tileOptions';
 import { 
   ChefHat, Clock, Users, DoorOpen, DoorClosed,
   HelpCircle, CheckCircle, ExternalLink, Plus, Trash2, Loader2, Image as ImageIcon
@@ -320,6 +321,43 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
           ))}
         </div>
       </FormQuestion>
+
+      {/* Tile selection for carrelage backsplash */}
+      {data.backsplashType === 'carrelage' && (
+        <>
+          <FormQuestion label="Type de carrelage pour la crédence :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {backsplashTileTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.backsplashTileType === type.value}
+                  onClick={() => updateData({ backsplashTileType: type.value })}
+                  image={type.image}
+                  emoji={type.emoji}
+                  title={type.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Format de carrelage :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {tileFormats.map((format) => (
+                <SelectableCard
+                  key={format.value}
+                  selected={data.backsplashTileFormat === format.value}
+                  onClick={() => updateData({ backsplashTileFormat: format.value })}
+                  image={format.image}
+                  emoji={format.emoji}
+                  title={format.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+        </>
+      )}
 
       {/* EGGER Catalog References - Only show for stratifié countertop */}
       {data.countertopMaterial === 'stratifie' && (
