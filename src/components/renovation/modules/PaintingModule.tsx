@@ -165,10 +165,10 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
   ];
 
   const finishes = [
-    { value: 'mat', label: 'Mat', image: finitionMat },
-    { value: 'satine', label: 'Satiné', image: finitionSatine },
+    { value: 'mat', label: 'Mat', image: finitionMat, badge: 'Plafonds' },
+    { value: 'satine', label: 'Satiné', image: finitionSatine, badge: 'Murs' },
     { value: 'brillant', label: 'Brillant', image: finitionBrillant },
-    { value: 'velours', label: 'Velours', image: finitionVelours },
+    { value: 'velours', label: 'Velours', image: finitionVelours, badge: 'SDB / WC' },
     { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
@@ -181,7 +181,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
   const wallConditions = [
     { value: 'bon', label: 'Bon' },
     { value: 'moyen', label: 'Moyen' },
-    { value: 'a-reprendre', label: 'À reprendre' },
+    { value: 'fissures', label: 'Fissurés' },
     { value: 'ne-sais-pas', label: 'Je ne sais pas' },
   ];
 
@@ -228,6 +228,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
               image={finish.image}
               emoji={finish.emoji}
               title={finish.label}
+              badge={finish.badge}
               size="md"
             />
           ))}

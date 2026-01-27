@@ -626,6 +626,28 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
         </div>
       </FormQuestion>
 
+      {/* Sanibroyeur question - only show if WC is selected */}
+      {(data.toiletType === 'suspendu' || data.toiletType === 'au-sol') && (
+        <FormQuestion label="Y a-t-il actuellement un sanibroyeur installé ?">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { value: 'oui', label: 'Oui, sanibroyeur existant' },
+              { value: 'non', label: 'Non, évacuation classique' },
+              { value: 'ne-sais-pas', label: 'Je ne sais pas' },
+              { value: 'pas-de-wc', label: 'Pas de WC actuellement' },
+            ].map((option) => (
+              <SelectableCard
+                key={option.value}
+                selected={data.existingSanibroyeur === option.value}
+                onClick={() => updateData({ existingSanibroyeur: option.value })}
+                title={option.label}
+                size="sm"
+              />
+            ))}
+          </div>
+        </FormQuestion>
+      )}
+
       {/* Certainty level */}
       <FormQuestion label="Où en êtes-vous pour cette salle de bain ?">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

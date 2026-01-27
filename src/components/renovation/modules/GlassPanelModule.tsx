@@ -5,13 +5,19 @@ import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { GlassPanelData } from '../types';
 
+// Import verrière images
+import verriereAtelier from '@/assets/verriere/verriere-atelier.jpg';
+import verriereHauteur from '@/assets/verriere/verriere-toute-hauteur.jpg';
+import claustraBoisMetal from '@/assets/verriere/claustra-bois-metal.jpg';
+
 interface GlassPanelModuleProps {
   roomId: string;
   roomName: string;
   data: GlassPanelData;
+  onSkip?: () => void;
 }
 
-export const GlassPanelModule: React.FC<GlassPanelModuleProps> = ({ roomId, roomName, data }) => {
+export const GlassPanelModule: React.FC<GlassPanelModuleProps> = ({ roomId, roomName, data, onSkip }) => {
   const { updateRoomData } = useRenovationForm();
 
   const updateData = (updates: Partial<GlassPanelData>) => {
@@ -34,9 +40,9 @@ export const GlassPanelModule: React.FC<GlassPanelModuleProps> = ({ roomId, room
   ];
 
   const panelTypes = [
-    { value: 'verriere-atelier', label: 'Verrière atelier', emoji: '🏭' },
-    { value: 'verriere-hauteur', label: 'Verrière toute hauteur', emoji: '🪟' },
-    { value: 'claustra-bois-metal', label: 'Claustra bois / métal', emoji: '🪵' },
+    { value: 'verriere-atelier', label: 'Verrière atelier', image: verriereAtelier },
+    { value: 'verriere-hauteur', label: 'Verrière toute hauteur', image: verriereHauteur },
+    { value: 'claustra-bois-metal', label: 'Claustra bois / métal', image: claustraBoisMetal },
     { value: 'ne-sais-pas', label: 'Je ne sais pas', emoji: '❓' },
   ];
 
@@ -44,6 +50,8 @@ export const GlassPanelModule: React.FC<GlassPanelModuleProps> = ({ roomId, room
     <FormSection
       title={`Verrière / Claustra - ${roomName}`}
       subtitle="Définissez vos besoins en verrière ou claustra"
+      showSkip={!!onSkip}
+      onSkip={onSkip}
     >
       <FormQuestion label="Cette verrière / claustra servira à :">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -60,15 +68,16 @@ export const GlassPanelModule: React.FC<GlassPanelModuleProps> = ({ roomId, room
       </FormQuestion>
 
       <FormQuestion label="Type souhaité :">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {panelTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.panelType === type.value}
               onClick={() => updateData({ panelType: type.value })}
+              image={type.image}
               emoji={type.emoji}
               title={type.label}
-              size="sm"
+              size="xl"
             />
           ))}
         </div>

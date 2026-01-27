@@ -9,6 +9,10 @@ import {
   Home, Building2, Layers, Volume2, TrendingUp, Wrench, FileText, Coins
 } from 'lucide-react';
 
+// Import isolation images
+import isolationInterieur from '@/assets/isolation/isolation-interieur.jpg';
+import isolationExterieur from '@/assets/isolation/isolation-exterieur.jpg';
+
 export const StepIsolation: React.FC = () => {
   const { formData, updateFormData } = useRenovationForm();
   const isolation = formData.isolation;
@@ -27,8 +31,8 @@ export const StepIsolation: React.FC = () => {
   };
 
   const isolationTypes = [
-    { value: 'interieur', label: "Isolation par l'intérieur", emoji: '🧱' },
-    { value: 'exterieur', label: "Isolation par l'extérieur", emoji: '🏗️' },
+    { value: 'interieur', label: "Isolation par l'intérieur", image: isolationInterieur },
+    { value: 'exterieur', label: "Isolation par l'extérieur", image: isolationExterieur },
     { value: 'les-deux', label: "Les deux, à étudier", emoji: '🔄' },
     { value: 'ne-sais-pas', label: "Je ne sais pas, j'ai besoin de conseils", emoji: '❓' },
   ];
@@ -100,15 +104,16 @@ export const StepIsolation: React.FC = () => {
         <>
           {/* Isolation type */}
           <FormQuestion label="Quel type d'isolation souhaitez-vous étudier ?">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {isolationTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
                   selected={isolation.isolationType === type.value}
                   onClick={() => updateIsolation('isolationType', type.value)}
+                  image={type.image}
                   emoji={type.emoji}
                   title={type.label}
-                  size="sm"
+                  size="lg"
                 />
               ))}
             </div>
