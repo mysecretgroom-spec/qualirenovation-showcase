@@ -12,7 +12,7 @@ interface SelectableCardProps {
   description?: string;
   disabled?: boolean;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export const SelectableCard: React.FC<SelectableCardProps> = ({
@@ -31,12 +31,14 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
     sm: 'p-3 min-h-[80px]',
     md: 'p-4 min-h-[120px]',
     lg: 'p-6 min-h-[160px]',
+    xl: 'p-6 min-h-[200px]',
   };
 
   const imageSizeClasses = {
     sm: 'h-16',
     md: 'h-24',
     lg: 'h-32',
+    xl: 'h-40',
   };
 
   // If image is provided, use a different layout

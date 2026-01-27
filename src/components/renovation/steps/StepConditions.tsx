@@ -5,6 +5,7 @@ import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Home, UserX, Clock, Building2, Truck, Calendar, Zap, HelpCircle } from 'lucide-react';
 
 export const StepConditions: React.FC = () => {
@@ -24,6 +25,8 @@ export const StepConditions: React.FC = () => {
       updateFormData('constraints', [...current, value]);
     }
   };
+
+  const hasDeadlineConstraint = formData.constraints.includes('delais');
 
   return (
     <FormSection
@@ -72,6 +75,35 @@ export const StepConditions: React.FC = () => {
           ))}
         </div>
 
+        {/* Date fields for deadline constraint */}
+        {hasDeadlineConstraint && (
+          <div className="mt-4 p-4 bg-muted/30 rounded-lg border space-y-4">
+            <p className="text-sm font-medium text-foreground">
+              Précisez vos dates impératives :
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startDateValue">Date souhaitée de début des travaux</Label>
+                <Input
+                  id="startDateValue"
+                  type="date"
+                  value={formData.startDateValue}
+                  onChange={(e) => updateFormData('startDateValue', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endDateMax">Date de fin maximum</Label>
+                <Input
+                  id="endDateMax"
+                  type="date"
+                  value={formData.endDateMax}
+                  onChange={(e) => updateFormData('endDateMax', e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         <Textarea
           value={formData.constraintDetails}
           onChange={(e) => updateFormData('constraintDetails', e.target.value)}
@@ -80,41 +112,43 @@ export const StepConditions: React.FC = () => {
         />
       </FormQuestion>
 
-      {/* Start date */}
-      <FormQuestion label="Date idéale de démarrage des travaux">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <SelectableCard
-            selected={formData.startDate === 'asap'}
-            onClick={() => updateFormData('startDate', 'asap')}
-            icon={<Zap className="w-6 h-6" />}
-            title="Le plus tôt possible"
-            size="sm"
-          />
-          <SelectableCard
-            selected={formData.startDate === 'from-date'}
-            onClick={() => updateFormData('startDate', 'from-date')}
-            icon={<Calendar className="w-6 h-6" />}
-            title="À partir de..."
-            size="sm"
-          />
-          <SelectableCard
-            selected={formData.startDate === 'flexible'}
-            onClick={() => updateFormData('startDate', 'flexible')}
-            icon={<HelpCircle className="w-6 h-6" />}
-            title="Flexible"
-            size="sm"
-          />
-        </div>
+      {/* Start date - only show if no deadline constraint (otherwise dates are in the section above) */}
+      {!hasDeadlineConstraint && (
+        <FormQuestion label="Date idéale de démarrage des travaux">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SelectableCard
+              selected={formData.startDate === 'asap'}
+              onClick={() => updateFormData('startDate', 'asap')}
+              icon={<Zap className="w-6 h-6" />}
+              title="Le plus tôt possible"
+              size="sm"
+            />
+            <SelectableCard
+              selected={formData.startDate === 'from-date'}
+              onClick={() => updateFormData('startDate', 'from-date')}
+              icon={<Calendar className="w-6 h-6" />}
+              title="À partir de..."
+              size="sm"
+            />
+            <SelectableCard
+              selected={formData.startDate === 'flexible'}
+              onClick={() => updateFormData('startDate', 'flexible')}
+              icon={<HelpCircle className="w-6 h-6" />}
+              title="Flexible"
+              size="sm"
+            />
+          </div>
 
-        {formData.startDate === 'from-date' && (
-          <Input
-            type="date"
-            value={formData.startDateValue}
-            onChange={(e) => updateFormData('startDateValue', e.target.value)}
-            className="mt-4 max-w-xs"
-          />
-        )}
-      </FormQuestion>
+          {formData.startDate === 'from-date' && (
+            <Input
+              type="date"
+              value={formData.startDateValue}
+              onChange={(e) => updateFormData('startDateValue', e.target.value)}
+              className="mt-4 max-w-xs"
+            />
+          )}
+        </FormQuestion>
+      )}
     </FormSection>
   );
 };

@@ -25,8 +25,7 @@ interface PaintingModuleProps {
 
 export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName, data }) => {
   const { updateRoomData, formData } = useRenovationForm();
-  const [newColorNumber, setNewColorNumber] = useState('');
-  const [newColorName, setNewColorName] = useState('');
+  const [newColorRef, setNewColorRef] = useState('');
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
 
   const updateData = (updates: Partial<PaintingData>) => {
@@ -61,7 +60,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
       'autre': 'Autre pièce',
     };
     const base = labels[type] || type;
-    return instanceNumber > 1 ? `${base} #${instanceNumber}` : base;
+    return instanceNumber > 1 ? `${base} ${instanceNumber}` : base;
   }
 
   const toggleSelectedRoom = (roomId: string) => {
@@ -73,15 +72,20 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
   };
 
   const addFarrowBallColor = async () => {
-    if (!newColorNumber.trim() && !newColorName.trim()) return;
+    if (!newColorRef.trim()) return;
     
-    const colorNum = newColorNumber.trim();
-    const colorNm = newColorName.trim();
+    const colorRef = newColorRef.trim();
+    
+    // Parse the reference to extract number and name
+    // Format examples: "No.311 Scallop", "311 Scallop", "Scallop", "311"
+    const match = colorRef.match(/^(?:No\.?\s*)?(\d+)?\s*(.+)?$/i);
+    const colorNumber = match?.[1] || '';
+    const colorName = match?.[2]?.trim() || '';
     
     // Add color with loading state
     const newColor: FarrowBallColor = {
-      colorNumber: colorNum,
-      colorName: colorNm,
+      colorNumber: colorNumber,
+      colorName: colorName || colorRef,
       rooms: selectedRooms,
       isLoading: true,
     };
@@ -91,14 +95,13 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
     });
     
     // Reset form
-    setNewColorNumber('');
-    setNewColorName('');
+    setNewColorRef('');
     setSelectedRooms([]);
 
     // Try to scrape the color
     try {
       const { data: scrapeData, error } = await supabase.functions.invoke('scrape-farrow-ball', {
-        body: { colorNumber: colorNum, colorName: colorNm },
+        body: { colorReference: colorRef },
       });
 
       if (error) throw error;
@@ -109,6 +112,8 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
         if (i === currentColors.length - 1 && c.isLoading) {
           return {
             ...c,
+            colorNumber: scrapeData?.colorNumber || colorNumber,
+            colorName: scrapeData?.colorName || colorName || colorRef,
             imageUrl: scrapeData?.imageUrl || undefined,
             hexColor: scrapeData?.hexColor || undefined,
             isLoading: false,
@@ -120,9 +125,9 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
       updateData({ farrowBallColors: updatedColors });
       
       if (scrapeData?.imageUrl || scrapeData?.hexColor) {
-        toast.success(`Couleur trouvée: ${colorNum || colorNm}`);
+        toast.success(`Couleur trouvée: ${colorRef}`);
       } else {
-        toast.info(`Couleur ${colorNum || colorNm} ajoutée`);
+        toast.info(`Couleur ${colorRef} ajoutée`);
       }
     } catch (error) {
       console.error('Error scraping Farrow & Ball:', error);
@@ -244,12 +249,14 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
             />
           ))}
         </div>
-      </FormQuestion>
 
-      {/* Farrow & Ball color references */}
-      {(data.hasDefinedColors === 'oui' || data.hasDefinedColors === 'en-reflexion') && (
-        <FormQuestion label="Références couleurs Farrow & Ball (optionnel) :">
-          <div className="space-y-4">
+        {/* Farrow & Ball color references - directly below the conditioning question */}
+        {(data.hasDefinedColors === 'oui' || data.hasDefinedColors === 'en-reflexion') && (
+          <div className="mt-6 space-y-4">
+            <p className="text-sm font-medium text-foreground">
+              Références couleurs Farrow & Ball (optionnel) :
+            </p>
+            
             {/* Link to Farrow & Ball catalog */}
             <a 
               href="https://www.farrow-ball.com/fr/peinture/toutes-les-couleurs-de-peinture"
@@ -264,22 +271,25 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
             {/* Color input form */}
             <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
               <p className="text-xs text-muted-foreground">
-                Format : comme sur le site Farrow & Ball (ex: No.311 Scallop). Renseignez le numéro et/ou le nom.
+                Format : numéro et/ou nom (ex: <strong>No.311 Scallop</strong>, <strong>311</strong>, ou <strong>Scallop</strong>)
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex gap-2">
                 <Input
-                  placeholder="Ex: 311"
-                  value={newColorNumber}
-                  onChange={(e) => setNewColorNumber(e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  placeholder="Ex: Scallop"
-                  value={newColorName}
-                  onChange={(e) => setNewColorName(e.target.value)}
+                  placeholder="Ex: No.311 Scallop"
+                  value={newColorRef}
+                  onChange={(e) => setNewColorRef(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFarrowBallColor())}
                   className="flex-1"
                 />
+                <Button 
+                  type="button" 
+                  onClick={addFarrowBallColor}
+                  disabled={!newColorRef.trim()}
+                  size="icon"
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
               </div>
               
               {/* Room selection */}
@@ -300,20 +310,9 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                   </div>
                 </div>
               )}
-              
-              <Button 
-                type="button" 
-                onClick={addFarrowBallColor}
-                disabled={!newColorNumber.trim() && !newColorName.trim()}
-                variant="outline"
-                className="w-full md:w-auto"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Ajouter cette couleur
-              </Button>
             </div>
             
-            {/* Colors list */}
+            {/* Colors list with images inline */}
             {data.farrowBallColors && data.farrowBallColors.length > 0 && (
               <div className="space-y-2">
                 <p className="text-sm font-medium">Couleurs sélectionnées :</p>
@@ -322,7 +321,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                     key={index}
                     className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
                   >
-                    {/* Color swatch */}
+                    {/* Color swatch - shown inline next to reference */}
                     <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center border">
                       {color.isLoading ? (
                         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -332,7 +331,6 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                           alt={`${color.colorNumber} ${color.colorName}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            // If image fails, show hex color or icon
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
@@ -389,8 +387,8 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
               </div>
             )}
           </div>
-        </FormQuestion>
-      )}
+        )}
+      </FormQuestion>
 
       <FormQuestion label="L'état des murs est :">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
