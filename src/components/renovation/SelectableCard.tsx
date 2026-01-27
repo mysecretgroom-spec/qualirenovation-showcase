@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface SelectableCardProps {
   selected: boolean;
@@ -10,6 +11,7 @@ interface SelectableCardProps {
   image?: string;
   title: string;
   description?: string;
+  badge?: string;
   disabled?: boolean;
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -23,6 +25,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
   image,
   title,
   description,
+  badge,
   disabled = false,
   className,
   size = 'md',
@@ -63,6 +66,15 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
         {selected && (
           <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
             <Check className="w-4 h-4 text-primary-foreground" />
+          </div>
+        )}
+
+        {/* Recommendation badge */}
+        {badge && (
+          <div className="absolute top-2 left-2 z-10">
+            <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 text-xs font-medium">
+              ✓ {badge}
+            </Badge>
           </div>
         )}
 

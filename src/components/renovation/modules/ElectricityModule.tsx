@@ -4,14 +4,19 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { ElectricityData } from '../types';
+import { Zap, Plus, RefreshCw, ShieldCheck, HelpCircle, Plug, Usb, Lightbulb } from 'lucide-react';
+
+// Import electricity image
+import electriciteInstallation from '@/assets/electricite/electricite-installation.jpg';
 
 interface ElectricityModuleProps {
   roomId: string;
   roomName: string;
   data: ElectricityData;
+  onSkip?: () => void;
 }
 
-export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, roomName, data }) => {
+export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, roomName, data, onSkip }) => {
   const { updateRoomData } = useRenovationForm();
 
   const updateData = (updates: Partial<ElectricityData>) => {
@@ -28,25 +33,29 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
   };
 
   const workTypes = [
-    { value: 'creation', label: 'Création' },
-    { value: 'modification', label: 'Modification' },
-    { value: 'remplacement', label: 'Remplacement' },
-    { value: 'mise-aux-normes', label: 'Mise aux normes' },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas' },
+    { value: 'general', label: 'Révision générale', icon: <ShieldCheck className="w-5 h-5" /> },
+    { value: 'creation', label: 'Création de points', icon: <Plus className="w-5 h-5" /> },
+    { value: 'modification', label: 'Modifications', icon: <RefreshCw className="w-5 h-5" /> },
+    { value: 'remplacement', label: 'Remplacement appareillages', icon: <Zap className="w-5 h-5" /> },
+    { value: 'mise-aux-normes', label: 'Mise aux normes', icon: <ShieldCheck className="w-5 h-5" /> },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas', icon: <HelpCircle className="w-5 h-5" /> },
   ];
 
   const switchStyles = [
-    { value: 'blanc', label: 'Blanc' },
+    { value: 'blanc', label: 'Blanc classique' },
     { value: 'noir', label: 'Noir' },
     { value: 'laiton', label: 'Laiton' },
+    { value: 'chrome', label: 'Chrome' },
     { value: 'autre', label: 'Autre' },
     { value: 'indifferent', label: 'Indifférent' },
   ];
 
   const additionalNeeds = [
-    { value: 'plus-prises', label: 'Plus de prises' },
-    { value: 'prises-speciales', label: 'Prises spécifiques (USB, RJ45)' },
-    { value: 'eclairage-repense', label: 'Un éclairage repensé' },
+    { value: 'plus-prises', label: 'Plus de prises', icon: <Plug className="w-5 h-5" /> },
+    { value: 'prises-usb', label: 'Prises USB intégrées', icon: <Usb className="w-5 h-5" /> },
+    { value: 'prises-rj45', label: 'Prises réseau (RJ45)', icon: <Plug className="w-5 h-5" /> },
+    { value: 'eclairage-repense', label: 'Éclairage repensé', icon: <Lightbulb className="w-5 h-5" /> },
+    { value: 'domotique', label: 'Préparation domotique' },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
@@ -54,14 +63,26 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
     <FormSection
       title={`Électricité - ${roomName}`}
       subtitle="Définissez vos besoins électriques pour cette pièce"
+      showSkip={!!onSkip}
+      onSkip={onSkip}
     >
-      <FormQuestion label="Nature des travaux :">
+      {/* Header image */}
+      <div className="mb-6 rounded-lg overflow-hidden">
+        <img 
+          src={electriciteInstallation} 
+          alt="Travaux électriques" 
+          className="w-full h-48 object-cover"
+        />
+      </div>
+
+      <FormQuestion label="Nature des travaux électriques :">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {workTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.workType.includes(type.value)}
               onClick={() => toggleArrayValue('workType', type.value)}
+              icon={type.icon}
               title={type.label}
               size="sm"
             />
@@ -69,8 +90,8 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
         </div>
       </FormQuestion>
 
-      <FormQuestion label="Style d'appareillage souhaité :">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <FormQuestion label="Style d'appareillage souhaité (prises, interrupteurs) :">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {switchStyles.map((style) => (
             <SelectableCard
               key={style.value}
@@ -83,13 +104,14 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
         </div>
       </FormQuestion>
 
-      <FormQuestion label="Souhaitez-vous :">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <FormQuestion label="Besoins spécifiques :">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           {additionalNeeds.map((need) => (
             <SelectableCard
               key={need.value}
               selected={data.additionalNeeds.includes(need.value)}
               onClick={() => toggleArrayValue('additionalNeeds', need.value)}
+              icon={need.icon}
               title={need.label}
               size="sm"
             />

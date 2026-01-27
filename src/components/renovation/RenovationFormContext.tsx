@@ -7,7 +7,8 @@ import {
   RoomData,
   RoomSelection,
   initialBathroomData,
-  initialKitchenData
+  initialKitchenData,
+  initialPaintingData
 } from './types';
 import { useLeadContext, LeadData } from '@/contexts/LeadContext';
 
@@ -159,9 +160,10 @@ function getInitialRoomData(type: RoomType): RoomData {
     case 'entree-couloir':
     case 'bureau':
       return {
-        paintingData: { surfaces: [], intention: '', finish: '', hasDefinedColors: '', wallCondition: '', farrowBallColors: [] },
+        paintingData: { ...initialPaintingData },
         flooringData: { floorType: '', tileType: '', tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' },
         electricityData: { workType: [], switchStyle: '', additionalNeeds: [] },
+        glassPanelData: { purpose: [], panelType: '' },
       };
     case 'wc':
       return {

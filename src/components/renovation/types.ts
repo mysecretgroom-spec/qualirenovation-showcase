@@ -95,6 +95,7 @@ export interface BathroomData {
   showerHeadStyle: string[];
   faucetFinish: string;
   toiletType: string;
+  existingSanibroyeur: string; // 'oui' | 'non' | 'ne-sais-pas' | 'pas-de-wc'
   ambiance: string[];
   certaintyLevel: string;
   // Tile options
@@ -289,6 +290,7 @@ export const initialBathroomData: BathroomData = {
   showerHeadStyle: [],
   faucetFinish: '',
   toiletType: '',
+  existingSanibroyeur: '',
   ambiance: [],
   certaintyLevel: '',
   tileType: '',
