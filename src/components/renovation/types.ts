@@ -104,6 +104,10 @@ export interface FarrowBallColor {
   colorNumber: string;
   colorName: string;
   rooms: string[];
+  imageUrl?: string;
+  hexColor?: string;
+  isLoading?: boolean;
+  error?: string;
 }
 
 export interface KitchenData {
