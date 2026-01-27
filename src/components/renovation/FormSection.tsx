@@ -1,5 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { SkipForward } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface FormSectionProps {
   title: string;
@@ -7,6 +9,8 @@ interface FormSectionProps {
   hint?: string;
   children: React.ReactNode;
   className?: string;
+  onSkip?: () => void;
+  showSkip?: boolean;
 }
 
 export const FormSection: React.FC<FormSectionProps> = ({
@@ -15,13 +19,29 @@ export const FormSection: React.FC<FormSectionProps> = ({
   hint,
   children,
   className,
+  onSkip,
+  showSkip = false,
 }) => {
   return (
     <div className={cn('space-y-6', className)}>
       <div className="space-y-2">
-        <h2 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
-          {title}
-        </h2>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-2xl md:text-3xl font-display font-semibold text-foreground">
+            {title}
+          </h2>
+          {showSkip && onSkip && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onSkip}
+              className="text-muted-foreground hover:text-foreground text-sm gap-1.5"
+            >
+              <SkipForward className="w-4 h-4" />
+              Passer cette section
+            </Button>
+          )}
+        </div>
         {subtitle && (
           <p className="text-muted-foreground text-lg">
             {subtitle}

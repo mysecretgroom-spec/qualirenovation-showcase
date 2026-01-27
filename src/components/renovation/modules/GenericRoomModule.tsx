@@ -13,13 +13,15 @@ interface GenericRoomModuleProps {
   roomName: string;
   instanceNumber: number;
   data: GenericRoomData;
+  onSkip?: () => void;
 }
 
 export const GenericRoomModule: React.FC<GenericRoomModuleProps> = ({ 
   roomId, 
   roomName, 
   instanceNumber,
-  data 
+  data,
+  onSkip 
 }) => {
   const { updateRoomData, formData } = useRenovationForm();
 
@@ -63,6 +65,8 @@ export const GenericRoomModule: React.FC<GenericRoomModuleProps> = ({
       <FormSection
         title={`${roomName}${instanceNumber > 1 ? ` #${instanceNumber}` : ''}`}
         subtitle="Décrivez vos besoins pour cette pièce"
+        showSkip={!!onSkip}
+        onSkip={onSkip}
       >
         <FormQuestion label="Quels types de travaux sont envisagés ?">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

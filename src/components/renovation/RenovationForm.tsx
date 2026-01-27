@@ -38,7 +38,7 @@ const formatRoomName = (type: RoomType, instanceNumber: number, totalOfType: num
 };
 
 const RenovationFormContent: React.FC = () => {
-  const { formData, currentStep } = useRenovationForm();
+  const { formData, currentStep, setCurrentStep } = useRenovationForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -65,9 +65,14 @@ const RenovationFormContent: React.FC = () => {
     }
   };
 
+  // Skip current section handler
+  const handleSkipSection = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
   // Calculate step configuration
   const stepConfig = useMemo(() => {
-    const steps: { id: string; component: React.ReactNode }[] = [
+    const steps: { id: string; component: React.ReactNode; isSkippable?: boolean }[] = [
       { id: 'project-info', component: <StepProjectInfo /> },
       { id: 'conception', component: <StepConception /> },
       { id: 'project-type', component: <StepProjectType /> },
@@ -90,6 +95,7 @@ const RenovationFormContent: React.FC = () => {
               roomId={room.id}
               roomName={roomName}
               data={room.data.bathroomData || initialBathroomData}
+              onSkip={handleSkipSection}
             />
           );
           break;
@@ -100,6 +106,7 @@ const RenovationFormContent: React.FC = () => {
               roomId={room.id}
               roomName={roomName}
               data={room.data.kitchenData || initialKitchenData}
+              onSkip={handleSkipSection}
             />
           );
           break;
@@ -110,6 +117,7 @@ const RenovationFormContent: React.FC = () => {
               roomId={room.id}
               roomName={roomName}
               data={room.data.customFurnitureData || { furnitureType: [], approach: '', supportLevel: '' }}
+              onSkip={handleSkipSection}
             />
           );
           break;
@@ -121,11 +129,12 @@ const RenovationFormContent: React.FC = () => {
               roomName={roomName}
               instanceNumber={room.instanceNumber}
               data={room.data.genericRoomData || { description: '', workTypes: [], certaintyLevel: '' }}
+              onSkip={handleSkipSection}
             />
           );
       }
 
-      steps.push({ id: `room-${room.id}`, component });
+      steps.push({ id: `room-${room.id}`, component, isSkippable: true });
     });
 
     // Add isolation step if DPE is selected

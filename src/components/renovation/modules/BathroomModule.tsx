@@ -48,9 +48,10 @@ interface BathroomModuleProps {
   roomId: string;
   roomName: string;
   data: BathroomData;
+  onSkip?: () => void;
 }
 
-export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName, data }) => {
+export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName, data, onSkip }) => {
   const { updateRoomData } = useRenovationForm();
   const [newReference, setNewReference] = useState('');
 
@@ -269,6 +270,8 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
     <FormSection
       title={roomName}
       subtitle="Configurez cette salle de bain selon vos besoins"
+      showSkip={!!onSkip}
+      onSkip={onSkip}
     >
       {/* Usage */}
       <FormQuestion label="Cette salle de bain sera utilisée par :">
