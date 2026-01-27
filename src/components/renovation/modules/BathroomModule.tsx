@@ -10,6 +10,38 @@ import {
   Droplets, Square, HelpCircle, CheckCircle
 } from 'lucide-react';
 
+// Import bathroom images
+import ambianceZellige from '@/assets/bathroom/ambiance-zellige.jpg';
+import ambianceMarbre from '@/assets/bathroom/ambiance-marbre.jpg';
+import ambianceBetonCire from '@/assets/bathroom/ambiance-beton-cire.jpg';
+import ambianceTerrazzo from '@/assets/bathroom/ambiance-terrazzo.jpg';
+import ambianceGraphique from '@/assets/bathroom/ambiance-graphique.jpg';
+import ambianceNaturel from '@/assets/bathroom/ambiance-naturel.jpg';
+import receveurAPoser from '@/assets/bathroom/receveur-a-poser.jpg';
+import receveurEncastre from '@/assets/bathroom/receveur-encastre.jpg';
+import receveurCarreler from '@/assets/bathroom/receveur-carreler.jpg';
+import receveurResine from '@/assets/bathroom/receveur-resine.jpg';
+import baignoireEncastree from '@/assets/bathroom/baignoire-encastree.jpg';
+import baignoireIlot from '@/assets/bathroom/baignoire-ilot.jpg';
+import baignoireAngle from '@/assets/bathroom/baignoire-angle.jpg';
+import baignoireDroite from '@/assets/bathroom/baignoire-droite.jpg';
+import baignoireBalneo from '@/assets/bathroom/baignoire-balneo.jpg';
+import paroiFixe from '@/assets/bathroom/paroi-fixe.jpg';
+import paroiBattante from '@/assets/bathroom/paroi-battante.jpg';
+import paroiCoulissante from '@/assets/bathroom/paroi-coulissante.jpg';
+import paroiPliante from '@/assets/bathroom/paroi-pliante.jpg';
+import pareBainFixe from '@/assets/bathroom/pare-bain-fixe.jpg';
+import pareBainPivotant from '@/assets/bathroom/pare-bain-pivotant.jpg';
+import pareBainCoulissant from '@/assets/bathroom/pare-bain-coulissant.jpg';
+import pareBainRideau from '@/assets/bathroom/pare-bain-rideau.jpg';
+import vasqueSeule from '@/assets/bathroom/vasque-seule.jpg';
+import meubleSuspendu from '@/assets/bathroom/meuble-suspendu.jpg';
+import meublePieds from '@/assets/bathroom/meuble-pieds.jpg';
+import carrelageGrandFormat from '@/assets/bathroom/carrelage-grand-format.jpg';
+import carrelageCarre from '@/assets/bathroom/carrelage-carre.jpg';
+import carrelageHexagonal from '@/assets/bathroom/carrelage-hexagonal.jpg';
+import carrelageMetro from '@/assets/bathroom/carrelage-metro.jpg';
+
 interface BathroomModuleProps {
   roomId: string;
   instanceNumber: number;
@@ -61,47 +93,47 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
-  // Shower options
+  // Shower options with images
   const showerTrayTypes = [
-    { value: 'a-poser', label: 'À poser' },
-    { value: 'a-encastrer', label: 'À encastrer' },
-    { value: 'a-carreler', label: 'À carreler' },
-    { value: 'resine', label: 'Résine' },
-    { value: 'acrylique', label: 'Acrylique' },
+    { value: 'a-poser', label: 'À poser', image: receveurAPoser },
+    { value: 'a-encastrer', label: 'À encastrer', image: receveurEncastre },
+    { value: 'a-carreler', label: 'À carreler', image: receveurCarreler },
+    { value: 'resine', label: 'Résine', image: receveurResine },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
   const showerDoorTypes = [
-    { value: 'paroi-fixe', label: 'Paroi fixe' },
-    { value: 'porte-battante', label: 'Porte battante' },
-    { value: 'porte-coulissante', label: 'Porte coulissante' },
-    { value: 'porte-pliante', label: 'Porte pliante' },
+    { value: 'paroi-fixe', label: 'Paroi fixe', image: paroiFixe },
+    { value: 'porte-battante', label: 'Porte battante', image: paroiBattante },
+    { value: 'porte-coulissante', label: 'Porte coulissante', image: paroiCoulissante },
+    { value: 'porte-pliante', label: 'Porte pliante', image: paroiPliante },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
-  // Bathtub options
+  // Bathtub options with images
   const bathtubTypes = [
-    { value: 'encastree', label: 'Encastrée' },
-    { value: 'ilot', label: 'Îlot' },
-    { value: 'angle', label: 'Angle' },
-    { value: 'droite', label: 'Droite classique' },
-    { value: 'balneo', label: 'Balnéo' },
+    { value: 'encastree', label: 'Encastrée', image: baignoireEncastree },
+    { value: 'ilot', label: 'Îlot', image: baignoireIlot },
+    { value: 'angle', label: 'Angle', image: baignoireAngle },
+    { value: 'droite', label: 'Droite classique', image: baignoireDroite },
+    { value: 'balneo', label: 'Balnéo', image: baignoireBalneo },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
   const bathtubScreenTypes = [
-    { value: 'pare-bain-fixe', label: 'Pare-bain fixe' },
-    { value: 'pare-bain-pivotant', label: 'Pare-bain pivotant' },
-    { value: 'pare-bain-coulissant', label: 'Pare-bain coulissant' },
-    { value: 'rideau', label: 'Rideau de douche' },
+    { value: 'pare-bain-fixe', label: 'Fixe', image: pareBainFixe },
+    { value: 'pare-bain-pivotant', label: 'Pivotant', image: pareBainPivotant },
+    { value: 'pare-bain-coulissant', label: 'Coulissant', image: pareBainCoulissant },
+    { value: 'rideau', label: 'Rideau de douche', image: pareBainRideau },
     { value: 'aucun', label: 'Aucun' },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
+  // Vanity options with images
   const vanityTypes = [
-    { value: 'vasque-seule', label: 'Vasque seule (sans meuble)' },
-    { value: 'meuble-suspendu', label: 'Meuble suspendu' },
-    { value: 'meuble-pieds', label: 'Meuble sur pieds' },
+    { value: 'vasque-seule', label: 'Vasque seule', image: vasqueSeule },
+    { value: 'meuble-suspendu', label: 'Meuble suspendu', image: meubleSuspendu },
+    { value: 'meuble-pieds', label: 'Meuble sur pieds', image: meublePieds },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
@@ -138,13 +170,23 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'pas-de-wc', label: 'Ne pas intégrer de WC' },
   ];
 
+  // Tile shape options with images
+  const tileShapeOptions = [
+    { value: 'grand-format', label: 'Grand format', image: carrelageGrandFormat },
+    { value: 'carre', label: 'Carré classique', image: carrelageCarre },
+    { value: 'hexagonal', label: 'Hexagonal', image: carrelageHexagonal },
+    { value: 'metro', label: 'Métro', image: carrelageMetro },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+  ];
+
+  // Ambiance options with images
   const ambianceOptions = [
-    { value: 'zellige', label: 'Zellige', emoji: '🔷' },
-    { value: 'marbre', label: 'Effet marbre', emoji: '🪨' },
-    { value: 'beton-cire', label: 'Béton ciré', emoji: '🏗️' },
-    { value: 'terrazzo', label: 'Terrazzo', emoji: '🎨' },
-    { value: 'graphique', label: 'Graphique / géométrique', emoji: '📐' },
-    { value: 'naturel', label: 'Naturel (pierre, sable, bois)', emoji: '🌿' },
+    { value: 'zellige', label: 'Zellige', image: ambianceZellige },
+    { value: 'marbre', label: 'Effet marbre', image: ambianceMarbre },
+    { value: 'beton-cire', label: 'Béton ciré', image: ambianceBetonCire },
+    { value: 'terrazzo', label: 'Terrazzo', image: ambianceTerrazzo },
+    { value: 'graphique', label: 'Graphique', image: ambianceGraphique },
+    { value: 'naturel', label: 'Naturel', image: ambianceNaturel },
     { value: 'autre', label: 'Autre', emoji: '✨' },
   ];
 
@@ -241,28 +283,30 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
       {(data.installationType === 'douche' || data.installationType === 'douche-baignoire') && (
         <>
           <FormQuestion label="Type de receveur souhaité :">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {showerTrayTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
                   selected={data.showerTrayType === type.value}
                   onClick={() => updateData({ showerTrayType: type.value })}
+                  image={type.image}
                   title={type.label}
-                  size="sm"
+                  size="md"
                 />
               ))}
             </div>
           </FormQuestion>
 
           <FormQuestion label="Type de paroi de douche :">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {showerDoorTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
                   selected={data.showerDoorType === type.value}
                   onClick={() => updateData({ showerDoorType: type.value })}
+                  image={type.image}
                   title={type.label}
-                  size="sm"
+                  size="md"
                 />
               ))}
             </div>
@@ -274,28 +318,30 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
       {(data.installationType === 'baignoire' || data.installationType === 'douche-baignoire') && (
         <>
           <FormQuestion label="Type de baignoire souhaité :">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {bathtubTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
                   selected={data.bathtubType === type.value}
                   onClick={() => updateData({ bathtubType: type.value })}
+                  image={type.image}
                   title={type.label}
-                  size="sm"
+                  size="md"
                 />
               ))}
             </div>
           </FormQuestion>
 
           <FormQuestion label="Type de pare-bain :">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {bathtubScreenTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
                   selected={data.bathtubScreenType === type.value}
                   onClick={() => updateData({ bathtubScreenType: type.value })}
+                  image={type.image}
                   title={type.label}
-                  size="sm"
+                  size="md"
                 />
               ))}
             </div>
@@ -303,16 +349,17 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </>
       )}
 
-      {/* Vanity */}
+      {/* Vanity with images */}
       <FormQuestion label="Type de meuble vasque :">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {vanityTypes.map((type) => (
             <SelectableCard
               key={type.value}
               selected={data.vanityType === type.value}
               onClick={() => updateData({ vanityType: type.value })}
+              image={type.image}
               title={type.label}
-              size="sm"
+              size="md"
             />
           ))}
         </div>
@@ -327,6 +374,22 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               onClick={() => updateData({ vanityCount: option.value })}
               title={option.label}
               size="sm"
+            />
+          ))}
+        </div>
+      </FormQuestion>
+
+      {/* Tile shape with images */}
+      <FormQuestion label="Forme du carrelage sol / mur :">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {tileShapeOptions.map((type) => (
+            <SelectableCard
+              key={type.value}
+              selected={data.ambiance.includes(type.value + '-tile')}
+              onClick={() => toggleArrayValue('ambiance', type.value + '-tile')}
+              image={type.image}
+              title={type.label}
+              size="md"
             />
           ))}
         </div>
@@ -390,17 +453,18 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
-      {/* Ambiance */}
+      {/* Ambiance with images */}
       <FormQuestion label="Quelles ambiances vous inspirent ?">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {ambianceOptions.map((option) => (
             <SelectableCard
               key={option.value}
               selected={data.ambiance.includes(option.value)}
               onClick={() => toggleArrayValue('ambiance', option.value)}
+              image={option.image}
               emoji={option.emoji}
               title={option.label}
-              size="sm"
+              size="md"
             />
           ))}
         </div>
