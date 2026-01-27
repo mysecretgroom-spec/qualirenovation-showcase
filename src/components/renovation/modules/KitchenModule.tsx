@@ -81,20 +81,23 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
 
       if (error) throw error;
 
-      // Update the reference with the scraped image
-      const updatedRefs = [...(data.eggerReferences || []), {
-        reference: cleanRef,
-        imageUrl: scrapeData?.imageUrl || undefined,
-        isLoading: false,
-      }].filter((r, i, arr) => 
-        // Remove the loading version if we're adding the completed one
-        !(r.reference === cleanRef && r.isLoading) || i === arr.length - 1
+      // Update the reference with the scraped data
+      const updatedRefs = (data.eggerReferences || []).map(r => 
+        r.reference === cleanRef && r.isLoading
+          ? { 
+              reference: cleanRef,
+              decorName: scrapeData?.decorName || undefined,
+              imageUrl: scrapeData?.imageUrl || undefined,
+              decorUrl: scrapeData?.decorUrl || undefined,
+              isLoading: false,
+            }
+          : r
       );
 
       updateData({ eggerReferences: updatedRefs });
       
       if (scrapeData?.imageUrl) {
-        toast.success(`Image trouvée pour ${cleanRef}`);
+        toast.success(`Image trouvée pour ${cleanRef}${scrapeData?.decorName ? ` - ${scrapeData.decorName.replace(cleanRef, '').trim()}` : ''}`);
       } else {
         toast.info(`Référence ${cleanRef} ajoutée (image non trouvée)`);
       }
@@ -409,11 +412,10 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
                       ) : ref.imageUrl ? (
                         <img 
                           src={ref.imageUrl} 
-                          alt={ref.reference}
+                          alt={ref.decorName || ref.reference}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                           }}
                         />
                       ) : (
@@ -424,11 +426,26 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
                     {/* Reference info */}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{ref.reference}</p>
+                      {ref.decorName && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {ref.decorName.replace(ref.reference, '').trim()}
+                        </p>
+                      )}
                       {ref.error && (
                         <p className="text-xs text-destructive">{ref.error}</p>
                       )}
                       {!ref.isLoading && !ref.imageUrl && !ref.error && (
                         <p className="text-xs text-muted-foreground">Image non disponible</p>
+                      )}
+                      {ref.decorUrl && (
+                        <a 
+                          href={ref.decorUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          Voir sur EGGER <ExternalLink className="w-3 h-3" />
+                        </a>
                       )}
                     </div>
                     
