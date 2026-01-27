@@ -77,6 +77,7 @@ export interface BathroomData {
   bathtubScreenType: string;
   // Vanity
   vanityType: string;
+  sinkStyle: string; // 'a-poser' | 'encastree' | 'ne-sais-pas'
   vanityCount: string;
   showerFaucetType: string;
   showerHeadStyle: string[];
@@ -231,6 +232,7 @@ export const initialBathroomData: BathroomData = {
   bathtubType: '',
   bathtubScreenType: '',
   vanityType: '',
+  sinkStyle: '',
   vanityCount: '',
   showerFaucetType: '',
   showerHeadStyle: [],
