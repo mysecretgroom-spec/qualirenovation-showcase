@@ -9,11 +9,25 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { colorNumber, colorName } = await req.json();
+    // Support both old format (colorNumber, colorName) and new format (colorReference)
+    const body = await req.json();
+    let colorReference = body.colorReference;
+    
+    // Fallback to old format if colorReference not provided
+    if (!colorReference) {
+      const { colorNumber, colorName } = body;
+      if (colorNumber && colorName) {
+        colorReference = `${colorNumber} ${colorName}`;
+      } else if (colorNumber) {
+        colorReference = colorNumber;
+      } else if (colorName) {
+        colorReference = colorName;
+      }
+    }
 
-    if (!colorNumber && !colorName) {
+    if (!colorReference) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Color number or name is required' }),
+        JSON.stringify({ success: false, error: 'Color reference is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -27,35 +41,39 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Build search query - prioritize color number if available
-    const searchQuery = colorNumber 
-      ? `No.${colorNumber.trim()}` 
-      : colorName?.trim();
+    // Parse the reference to extract number and name
+    const cleanRef = colorReference.trim();
+    const match = cleanRef.match(/^(?:No\.?\s*)?(\d+)?\s*(.+)?$/i);
+    const colorNumber = match?.[1] || '';
+    const colorName = match?.[2]?.trim() || '';
     
-    // Search on the Farrow & Ball colors page
-    const searchUrl = `https://www.farrow-ball.com/fr/peinture/toutes-les-couleurs-de-peinture?q=${encodeURIComponent(searchQuery)}`;
+    // Build search query - use the full reference
+    const searchQuery = colorNumber ? `No.${colorNumber} ${colorName}`.trim() : colorName || cleanRef;
     
-    console.log('Scraping Farrow & Ball:', searchQuery, 'URL:', searchUrl);
+    console.log('Scraping Farrow & Ball:', searchQuery, 'Original:', colorReference);
 
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    // Use search API instead of direct scrape for better results
+    const response = await fetch('https://api.firecrawl.dev/v1/search', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: searchUrl,
-        formats: ['html', 'links'],
-        waitFor: 3000, // Wait for dynamic content to load
+        query: `site:farrow-ball.com ${searchQuery} couleur peinture`,
+        limit: 5,
+        scrapeOptions: {
+          formats: ['html', 'links'],
+        },
       }),
     });
 
-    const data = await response.json();
+    const searchData = await response.json();
 
     if (!response.ok) {
-      console.error('Firecrawl API error:', data);
+      console.error('Firecrawl API error:', searchData);
       return new Response(
-        JSON.stringify({ success: false, error: data.error || `Request failed with status ${response.status}` }),
+        JSON.stringify({ success: false, error: searchData.error || `Request failed with status ${response.status}` }),
         { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -63,51 +81,78 @@ Deno.serve(async (req) => {
     // Try to extract color swatch image URL from the scraped content
     let imageUrl = null;
     let hexColor = null;
-    const html = data.data?.html || data.html || '';
+    let foundColorNumber = colorNumber;
+    let foundColorName = colorName;
     
-    // Look for Farrow & Ball color swatch images
-    // F&B typically uses specific patterns for their color swatches
-    const imgPatterns = [
-      // Pattern for F&B color swatch images on their CDN
-      /https:\/\/[^"'\s]*farrow-ball[^"'\s]*swatch[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // Pattern for color images
-      /https:\/\/[^"'\s]*farrow-ball[^"'\s]*color[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // General CDN pattern for F&B
-      /https:\/\/[^"'\s]*cdn[^"'\s]*farrow[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // Cloudinary pattern (often used by F&B)
-      /https:\/\/[^"'\s]*cloudinary[^"'\s]*farrow[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-      // Any F&B related image
-      /https:\/\/[^"'\s]*f-ball[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
-    ];
+    // Process search results
+    const results = searchData.data || [];
     
-    for (const pattern of imgPatterns) {
-      const matches = html.match(pattern);
-      if (matches && matches.length > 0) {
-        // Filter to find the most relevant image
-        imageUrl = matches[0];
-        break;
-      }
-    }
+    for (const result of results) {
+      const html = result.html || '';
+      const url = result.url || '';
+      
+      // Check if this is a color page
+      if (url.includes('/couleur/') || url.includes('/colour/') || url.includes('/color/')) {
+        // Look for Farrow & Ball color swatch images
+        const imgPatterns = [
+          // Pattern for F&B color swatch images
+          /https:\/\/[^"'\s]*farrow-ball[^"'\s]*swatch[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
+          // Pattern for color images on CDN
+          /https:\/\/[^"'\s]*cloudinary[^"'\s]*farrow[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
+          // Any F&B related image with color
+          /https:\/\/[^"'\s]*f-?b(all)?[^"'\s]*color[^"'\s]*\.(jpg|jpeg|png|webp)/gi,
+        ];
+        
+        for (const pattern of imgPatterns) {
+          const matches = html.match(pattern);
+          if (matches && matches.length > 0) {
+            imageUrl = matches[0];
+            break;
+          }
+        }
 
-    // Try to extract hex color from the HTML
-    // F&B often includes hex colors in their page data
-    const hexPattern = /background-color:\s*#([A-Fa-f0-9]{6})/gi;
-    const hexMatches = html.match(hexPattern);
-    if (hexMatches && hexMatches.length > 0) {
-      const match = hexMatches[0].match(/#([A-Fa-f0-9]{6})/i);
-      if (match) {
-        hexColor = `#${match[1].toUpperCase()}`;
-      }
-    }
+        // Try to extract hex color from the HTML
+        const hexPatterns = [
+          /background-color:\s*#([A-Fa-f0-9]{6})/gi,
+          /background:\s*#([A-Fa-f0-9]{6})/gi,
+          /data-color[^=]*=["']#?([A-Fa-f0-9]{6})["']/gi,
+          /rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/gi,
+        ];
+        
+        for (const pattern of hexPatterns) {
+          const matches = html.match(pattern);
+          if (matches && matches.length > 0) {
+            const hexMatch = matches[0].match(/#([A-Fa-f0-9]{6})/i);
+            if (hexMatch) {
+              hexColor = `#${hexMatch[1].toUpperCase()}`;
+              break;
+            }
+            // Handle RGB
+            const rgbMatch = matches[0].match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+            if (rgbMatch) {
+              const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
+              const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
+              const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+              hexColor = `#${r}${g}${b}`.toUpperCase();
+              break;
+            }
+          }
+        }
 
-    // Alternative: look for data attributes with color values
-    if (!hexColor) {
-      const dataColorPattern = /data-color[^=]*=["']#?([A-Fa-f0-9]{6})["']/gi;
-      const dataMatches = html.match(dataColorPattern);
-      if (dataMatches && dataMatches.length > 0) {
-        const match = dataMatches[0].match(/([A-Fa-f0-9]{6})/i);
-        if (match) {
-          hexColor = `#${match[1].toUpperCase()}`;
+        // Try to extract color name/number from page title or content
+        if (!foundColorName || !foundColorNumber) {
+          const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+          if (titleMatch) {
+            const title = titleMatch[1];
+            const numMatch = title.match(/No\.?\s*(\d+)/i);
+            if (numMatch && !foundColorNumber) {
+              foundColorNumber = numMatch[1];
+            }
+          }
+        }
+
+        if (imageUrl || hexColor) {
+          break;
         }
       }
     }
@@ -117,11 +162,10 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        colorNumber: colorNumber?.trim(),
-        colorName: colorName?.trim(),
+        colorNumber: foundColorNumber,
+        colorName: foundColorName || cleanRef,
         imageUrl,
         hexColor,
-        searchUrl,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

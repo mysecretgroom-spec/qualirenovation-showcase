@@ -25,7 +25,7 @@ export interface TileOption {
   emoji?: string;
 }
 
-// Types de carrelage - utilisés pour sol et mur
+// Types de carrelage - utilisés pour sol et mur (hexagonal et mosaïque sont dans les formats)
 export const tileTypes: TileOption[] = [
   { value: 'zellige', label: 'Zellige', image: carrelageZellige },
   { value: 'marbre', label: 'Effet marbre', image: carrelageMarbre },
@@ -37,9 +37,7 @@ export const tileTypes: TileOption[] = [
   { value: 'terracotta', label: 'Terracotta', image: carrelageTerracotta },
   { value: 'gres-cerame', label: 'Grès cérame', image: carrelageGresCerame },
   { value: 'imitation-bois', label: 'Imitation bois', image: carrelageImitationBois },
-  { value: 'hexagonal', label: 'Hexagonal', image: carrelageHexagonal },
   { value: 'metro', label: 'Métro', image: carrelageMetro },
-  { value: 'mosaique', label: 'Mosaïque', image: carrelageMosaique },
   { value: 'a-definir', label: 'À définir', emoji: '❓' },
 ];
 

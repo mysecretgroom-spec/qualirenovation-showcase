@@ -8,13 +8,13 @@ import { Shirt, BookOpen, Tv, DoorOpen, HelpCircle } from 'lucide-react';
 
 interface CustomFurnitureModuleProps {
   roomId: string;
-  instanceNumber: number;
+  roomName: string;
   data: CustomFurnitureData;
 }
 
 export const CustomFurnitureModule: React.FC<CustomFurnitureModuleProps> = ({ 
   roomId, 
-  instanceNumber, 
+  roomName, 
   data 
 }) => {
   const { updateRoomData } = useRenovationForm();
@@ -55,7 +55,7 @@ export const CustomFurnitureModule: React.FC<CustomFurnitureModuleProps> = ({
 
   return (
     <FormSection
-      title={`Dressing / Rangements${instanceNumber > 1 ? ` #${instanceNumber}` : ''}`}
+      title={roomName}
       subtitle="Définissez vos besoins en aménagements sur mesure"
     >
       <FormQuestion label="Quel type d'aménagement ?">

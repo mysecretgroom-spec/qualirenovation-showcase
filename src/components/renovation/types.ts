@@ -24,6 +24,7 @@ export interface RenovationFormData {
   constraintDetails: string;
   startDate: 'asap' | 'from-date' | 'flexible' | '';
   startDateValue: string;
+  endDateMax: string; // Date de fin maximum pour délais impératifs
   
   // Pièces sélectionnées
   selectedRooms: RoomSelection[];
@@ -245,6 +246,7 @@ export const initialFormData: RenovationFormData = {
   constraintDetails: '',
   startDate: '',
   startDateValue: '',
+  endDateMax: '',
   selectedRooms: [],
   isolation: {
     wantIsolation: '',

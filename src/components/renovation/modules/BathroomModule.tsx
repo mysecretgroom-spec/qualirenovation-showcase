@@ -46,11 +46,11 @@ import meublePieds from '@/assets/bathroom/meuble-pieds.jpg';
 
 interface BathroomModuleProps {
   roomId: string;
-  instanceNumber: number;
+  roomName: string;
   data: BathroomData;
 }
 
-export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instanceNumber, data }) => {
+export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName, data }) => {
   const { updateRoomData } = useRenovationForm();
   const [newReference, setNewReference] = useState('');
 
@@ -72,13 +72,11 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     
     const cleanRef = newReference.trim().toUpperCase();
     
-    // Check if reference already exists
     if (data.eggerReferences?.some(r => r.reference === cleanRef)) {
       toast.error('Cette référence a déjà été ajoutée');
       return;
     }
 
-    // Add reference with loading state
     const newRef: EggerReference = {
       reference: cleanRef,
       isLoading: true,
@@ -89,7 +87,6 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     });
     setNewReference('');
 
-    // Try to scrape the image
     try {
       const { data: scrapeData, error } = await supabase.functions.invoke('scrape-egger-ref', {
         body: { reference: cleanRef },
@@ -97,13 +94,13 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
 
       if (error) throw error;
 
-      // Update the reference with the scraped image
       const updatedRefs = [...(data.eggerReferences || []), {
         reference: cleanRef,
         imageUrl: scrapeData?.imageUrl || undefined,
+        decorName: scrapeData?.decorName || undefined,
+        decorUrl: scrapeData?.decorUrl || undefined,
         isLoading: false,
       }].filter((r, i, arr) => 
-        // Remove the loading version if we're adding the completed one
         !(r.reference === cleanRef && r.isLoading) || i === arr.length - 1
       );
 
@@ -116,7 +113,6 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
       }
     } catch (error) {
       console.error('Error scraping EGGER:', error);
-      // Keep the reference but mark as error
       const updatedRefs = (data.eggerReferences || []).map(r => 
         r.reference === cleanRef && r.isLoading
           ? { ...r, isLoading: false, error: 'Erreur lors de la recherche' }
@@ -160,6 +156,18 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'meuble-hauteur', label: 'Meuble toute hauteur' },
     { value: 'niches', label: 'Niche(s)' },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+  ];
+
+  // Ambiance options - style-based, not tile-based
+  const ambianceOptions = [
+    { value: 'moderne', label: 'Moderne', emoji: '✨' },
+    { value: 'epure', label: 'Épuré / Minimaliste', emoji: '⬜' },
+    { value: 'classique', label: 'Classique / Intemporel', emoji: '🏛️' },
+    { value: 'nature', label: 'Naturel / Organique', emoji: '🌿' },
+    { value: 'luxe', label: 'Luxe / Hôtelier', emoji: '💎' },
+    { value: 'industriel', label: 'Industriel / Loft', emoji: '🏭' },
+    { value: 'scandinave', label: 'Scandinave', emoji: '🌲' },
+    { value: 'autre', label: 'Autre', emoji: '🎨' },
   ];
 
   // Shower options with images
@@ -206,10 +214,11 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
+  // Sink style options with emojis
   const sinkStyleOptions = [
-    { value: 'a-poser', label: 'À poser (sur le plan)' },
-    { value: 'encastree', label: 'Encastrée (sous le plan)' },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+    { value: 'a-poser', label: 'À poser (sur le plan)', emoji: '🥣' },
+    { value: 'encastree', label: 'Encastrée (sous le plan)', emoji: '📥' },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas encore', emoji: '❓' },
   ];
 
   const vanityCountOptions = [
@@ -218,42 +227,36 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'a-definir', label: 'À définir ensemble' },
   ];
 
+  // Faucet type options with emojis (based on Châtelet range style)
   const faucetTypes = [
-    { value: 'apparente', label: 'Apparente' },
-    { value: 'encastree', label: 'Encastrée' },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+    { value: 'apparente', label: 'Apparente', emoji: '🚿' },
+    { value: 'encastree', label: 'Encastrée', emoji: '📐' },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas encore', emoji: '❓' },
   ];
 
+  // Showerhead styles with emojis
   const showerHeadStyles = [
-    { value: 'fixe', label: 'Fixe (plafond ou mural)' },
-    { value: 'douchette', label: 'Douchette' },
-    { value: 'les-deux', label: 'Les deux' },
+    { value: 'fixe', label: 'Fixe (plafond/mural)', emoji: '🌧️' },
+    { value: 'douchette', label: 'Douchette', emoji: '🚿' },
+    { value: 'les-deux', label: 'Les deux', emoji: '💧' },
   ];
 
+  // Faucet finishes with emojis (inspired by Châtelet range from Masalledebain.com)
   const finishOptions = [
-    { value: 'chrome', label: 'Chrome' },
-    { value: 'noir', label: 'Noir' },
-    { value: 'laiton', label: 'Laiton' },
-    { value: 'autre', label: 'Autre' },
-    { value: 'peu-importe', label: 'Peu importe' },
+    { value: 'chrome', label: 'Chrome', emoji: '🪞' },
+    { value: 'noir', label: 'Noir mat', emoji: '⬛' },
+    { value: 'laiton-brosse', label: 'Laiton brossé', emoji: '🥇' },
+    { value: 'or-brosse', label: 'Or brossé', emoji: '✨' },
+    { value: 'nickel-brosse', label: 'Nickel brossé', emoji: '🔘' },
+    { value: 'peu-importe', label: 'Peu importe', emoji: '🤷' },
   ];
 
+  // Toilet types with emojis
   const toiletTypes = [
-    { value: 'suspendu', label: 'WC suspendu' },
-    { value: 'au-sol', label: 'WC au sol' },
-    { value: 'conserver', label: "Conserver l'existant" },
-    { value: 'pas-de-wc', label: 'Ne pas intégrer de WC' },
-  ];
-
-  // Ambiance options with images
-  const ambianceOptions = [
-    { value: 'zellige', label: 'Zellige', image: ambianceZellige },
-    { value: 'marbre', label: 'Effet marbre', image: ambianceMarbre },
-    { value: 'beton-cire', label: 'Béton ciré', image: ambianceBetonCire },
-    { value: 'terrazzo', label: 'Terrazzo', image: ambianceTerrazzo },
-    { value: 'graphique', label: 'Graphique', image: ambianceGraphique },
-    { value: 'naturel', label: 'Naturel', image: ambianceNaturel },
-    { value: 'autre', label: 'Autre', emoji: '✨' },
+    { value: 'suspendu', label: 'WC suspendu', emoji: '🪽' },
+    { value: 'au-sol', label: 'WC au sol', emoji: '🚽' },
+    { value: 'conserver', label: "Conserver l'existant", emoji: '✅' },
+    { value: 'pas-de-wc', label: 'Ne pas intégrer de WC', emoji: '❌' },
   ];
 
   const certaintyLevels = [
@@ -264,7 +267,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
 
   return (
     <FormSection
-      title={`Salle de bain${instanceNumber > 1 ? ` #${instanceNumber}` : ''}`}
+      title={roomName}
       subtitle="Configurez cette salle de bain selon vos besoins"
     >
       {/* Usage */}
@@ -299,6 +302,22 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
+      {/* Ambiance - moved higher in the form */}
+      <FormQuestion label="Quel style vous inspire ?">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {ambianceOptions.map((option) => (
+            <SelectableCard
+              key={option.value}
+              selected={data.ambiance.includes(option.value)}
+              onClick={() => toggleArrayValue('ambiance', option.value)}
+              emoji={option.emoji}
+              title={option.label}
+              size="sm"
+            />
+          ))}
+        </div>
+      </FormQuestion>
+
       {/* Installation type */}
       <FormQuestion label="Quel type d'installation souhaitez-vous privilégier ?">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -314,6 +333,76 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
           ))}
         </div>
       </FormQuestion>
+
+      {/* Show shower options if shower selected */}
+      {(data.installationType === 'douche' || data.installationType === 'douche-baignoire') && (
+        <>
+          <FormQuestion label="Type de receveur souhaité :">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {showerTrayTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.showerTrayType === type.value}
+                  onClick={() => updateData({ showerTrayType: type.value })}
+                  image={type.image}
+                  title={type.label}
+                  size="lg"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Type de paroi de douche :">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {showerDoorTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.showerDoorType === type.value}
+                  onClick={() => updateData({ showerDoorType: type.value })}
+                  image={type.image}
+                  title={type.label}
+                  size="xl"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+        </>
+      )}
+
+      {/* Show bathtub options if bathtub selected */}
+      {(data.installationType === 'baignoire' || data.installationType === 'douche-baignoire') && (
+        <>
+          <FormQuestion label="Type de baignoire souhaité :">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {bathtubTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.bathtubType === type.value}
+                  onClick={() => updateData({ bathtubType: type.value })}
+                  image={type.image}
+                  title={type.label}
+                  size="xl"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Type de pare-bain :">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {bathtubScreenTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.bathtubScreenType === type.value}
+                  onClick={() => updateData({ bathtubScreenType: type.value })}
+                  image={type.image}
+                  title={type.label}
+                  size="xl"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+        </>
+      )}
 
       {/* Washing machine */}
       <FormQuestion label="Souhaitez-vous intégrer une machine à laver ?">
@@ -345,76 +434,6 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
-      {/* Show shower options if shower selected */}
-      {(data.installationType === 'douche' || data.installationType === 'douche-baignoire') && (
-        <>
-          <FormQuestion label="Type de receveur souhaité :">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {showerTrayTypes.map((type) => (
-                <SelectableCard
-                  key={type.value}
-                  selected={data.showerTrayType === type.value}
-                  onClick={() => updateData({ showerTrayType: type.value })}
-                  image={type.image}
-                  title={type.label}
-                  size="md"
-                />
-              ))}
-            </div>
-          </FormQuestion>
-
-          <FormQuestion label="Type de paroi de douche :">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {showerDoorTypes.map((type) => (
-                <SelectableCard
-                  key={type.value}
-                  selected={data.showerDoorType === type.value}
-                  onClick={() => updateData({ showerDoorType: type.value })}
-                  image={type.image}
-                  title={type.label}
-                  size="md"
-                />
-              ))}
-            </div>
-          </FormQuestion>
-        </>
-      )}
-
-      {/* Show bathtub options if bathtub selected */}
-      {(data.installationType === 'baignoire' || data.installationType === 'douche-baignoire') && (
-        <>
-          <FormQuestion label="Type de baignoire souhaité :">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {bathtubTypes.map((type) => (
-                <SelectableCard
-                  key={type.value}
-                  selected={data.bathtubType === type.value}
-                  onClick={() => updateData({ bathtubType: type.value })}
-                  image={type.image}
-                  title={type.label}
-                  size="md"
-                />
-              ))}
-            </div>
-          </FormQuestion>
-
-          <FormQuestion label="Type de pare-bain :">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {bathtubScreenTypes.map((type) => (
-                <SelectableCard
-                  key={type.value}
-                  selected={data.bathtubScreenType === type.value}
-                  onClick={() => updateData({ bathtubScreenType: type.value })}
-                  image={type.image}
-                  title={type.label}
-                  size="md"
-                />
-              ))}
-            </div>
-          </FormQuestion>
-        </>
-      )}
-
       {/* Vanity with images */}
       <FormQuestion label="Type de meuble vasque :">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -425,13 +444,13 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               onClick={() => updateData({ vanityType: type.value })}
               image={type.image}
               title={type.label}
-              size="md"
+              size="xl"
             />
           ))}
         </div>
       </FormQuestion>
 
-      {/* Sink style question */}
+      {/* Sink style with emoji visuals */}
       <FormQuestion label="Type de vasque :">
         <div className="grid grid-cols-3 gap-3 max-w-lg">
           {sinkStyleOptions.map((option) => (
@@ -439,18 +458,20 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               key={option.value}
               selected={data.sinkStyle === option.value}
               onClick={() => updateData({ sinkStyle: option.value })}
+              emoji={option.emoji}
               title={option.label}
               size="sm"
             />
           ))}
         </div>
-      </FormQuestion>
 
-      {/* EGGER Catalog References - Only show for vessel sink (vasque à poser) */}
-      {data.sinkStyle === 'a-poser' && (
-        <FormQuestion label="Références finitions EGGER pour plan sous vasque (optionnel) :">
-          <div className="space-y-4">
-            {/* Link to EGGER catalog */}
+        {/* EGGER Catalog References - directly below sink style when vessel sink selected */}
+        {data.sinkStyle === 'a-poser' && (
+          <div className="mt-6 space-y-4">
+            <p className="text-sm font-medium text-foreground">
+              Références finitions EGGER pour plan sous vasque (optionnel) :
+            </p>
+            
             <a 
               href="https://www.vds-egger.com/?country=FR&language=fr"
               target="_blank"
@@ -461,7 +482,6 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               Voir le catalogue EGGER pour choisir vos finitions de plan
             </a>
             
-            {/* Reference input */}
             <div className="flex gap-2">
               <Input
                 placeholder="Entrez une référence EGGER (ex: H3157 ST12)"
@@ -481,7 +501,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               </Button>
             </div>
             
-            {/* References list */}
+            {/* References list with images inline */}
             {data.eggerReferences && data.eggerReferences.length > 0 && (
               <div className="space-y-2">
                 {data.eggerReferences.map((ref, index) => (
@@ -489,7 +509,6 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
                     key={`${ref.reference}-${index}`}
                     className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
                   >
-                    {/* Image or placeholder */}
                     <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center">
                       {ref.isLoading ? (
                         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -508,18 +527,31 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
                       )}
                     </div>
                     
-                    {/* Reference info */}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">{ref.reference}</p>
+                      {ref.decorName && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {ref.decorName.replace(ref.reference, '').trim()}
+                        </p>
+                      )}
                       {ref.error && (
                         <p className="text-xs text-destructive">{ref.error}</p>
                       )}
                       {!ref.isLoading && !ref.imageUrl && !ref.error && (
                         <p className="text-xs text-muted-foreground">Image non disponible</p>
                       )}
+                      {ref.decorUrl && (
+                        <a 
+                          href={ref.decorUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          Voir sur EGGER <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
                     </div>
                     
-                    {/* Remove button */}
                     <Button
                       type="button"
                       variant="ghost"
@@ -534,8 +566,8 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               </div>
             )}
           </div>
-        </FormQuestion>
-      )}
+        )}
+      </FormQuestion>
 
       <FormQuestion label="Nombre de vasques :">
         <div className="grid grid-cols-3 gap-3 max-w-md">
@@ -585,7 +617,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
-      {/* Faucet */}
+      {/* Faucet type with emojis */}
       <FormQuestion label="Type de robinetterie douche :">
         <div className="grid grid-cols-3 gap-3 max-w-md">
           {faucetTypes.map((type) => (
@@ -593,6 +625,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               key={type.value}
               selected={data.showerFaucetType === type.value}
               onClick={() => updateData({ showerFaucetType: type.value })}
+              emoji={type.emoji}
               title={type.label}
               size="sm"
             />
@@ -600,6 +633,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
+      {/* Showerhead style with emojis */}
       <FormQuestion label="Style de pommeau :">
         <div className="grid grid-cols-3 gap-3 max-w-md">
           {showerHeadStyles.map((style) => (
@@ -607,6 +641,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               key={style.value}
               selected={data.showerHeadStyle.includes(style.value)}
               onClick={() => toggleArrayValue('showerHeadStyle', style.value)}
+              emoji={style.emoji}
               title={style.label}
               size="sm"
             />
@@ -614,13 +649,15 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
-      <FormQuestion label="Finition souhaitée :">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      {/* Faucet finish with emojis */}
+      <FormQuestion label="Finition robinetterie souhaitée :">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {finishOptions.map((option) => (
             <SelectableCard
               key={option.value}
               selected={data.faucetFinish === option.value}
               onClick={() => updateData({ faucetFinish: option.value })}
+              emoji={option.emoji}
               title={option.label}
               size="sm"
             />
@@ -628,7 +665,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
-      {/* Toilet */}
+      {/* Toilet with emojis */}
       <FormQuestion label="WC (si présents dans la pièce) :">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {toiletTypes.map((type) => (
@@ -636,25 +673,9 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
               key={type.value}
               selected={data.toiletType === type.value}
               onClick={() => updateData({ toiletType: type.value })}
+              emoji={type.emoji}
               title={type.label}
               size="sm"
-            />
-          ))}
-        </div>
-      </FormQuestion>
-
-      {/* Ambiance with images */}
-      <FormQuestion label="Quelles ambiances vous inspirent ?">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {ambianceOptions.map((option) => (
-            <SelectableCard
-              key={option.value}
-              selected={data.ambiance.includes(option.value)}
-              onClick={() => toggleArrayValue('ambiance', option.value)}
-              image={option.image}
-              emoji={option.emoji}
-              title={option.label}
-              size="md"
             />
           ))}
         </div>

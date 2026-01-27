@@ -28,6 +28,15 @@ const roomLabels: Record<RoomType, string> = {
   'autre': 'Autre pièce',
 };
 
+// Helper function to format room name with proper numbering
+const formatRoomName = (type: RoomType, instanceNumber: number, totalOfType: number): string => {
+  const baseName = roomLabels[type];
+  if (totalOfType > 1) {
+    return `${baseName} ${instanceNumber}`;
+  }
+  return baseName;
+};
+
 const RenovationFormContent: React.FC = () => {
   const { formData, currentStep } = useRenovationForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +76,10 @@ const RenovationFormContent: React.FC = () => {
 
     // Add room modules
     formData.selectedRooms.forEach((room) => {
+      // Count how many rooms of this type exist
+      const totalOfType = formData.selectedRooms.filter(r => r.type === room.type).length;
+      const roomName = formatRoomName(room.type, room.instanceNumber, totalOfType);
+      
       let component: React.ReactNode;
 
       switch (room.type) {
@@ -75,7 +88,7 @@ const RenovationFormContent: React.FC = () => {
             <BathroomModule
               key={room.id}
               roomId={room.id}
-              instanceNumber={room.instanceNumber}
+              roomName={roomName}
               data={room.data.bathroomData || initialBathroomData}
             />
           );
@@ -85,7 +98,7 @@ const RenovationFormContent: React.FC = () => {
             <KitchenModule
               key={room.id}
               roomId={room.id}
-              instanceNumber={room.instanceNumber}
+              roomName={roomName}
               data={room.data.kitchenData || initialKitchenData}
             />
           );
@@ -95,7 +108,7 @@ const RenovationFormContent: React.FC = () => {
             <CustomFurnitureModule
               key={room.id}
               roomId={room.id}
-              instanceNumber={room.instanceNumber}
+              roomName={roomName}
               data={room.data.customFurnitureData || { furnitureType: [], approach: '', supportLevel: '' }}
             />
           );
@@ -105,7 +118,7 @@ const RenovationFormContent: React.FC = () => {
             <GenericRoomModule
               key={room.id}
               roomId={room.id}
-              roomName={roomLabels[room.type]}
+              roomName={roomName}
               instanceNumber={room.instanceNumber}
               data={room.data.genericRoomData || { description: '', workTypes: [], certaintyLevel: '' }}
             />
