@@ -4,10 +4,12 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { PaintingData, FarrowBallColor } from '../types';
-import { ExternalLink, Plus, Trash2, X } from 'lucide-react';
+import { ExternalLink, Plus, Trash2, Loader2, Palette } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // Import finish images
 import finitionMat from '@/assets/painting/finition-mat.jpg';
@@ -70,13 +72,18 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
     }
   };
 
-  const addFarrowBallColor = () => {
+  const addFarrowBallColor = async () => {
     if (!newColorNumber.trim() && !newColorName.trim()) return;
     
+    const colorNum = newColorNumber.trim();
+    const colorNm = newColorName.trim();
+    
+    // Add color with loading state
     const newColor: FarrowBallColor = {
-      colorNumber: newColorNumber.trim(),
-      colorName: newColorName.trim(),
+      colorNumber: colorNum,
+      colorName: colorNm,
       rooms: selectedRooms,
+      isLoading: true,
     };
     
     updateData({ 
@@ -87,6 +94,52 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
     setNewColorNumber('');
     setNewColorName('');
     setSelectedRooms([]);
+
+    // Try to scrape the color
+    try {
+      const { data: scrapeData, error } = await supabase.functions.invoke('scrape-farrow-ball', {
+        body: { colorNumber: colorNum, colorName: colorNm },
+      });
+
+      if (error) throw error;
+
+      // Update the color with the scraped data
+      const currentColors = data.farrowBallColors || [];
+      const updatedColors = currentColors.map((c, i) => {
+        if (i === currentColors.length - 1 && c.isLoading) {
+          return {
+            ...c,
+            imageUrl: scrapeData?.imageUrl || undefined,
+            hexColor: scrapeData?.hexColor || undefined,
+            isLoading: false,
+          };
+        }
+        return c;
+      });
+
+      updateData({ farrowBallColors: updatedColors });
+      
+      if (scrapeData?.imageUrl || scrapeData?.hexColor) {
+        toast.success(`Couleur trouvée: ${colorNum || colorNm}`);
+      } else {
+        toast.info(`Couleur ${colorNum || colorNm} ajoutée`);
+      }
+    } catch (error) {
+      console.error('Error scraping Farrow & Ball:', error);
+      // Keep the color but mark as error
+      const currentColors = data.farrowBallColors || [];
+      const updatedColors = currentColors.map((c, i) => {
+        if (i === currentColors.length - 1 && c.isLoading) {
+          return {
+            ...c,
+            isLoading: false,
+            error: 'Couleur non trouvée',
+          };
+        }
+        return c;
+      });
+      updateData({ farrowBallColors: updatedColors });
+    }
   };
 
   const removeFarrowBallColor = (index: number) => {
@@ -221,6 +274,7 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                   placeholder="Nom du coloris (ex: Down Pipe)"
                   value={newColorName}
                   onChange={(e) => setNewColorName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFarrowBallColor())}
                   className="flex-1"
                 />
               </div>
@@ -265,6 +319,31 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                     key={index}
                     className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border"
                   >
+                    {/* Color swatch */}
+                    <div className="w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-muted flex items-center justify-center border">
+                      {color.isLoading ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+                      ) : color.imageUrl ? (
+                        <img 
+                          src={color.imageUrl} 
+                          alt={`${color.colorNumber} ${color.colorName}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // If image fails, show hex color or icon
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : color.hexColor ? (
+                        <div 
+                          className="w-full h-full"
+                          style={{ backgroundColor: color.hexColor }}
+                          title={color.hexColor}
+                        />
+                      ) : (
+                        <Palette className="w-6 h-6 text-muted-foreground" />
+                      )}
+                    </div>
+                    
                     {/* Color info */}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm">
@@ -272,6 +351,12 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
                         {color.colorNumber && color.colorName && ' - '}
                         {color.colorName}
                       </p>
+                      {color.hexColor && (
+                        <p className="text-xs text-muted-foreground">{color.hexColor}</p>
+                      )}
+                      {color.error && (
+                        <p className="text-xs text-destructive">{color.error}</p>
+                      )}
                       {color.rooms.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {color.rooms.map((roomId) => {
