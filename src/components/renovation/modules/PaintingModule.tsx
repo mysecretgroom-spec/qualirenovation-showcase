@@ -263,15 +263,18 @@ export const PaintingModule: React.FC<PaintingModuleProps> = ({ roomId, roomName
             
             {/* Color input form */}
             <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
+              <p className="text-xs text-muted-foreground">
+                Format : numéro du coloris (ex: 311) et/ou nom (ex: Scallop). Vous pouvez renseigner l'un ou l'autre, ou les deux.
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Input
-                  placeholder="N° du coloris (ex: 26)"
+                  placeholder="Ex: 311"
                   value={newColorNumber}
                   onChange={(e) => setNewColorNumber(e.target.value)}
                   className="flex-1"
                 />
                 <Input
-                  placeholder="Nom du coloris (ex: Down Pipe)"
+                  placeholder="Ex: Scallop"
                   value={newColorName}
                   onChange={(e) => setNewColorName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addFarrowBallColor())}

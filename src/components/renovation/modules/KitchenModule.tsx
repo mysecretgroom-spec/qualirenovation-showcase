@@ -378,23 +378,28 @@ export const KitchenModule: React.FC<KitchenModuleProps> = ({ roomId, instanceNu
             </a>
             
             {/* Reference input */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Entrez une référence EGGER (ex: H3157 ST12)"
-                value={newReference}
-                onChange={(e) => setNewReference(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
-                className="flex-1"
-              />
-              <Button 
-                type="button" 
-                onClick={addEggerReference}
-                disabled={!newReference.trim()}
-                size="icon"
-                variant="outline"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Format : code décor + structure (ex: H1312 ST10). Trouvez les références sur le catalogue EGGER.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Ex: H1312 ST10"
+                  value={newReference}
+                  onChange={(e) => setNewReference(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEggerReference())}
+                  className="flex-1"
+                />
+                <Button 
+                  type="button" 
+                  onClick={addEggerReference}
+                  disabled={!newReference.trim()}
+                  size="icon"
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             
             {/* References list */}
