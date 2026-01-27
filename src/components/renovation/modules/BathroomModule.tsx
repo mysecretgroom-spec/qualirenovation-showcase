@@ -543,14 +543,14 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
         </div>
       </FormQuestion>
 
-      {/* Tile type */}
+      {/* Tile type - multiple selection */}
       <FormQuestion label="Type de carrelage sol / mur :">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {tileTypes.map((type) => (
             <SelectableCard
               key={type.value}
-              selected={data.tileType === type.value}
-              onClick={() => updateData({ tileType: type.value })}
+              selected={(data.tileTypes || []).includes(type.value)}
+              onClick={() => toggleArrayValue('tileTypes', type.value)}
               image={type.image}
               emoji={type.emoji}
               title={type.label}

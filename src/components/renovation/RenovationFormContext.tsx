@@ -161,7 +161,7 @@ function getInitialRoomData(type: RoomType): RoomData {
     case 'bureau':
       return {
         paintingData: { ...initialPaintingData },
-        flooringData: { floorType: '', tileType: '', tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' },
+        flooringData: { floorType: '', tileTypes: [], tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' },
         electricityData: { workType: [], lightingTypes: [], switchStyle: '', additionalNeeds: [] },
         glassPanelData: { purpose: [], panelType: '' },
       };
