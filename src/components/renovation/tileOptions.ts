@@ -8,6 +8,7 @@ import carrelageCiment from '@/assets/flooring/carrelage-ciment.jpg';
 import carrelageBeton from '@/assets/flooring/carrelage-beton.jpg';
 import carrelageUnicolore from '@/assets/flooring/carrelage-unicolore.jpg';
 import carrelageTerracotta from '@/assets/flooring/carrelage-terracotta.jpg';
+import carrelageTerazzo from '@/assets/flooring/carrelage-terrazzo.jpg';
 import carrelageGresCerame from '@/assets/flooring/carrelage-gres-cerame.jpg';
 import carrelageImitationBois from '@/assets/flooring/carrelage-imitation-bois.jpg';
 import carrelageHexagonal from '@/assets/flooring/carrelage-hexagonal.jpg';
@@ -35,6 +36,7 @@ export const tileTypes: TileOption[] = [
   { value: 'beton', label: 'Béton ciré', image: carrelageBeton },
   { value: 'unicolore', label: 'Unicolore', image: carrelageUnicolore },
   { value: 'terracotta', label: 'Terracotta', image: carrelageTerracotta },
+  { value: 'terrazzo', label: 'Terrazzo', image: carrelageTerazzo },
   { value: 'gres-cerame', label: 'Grès cérame', image: carrelageGresCerame },
   { value: 'imitation-bois', label: 'Imitation bois', image: carrelageImitationBois },
   { value: 'metro', label: 'Métro', image: carrelageMetro },
@@ -59,6 +61,7 @@ export const backsplashTileTypes: TileOption[] = [
   { value: 'marbre', label: 'Effet marbre', image: carrelageMarbre },
   { value: 'ciment', label: 'Carreau ciment', image: carrelageCiment },
   { value: 'unicolore', label: 'Unicolore', image: carrelageUnicolore },
+  { value: 'terrazzo', label: 'Terrazzo', image: carrelageTerazzo },
   { value: 'metro', label: 'Métro', image: carrelageMetro },
   { value: 'mosaique', label: 'Mosaïque', image: carrelageMosaique },
   { value: 'a-definir', label: 'À définir', emoji: '❓' },
