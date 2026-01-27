@@ -131,6 +131,7 @@ export interface FarrowBallColor {
   rooms: string[];
   imageUrl?: string;
   hexColor?: string;
+  productUrl?: string;
   isLoading?: boolean;
   error?: string;
 }

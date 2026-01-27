@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Plus, Trash2, Loader2, Image as ImageIcon, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface ReferenceItem {
+export interface ReferenceItem {
   reference: string;
   isLoading?: boolean;
   imageUrl?: string;
@@ -251,7 +251,7 @@ export const ReferenceInput: React.FC<ReferenceInputProps> = ({
                     Voir sur EGGER <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
-                {ref.productUrl && (
+                {ref.productUrl && type === 'planizia' && (
                   <a 
                     href={ref.productUrl}
                     target="_blank"
@@ -259,6 +259,16 @@ export const ReferenceInput: React.FC<ReferenceInputProps> = ({
                     className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1"
                   >
                     Voir sur Planizia <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+                {ref.productUrl && type === 'farrow-ball' && (
+                  <a 
+                    href={ref.productUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1"
+                  >
+                    Voir sur Farrow & Ball <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
                 
