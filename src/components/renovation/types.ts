@@ -166,6 +166,7 @@ export interface PaintingData {
 // Electricity module
 export interface ElectricityData {
   workType: string[];
+  lightingTypes: string[];
   switchStyle: string;
   additionalNeeds: string[];
 }

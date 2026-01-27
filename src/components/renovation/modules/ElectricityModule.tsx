@@ -6,8 +6,16 @@ import { SelectableCard } from '../SelectableCard';
 import { ElectricityData } from '../types';
 import { Zap, Plus, RefreshCw, ShieldCheck, HelpCircle, Plug, Usb, Lightbulb } from 'lucide-react';
 
-// Import electricity image
+// Import electricity images
 import electriciteInstallation from '@/assets/electricite/electricite-installation.jpg';
+import spotsEncastres from '@/assets/electricite/spots-encastres.jpg';
+import suspensions from '@/assets/electricite/suspensions.jpg';
+import bandeauLed from '@/assets/electricite/bandeau-led.jpg';
+import variateur from '@/assets/electricite/variateur.jpg';
+import appareillageBlanc from '@/assets/electricite/appareillage-blanc.jpg';
+import appareillageNoir from '@/assets/electricite/appareillage-noir.jpg';
+import appareillageLaiton from '@/assets/electricite/appareillage-laiton.jpg';
+import appareillageChrome from '@/assets/electricite/appareillage-chrome.jpg';
 
 interface ElectricityModuleProps {
   roomId: string;
@@ -23,8 +31,8 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
     updateRoomData(roomId, { electricityData: { ...data, ...updates } });
   };
 
-  const toggleArrayValue = (key: 'workType' | 'additionalNeeds', value: string) => {
-    const current = data[key];
+  const toggleArrayValue = (key: 'workType' | 'additionalNeeds' | 'lightingTypes', value: string) => {
+    const current = data[key] || [];
     if (current.includes(value)) {
       updateData({ [key]: current.filter(v => v !== value) });
     } else {
@@ -42,12 +50,20 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
   ];
 
   const switchStyles = [
-    { value: 'blanc', label: 'Blanc classique' },
-    { value: 'noir', label: 'Noir' },
-    { value: 'laiton', label: 'Laiton' },
-    { value: 'chrome', label: 'Chrome' },
-    { value: 'autre', label: 'Autre' },
-    { value: 'indifferent', label: 'Indifférent' },
+    { value: 'blanc', label: 'Blanc classique', image: appareillageBlanc },
+    { value: 'noir', label: 'Noir', image: appareillageNoir },
+    { value: 'laiton', label: 'Laiton', image: appareillageLaiton },
+    { value: 'chrome', label: 'Chrome', image: appareillageChrome },
+    { value: 'autre', label: 'Autre', emoji: '✨' },
+    { value: 'indifferent', label: 'Indifférent', emoji: '❓' },
+  ];
+
+  const lightingOptions = [
+    { value: 'spots-encastres', label: 'Spots encastrés', image: spotsEncastres },
+    { value: 'suspensions', label: 'Suspensions', image: suspensions },
+    { value: 'bandeau-led', label: 'Bandeaux LED', image: bandeauLed },
+    { value: 'variateurs', label: 'Variateurs', image: variateur },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
   const additionalNeeds = [
@@ -90,15 +106,33 @@ export const ElectricityModule: React.FC<ElectricityModuleProps> = ({ roomId, ro
         </div>
       </FormQuestion>
 
+      <FormQuestion label="Types d'éclairage souhaités :">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {lightingOptions.map((option) => (
+            <SelectableCard
+              key={option.value}
+              selected={(data.lightingTypes || []).includes(option.value)}
+              onClick={() => toggleArrayValue('lightingTypes', option.value)}
+              image={option.image}
+              emoji={option.emoji}
+              title={option.label}
+              size="md"
+            />
+          ))}
+        </div>
+      </FormQuestion>
+
       <FormQuestion label="Style d'appareillage souhaité (prises, interrupteurs) :">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {switchStyles.map((style) => (
             <SelectableCard
               key={style.value}
               selected={data.switchStyle === style.value}
               onClick={() => updateData({ switchStyle: style.value })}
+              image={style.image}
+              emoji={style.emoji}
               title={style.label}
-              size="sm"
+              size="md"
             />
           ))}
         </div>
