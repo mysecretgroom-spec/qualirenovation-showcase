@@ -69,8 +69,13 @@ export interface BathroomData {
   installationType: string;
   hasWashingMachine: string;
   storageType: string[];
+  // Shower options
   showerTrayType: string;
   showerDoorType: string;
+  // Bathtub options
+  bathtubType: string;
+  bathtubScreenType: string;
+  // Vanity
   vanityType: string;
   vanityCount: string;
   showerFaucetType: string;
@@ -213,6 +218,8 @@ export const initialBathroomData: BathroomData = {
   storageType: [],
   showerTrayType: '',
   showerDoorType: '',
+  bathtubType: '',
+  bathtubScreenType: '',
   vanityType: '',
   vanityCount: '',
   showerFaucetType: '',

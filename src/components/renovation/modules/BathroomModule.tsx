@@ -61,6 +61,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
+  // Shower options
   const showerTrayTypes = [
     { value: 'a-poser', label: 'À poser' },
     { value: 'a-encastrer', label: 'À encastrer' },
@@ -75,6 +76,25 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'porte-battante', label: 'Porte battante' },
     { value: 'porte-coulissante', label: 'Porte coulissante' },
     { value: 'porte-pliante', label: 'Porte pliante' },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+  ];
+
+  // Bathtub options
+  const bathtubTypes = [
+    { value: 'encastree', label: 'Encastrée' },
+    { value: 'ilot', label: 'Îlot' },
+    { value: 'angle', label: 'Angle' },
+    { value: 'droite', label: 'Droite classique' },
+    { value: 'balneo', label: 'Balnéo' },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+  ];
+
+  const bathtubScreenTypes = [
+    { value: 'pare-bain-fixe', label: 'Pare-bain fixe' },
+    { value: 'pare-bain-pivotant', label: 'Pare-bain pivotant' },
+    { value: 'pare-bain-coulissant', label: 'Pare-bain coulissant' },
+    { value: 'rideau', label: 'Rideau de douche' },
+    { value: 'aucun', label: 'Aucun' },
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
@@ -234,13 +254,46 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
             </div>
           </FormQuestion>
 
-          <FormQuestion label="Type de paroi :">
+          <FormQuestion label="Type de paroi de douche :">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {showerDoorTypes.map((type) => (
                 <SelectableCard
                   key={type.value}
                   selected={data.showerDoorType === type.value}
                   onClick={() => updateData({ showerDoorType: type.value })}
+                  title={type.label}
+                  size="sm"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+        </>
+      )}
+
+      {/* Show bathtub options if bathtub selected */}
+      {(data.installationType === 'baignoire' || data.installationType === 'douche-baignoire') && (
+        <>
+          <FormQuestion label="Type de baignoire souhaité :">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {bathtubTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.bathtubType === type.value}
+                  onClick={() => updateData({ bathtubType: type.value })}
+                  title={type.label}
+                  size="sm"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Type de pare-bain :">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {bathtubScreenTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.bathtubScreenType === type.value}
+                  onClick={() => updateData({ bathtubScreenType: type.value })}
                   title={type.label}
                   size="sm"
                 />
