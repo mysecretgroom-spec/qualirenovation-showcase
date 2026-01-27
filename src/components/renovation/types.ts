@@ -285,3 +285,13 @@ export const initialKitchenData: KitchenData = {
   certaintyLevel: '',
   eggerReferences: [],
 };
+
+// Initial painting data
+export const initialPaintingData: PaintingData = {
+  surfaces: [],
+  intention: '',
+  finish: '',
+  hasDefinedColors: '',
+  wallCondition: '',
+  farrowBallColors: [],
+};
