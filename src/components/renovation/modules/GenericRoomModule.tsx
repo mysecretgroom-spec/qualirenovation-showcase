@@ -4,8 +4,9 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { Textarea } from '@/components/ui/textarea';
-import { GenericRoomData } from '../types';
+import { GenericRoomData, initialPaintingData } from '../types';
 import { CheckCircle, HelpCircle, Users } from 'lucide-react';
+import { PaintingModule } from './PaintingModule';
 
 interface GenericRoomModuleProps {
   roomId: string;
@@ -20,7 +21,11 @@ export const GenericRoomModule: React.FC<GenericRoomModuleProps> = ({
   instanceNumber,
   data 
 }) => {
-  const { updateRoomData } = useRenovationForm();
+  const { updateRoomData, formData } = useRenovationForm();
+
+  // Get painting data for this room
+  const room = formData.selectedRooms.find(r => r.id === roomId);
+  const paintingData = room?.data.paintingData || initialPaintingData;
 
   const updateData = (updates: Partial<GenericRoomData>) => {
     updateRoomData(roomId, { genericRoomData: { ...data, ...updates } });
@@ -51,48 +56,61 @@ export const GenericRoomModule: React.FC<GenericRoomModuleProps> = ({
     { value: 'besoin-aide', label: "J'ai besoin d'aide", icon: <Users className="w-5 h-5" /> },
   ];
 
+  const showPaintingModule = data.workTypes.includes('peinture');
+
   return (
-    <FormSection
-      title={`${roomName}${instanceNumber > 1 ? ` #${instanceNumber}` : ''}`}
-      subtitle="Décrivez vos besoins pour cette pièce"
-    >
-      <FormQuestion label="Quels types de travaux sont envisagés ?">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {workTypes.map((type) => (
-            <SelectableCard
-              key={type.value}
-              selected={data.workTypes.includes(type.value)}
-              onClick={() => toggleWorkType(type.value)}
-              emoji={type.emoji}
-              title={type.label}
-              size="sm"
-            />
-          ))}
-        </div>
-      </FormQuestion>
+    <>
+      <FormSection
+        title={`${roomName}${instanceNumber > 1 ? ` #${instanceNumber}` : ''}`}
+        subtitle="Décrivez vos besoins pour cette pièce"
+      >
+        <FormQuestion label="Quels types de travaux sont envisagés ?">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {workTypes.map((type) => (
+              <SelectableCard
+                key={type.value}
+                selected={data.workTypes.includes(type.value)}
+                onClick={() => toggleWorkType(type.value)}
+                emoji={type.emoji}
+                title={type.label}
+                size="sm"
+              />
+            ))}
+          </div>
+        </FormQuestion>
 
-      <FormQuestion label="Décrivez votre projet pour cette pièce (facultatif) :">
-        <Textarea
-          value={data.description}
-          onChange={(e) => updateData({ description: e.target.value })}
-          placeholder="Décrivez vos besoins, vos envies, vos contraintes..."
-          className="min-h-[120px]"
+        <FormQuestion label="Décrivez votre projet pour cette pièce (facultatif) :">
+          <Textarea
+            value={data.description}
+            onChange={(e) => updateData({ description: e.target.value })}
+            placeholder="Décrivez vos besoins, vos envies, vos contraintes..."
+            className="min-h-[120px]"
+          />
+        </FormQuestion>
+
+        <FormQuestion label="Où en êtes-vous pour cette pièce ?">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {certaintyLevels.map((level) => (
+              <SelectableCard
+                key={level.value}
+                selected={data.certaintyLevel === level.value}
+                onClick={() => updateData({ certaintyLevel: level.value })}
+                icon={level.icon}
+                title={level.label}
+              />
+            ))}
+          </div>
+        </FormQuestion>
+      </FormSection>
+
+      {/* Show PaintingModule when peinture is selected */}
+      {showPaintingModule && (
+        <PaintingModule
+          roomId={roomId}
+          roomName={roomName}
+          data={paintingData}
         />
-      </FormQuestion>
-
-      <FormQuestion label="Où en êtes-vous pour cette pièce ?">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {certaintyLevels.map((level) => (
-            <SelectableCard
-              key={level.value}
-              selected={data.certaintyLevel === level.value}
-              onClick={() => updateData({ certaintyLevel: level.value })}
-              icon={level.icon}
-              title={level.label}
-            />
-          ))}
-        </div>
-      </FormQuestion>
-    </FormSection>
+      )}
+    </>
   );
 };
