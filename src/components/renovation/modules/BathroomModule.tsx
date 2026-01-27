@@ -4,6 +4,7 @@ import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { BathroomData, EggerReference } from '../types';
+import { tileTypes, tileFormats } from '../tileOptions';
 import { 
   User, Users, Users2, Baby, UserCheck,
   Home, Building2, Bed, Bath,
@@ -42,10 +43,6 @@ import pareBainRideau from '@/assets/bathroom/pare-bain-rideau.jpg';
 import vasqueSeule from '@/assets/bathroom/vasque-seule.jpg';
 import meubleSuspendu from '@/assets/bathroom/meuble-suspendu.jpg';
 import meublePieds from '@/assets/bathroom/meuble-pieds.jpg';
-import carrelageGrandFormat from '@/assets/bathroom/carrelage-grand-format.jpg';
-import carrelageCarre from '@/assets/bathroom/carrelage-carre.jpg';
-import carrelageHexagonal from '@/assets/bathroom/carrelage-hexagonal.jpg';
-import carrelageMetro from '@/assets/bathroom/carrelage-metro.jpg';
 
 interface BathroomModuleProps {
   roomId: string;
@@ -246,15 +243,6 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'au-sol', label: 'WC au sol' },
     { value: 'conserver', label: "Conserver l'existant" },
     { value: 'pas-de-wc', label: 'Ne pas intégrer de WC' },
-  ];
-
-  // Tile shape options with images
-  const tileShapeOptions = [
-    { value: 'grand-format', label: 'Grand format', image: carrelageGrandFormat },
-    { value: 'carre', label: 'Carré classique', image: carrelageCarre },
-    { value: 'hexagonal', label: 'Hexagonal', image: carrelageHexagonal },
-    { value: 'metro', label: 'Métro', image: carrelageMetro },
-    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
   // Ambiance options with images
@@ -563,16 +551,34 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
-      {/* Tile shape with images */}
-      <FormQuestion label="Forme du carrelage sol / mur :">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {tileShapeOptions.map((type) => (
+      {/* Tile type */}
+      <FormQuestion label="Type de carrelage sol / mur :">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {tileTypes.map((type) => (
             <SelectableCard
               key={type.value}
-              selected={data.ambiance.includes(type.value + '-tile')}
-              onClick={() => toggleArrayValue('ambiance', type.value + '-tile')}
+              selected={data.tileType === type.value}
+              onClick={() => updateData({ tileType: type.value })}
               image={type.image}
+              emoji={type.emoji}
               title={type.label}
+              size="md"
+            />
+          ))}
+        </div>
+      </FormQuestion>
+
+      {/* Tile format */}
+      <FormQuestion label="Format de carrelage :">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {tileFormats.map((format) => (
+            <SelectableCard
+              key={format.value}
+              selected={data.tileFormat === format.value}
+              onClick={() => updateData({ tileFormat: format.value })}
+              image={format.image}
+              emoji={format.emoji}
+              title={format.label}
               size="md"
             />
           ))}
