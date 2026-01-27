@@ -162,7 +162,7 @@ function getInitialRoomData(type: RoomType): RoomData {
       return {
         paintingData: { ...initialPaintingData },
         flooringData: { floorType: '', tileType: '', tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' },
-        electricityData: { workType: [], switchStyle: '', additionalNeeds: [] },
+        electricityData: { workType: [], lightingTypes: [], switchStyle: '', additionalNeeds: [] },
         glassPanelData: { purpose: [], panelType: '' },
       };
     case 'wc':
