@@ -119,6 +119,32 @@ export const StepIsolation: React.FC = () => {
             </div>
           </FormQuestion>
 
+          {/* Rooms concerned - only for interior isolation */}
+          {(isolation.isolationType === 'interieur' || isolation.isolationType === 'les-deux') && (
+            <FormQuestion label="Quelles pièces sont concernées par l'isolation intérieure ?">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { value: 'salon-sejour', label: 'Salon / Séjour' },
+                  { value: 'chambres', label: 'Chambre(s)' },
+                  { value: 'cuisine', label: 'Cuisine' },
+                  { value: 'salle-de-bain', label: 'Salle(s) de bain' },
+                  { value: 'entree-couloir', label: 'Entrée / Couloir' },
+                  { value: 'bureau', label: 'Bureau' },
+                  { value: 'toutes', label: 'Toutes les pièces' },
+                  { value: 'ne-sais-pas', label: 'À définir' },
+                ].map((room) => (
+                  <SelectableCard
+                    key={room.value}
+                    selected={isolation.zones.includes(room.value)}
+                    onClick={() => toggleArrayValue('zones', room.value)}
+                    title={room.label}
+                    size="sm"
+                  />
+                ))}
+              </div>
+            </FormQuestion>
+          )}
+
           {/* Zones */}
           <FormQuestion label="Quelles parties du logement sont concernées par l'isolation ?">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
