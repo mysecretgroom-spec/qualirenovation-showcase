@@ -129,7 +129,14 @@ export interface ElectricityData {
 // Flooring module
 export interface FlooringData {
   floorType: string;
+  // Carrelage options
+  tileType: string;
+  tileFormat: string;
+  // Parquet options
   layingPattern: string;
+  woodType: string;
+  plankWidth: string;
+  finish: string;
   existingAction: string;
 }
 
