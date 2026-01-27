@@ -209,6 +209,12 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
     { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
   ];
 
+  const sinkStyleOptions = [
+    { value: 'a-poser', label: 'À poser (sur le plan)' },
+    { value: 'encastree', label: 'Encastrée (sous le plan)' },
+    { value: 'ne-sais-pas', label: 'Je ne sais pas encore' },
+  ];
+
   const vanityCountOptions = [
     { value: 'simple', label: 'Simple' },
     { value: 'double', label: 'Double' },
@@ -437,8 +443,23 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, instance
         </div>
       </FormQuestion>
 
+      {/* Sink style question */}
+      <FormQuestion label="Type de vasque :">
+        <div className="grid grid-cols-3 gap-3 max-w-lg">
+          {sinkStyleOptions.map((option) => (
+            <SelectableCard
+              key={option.value}
+              selected={data.sinkStyle === option.value}
+              onClick={() => updateData({ sinkStyle: option.value })}
+              title={option.label}
+              size="sm"
+            />
+          ))}
+        </div>
+      </FormQuestion>
+
       {/* EGGER Catalog References - Only show for vessel sink (vasque à poser) */}
-      {data.vanityType === 'vasque-seule' && (
+      {data.sinkStyle === 'a-poser' && (
         <FormQuestion label="Références finitions EGGER pour plan sous vasque (optionnel) :">
           <div className="space-y-4">
             {/* Link to EGGER catalog */}
