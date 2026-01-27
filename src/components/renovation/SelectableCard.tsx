@@ -51,7 +51,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
           'hover:border-primary/50 hover:shadow-md',
           'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
           selected
-            ? 'border-primary shadow-md'
+            ? 'border-foreground ring-2 ring-foreground shadow-lg'
             : 'border-border bg-card',
           disabled && 'opacity-50 cursor-not-allowed',
           className
@@ -104,7 +104,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
         'hover:border-primary/50 hover:shadow-md',
         'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
         selected
-          ? 'border-primary bg-primary/5 shadow-md'
+          ? 'border-foreground ring-2 ring-foreground bg-primary/5 shadow-lg'
           : 'border-border bg-card',
         disabled && 'opacity-50 cursor-not-allowed',
         sizeClasses[size],
