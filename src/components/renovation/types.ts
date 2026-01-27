@@ -14,7 +14,7 @@ export interface RenovationFormData {
   
   // Type de projet
   projectTypes: string[];
-  projectContext: 'residence-principale' | 'residence-secondaire' | 'location' | 'revente' | 'autre' | '';
+  projectContexts: string[];
   hasDPE: 'oui-transmis' | 'oui-obsolete' | 'non' | 'ne-sais-pas' | '';
   
   // Conditions de réalisation
@@ -183,7 +183,7 @@ export const initialFormData: RenovationFormData = {
   modifyLayout: '',
   uploadedPlan: null,
   projectTypes: [],
-  projectContext: '',
+  projectContexts: [],
   hasDPE: '',
   occupyDuringWorks: '',
   constraints: [],
