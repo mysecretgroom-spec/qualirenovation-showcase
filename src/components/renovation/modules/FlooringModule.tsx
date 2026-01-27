@@ -5,13 +5,40 @@ import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
 import { FlooringData } from '../types';
 
-// Import flooring images
+// Import flooring images - Floor types
 import parquetImg from '@/assets/flooring/parquet.jpg';
 import carrelageImg from '@/assets/flooring/carrelage.jpg';
 import solSoupleImg from '@/assets/flooring/sol-souple.jpg';
+
+// Import parquet laying patterns
 import parquetChevron from '@/assets/flooring/parquet-chevron.jpg';
 import parquetPointHongrie from '@/assets/flooring/parquet-point-hongrie.jpg';
 import parquetDroit from '@/assets/flooring/parquet-droit.jpg';
+
+// Import parquet wood types/colors
+import parquetCheneClair from '@/assets/flooring/parquet-chene-clair.jpg';
+import parquetCheneMoyen from '@/assets/flooring/parquet-chene-moyen.jpg';
+import parquetCheneFonce from '@/assets/flooring/parquet-chene-fonce.jpg';
+import parquetNoyer from '@/assets/flooring/parquet-noyer.jpg';
+
+// Import parquet plank widths
+import parquetLamesEtroites from '@/assets/flooring/parquet-lames-etroites.jpg';
+import parquetLamesMoyennes from '@/assets/flooring/parquet-lames-moyennes.jpg';
+import parquetLamesLarges from '@/assets/flooring/parquet-lames-larges.jpg';
+
+// Import parquet finishes
+import parquetBrillant from '@/assets/flooring/parquet-brillant.jpg';
+import parquetMat from '@/assets/flooring/parquet-mat.jpg';
+import parquetNaturel from '@/assets/flooring/parquet-naturel.jpg';
+
+// Import tile types
+import carrelageZellige from '@/assets/flooring/carrelage-zellige.jpg';
+import carrelageMarbre from '@/assets/flooring/carrelage-marbre.jpg';
+import carrelageTravertin from '@/assets/flooring/carrelage-travertin.jpg';
+import carrelagePierre from '@/assets/flooring/carrelage-pierre.jpg';
+import carrelageCiment from '@/assets/flooring/carrelage-ciment.jpg';
+import carrelageBeton from '@/assets/flooring/carrelage-beton.jpg';
+import carrelageUnicolore from '@/assets/flooring/carrelage-unicolore.jpg';
 import carrelageGrandFormat from '@/assets/flooring/carrelage-grand-format.jpg';
 
 interface FlooringModuleProps {
@@ -34,6 +61,26 @@ export const FlooringModule: React.FC<FlooringModuleProps> = ({ roomId, roomName
     { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
+  // Tile types
+  const tileTypes = [
+    { value: 'zellige', label: 'Zellige', image: carrelageZellige },
+    { value: 'marbre', label: 'Effet marbre', image: carrelageMarbre },
+    { value: 'travertin', label: 'Travertin', image: carrelageTravertin },
+    { value: 'pierre', label: 'Pierre naturelle', image: carrelagePierre },
+    { value: 'ciment', label: 'Carreau ciment', image: carrelageCiment },
+    { value: 'beton', label: 'Béton ciré', image: carrelageBeton },
+    { value: 'unicolore', label: 'Unicolore', image: carrelageUnicolore },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
+  ];
+
+  const tileFormats = [
+    { value: 'grand-format', label: 'Grand format (60x60+)', image: carrelageGrandFormat },
+    { value: 'standard', label: 'Standard (30x60)', image: carrelageImg },
+    { value: 'petit', label: 'Petit format', image: carrelageZellige },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
+  ];
+
+  // Parquet options
   const layingPatterns = [
     { value: 'droite', label: 'Pose droite', image: parquetDroit },
     { value: 'chevron', label: 'Chevron', image: parquetChevron },
@@ -41,11 +88,26 @@ export const FlooringModule: React.FC<FlooringModuleProps> = ({ roomId, roomName
     { value: 'autre', label: 'Autre' },
   ];
 
-  const tileFormats = [
-    { value: 'grand-format', label: 'Grand format', image: carrelageGrandFormat },
-    { value: 'standard', label: 'Standard', image: carrelageImg },
-    { value: 'autre', label: 'Autre format' },
-    { value: 'a-definir', label: 'À définir' },
+  const woodTypes = [
+    { value: 'chene-clair', label: 'Chêne clair', image: parquetCheneClair },
+    { value: 'chene-moyen', label: 'Chêne moyen', image: parquetCheneMoyen },
+    { value: 'chene-fonce', label: 'Chêne foncé', image: parquetCheneFonce },
+    { value: 'noyer', label: 'Noyer', image: parquetNoyer },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
+  ];
+
+  const plankWidths = [
+    { value: 'etroites', label: 'Lames étroites (70mm)', image: parquetLamesEtroites },
+    { value: 'moyennes', label: 'Lames moyennes (140mm)', image: parquetLamesMoyennes },
+    { value: 'larges', label: 'Lames larges (200mm+)', image: parquetLamesLarges },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
+  ];
+
+  const finishes = [
+    { value: 'brillant', label: 'Brillant (verni)', image: parquetBrillant },
+    { value: 'mat', label: 'Mat (satiné)', image: parquetMat },
+    { value: 'naturel', label: 'Naturel (huilé)', image: parquetNaturel },
+    { value: 'a-definir', label: 'À définir', emoji: '❓' },
   ];
 
   const existingActions = [
@@ -75,38 +137,109 @@ export const FlooringModule: React.FC<FlooringModuleProps> = ({ roomId, roomName
         </div>
       </FormQuestion>
 
-      {data.floorType === 'parquet' && (
-        <FormQuestion label="Type de pose :">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {layingPatterns.map((pattern) => (
-              <SelectableCard
-                key={pattern.value}
-                selected={data.layingPattern === pattern.value}
-                onClick={() => updateData({ layingPattern: pattern.value })}
-                image={pattern.image}
-                title={pattern.label}
-                size="md"
-              />
-            ))}
-          </div>
-        </FormQuestion>
+      {/* Carrelage options */}
+      {data.floorType === 'carrelage' && (
+        <>
+          <FormQuestion label="Type de carrelage :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {tileTypes.map((type) => (
+                <SelectableCard
+                  key={type.value}
+                  selected={data.tileType === type.value}
+                  onClick={() => updateData({ tileType: type.value })}
+                  image={type.image}
+                  emoji={type.emoji}
+                  title={type.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Format de carrelage :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {tileFormats.map((format) => (
+                <SelectableCard
+                  key={format.value}
+                  selected={data.tileFormat === format.value}
+                  onClick={() => updateData({ tileFormat: format.value })}
+                  image={format.image}
+                  emoji={format.emoji}
+                  title={format.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+        </>
       )}
 
-      {data.floorType === 'carrelage' && (
-        <FormQuestion label="Format de carrelage :">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {tileFormats.map((format) => (
-              <SelectableCard
-                key={format.value}
-                selected={data.layingPattern === format.value}
-                onClick={() => updateData({ layingPattern: format.value })}
-                image={format.image}
-                title={format.label}
-                size="md"
-              />
-            ))}
-          </div>
-        </FormQuestion>
+      {/* Parquet options */}
+      {data.floorType === 'parquet' && (
+        <>
+          <FormQuestion label="Coloris / Essence de bois :">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {woodTypes.map((wood) => (
+                <SelectableCard
+                  key={wood.value}
+                  selected={data.woodType === wood.value}
+                  onClick={() => updateData({ woodType: wood.value })}
+                  image={wood.image}
+                  emoji={wood.emoji}
+                  title={wood.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Type de pose :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {layingPatterns.map((pattern) => (
+                <SelectableCard
+                  key={pattern.value}
+                  selected={data.layingPattern === pattern.value}
+                  onClick={() => updateData({ layingPattern: pattern.value })}
+                  image={pattern.image}
+                  title={pattern.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Largeur des lames :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {plankWidths.map((width) => (
+                <SelectableCard
+                  key={width.value}
+                  selected={data.plankWidth === width.value}
+                  onClick={() => updateData({ plankWidth: width.value })}
+                  image={width.image}
+                  emoji={width.emoji}
+                  title={width.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+
+          <FormQuestion label="Finition :">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {finishes.map((finish) => (
+                <SelectableCard
+                  key={finish.value}
+                  selected={data.finish === finish.value}
+                  onClick={() => updateData({ finish: finish.value })}
+                  image={finish.image}
+                  emoji={finish.emoji}
+                  title={finish.label}
+                  size="md"
+                />
+              ))}
+            </div>
+          </FormQuestion>
+        </>
       )}
 
       <FormQuestion label="Souhaitez-vous :">
