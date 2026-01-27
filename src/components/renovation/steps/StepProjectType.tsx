@@ -45,6 +45,25 @@ export const StepProjectType: React.FC = () => {
     }
   };
 
+  const toggleProjectContext = (value: string) => {
+    const current = formData.projectContexts;
+    const residenceTypes = ['residence-principale', 'residence-secondaire'];
+    
+    if (current.includes(value)) {
+      // Deselect
+      updateFormData('projectContexts', current.filter(c => c !== value));
+    } else {
+      // Select with mutual exclusion for residence types
+      if (residenceTypes.includes(value)) {
+        // Remove the other residence type if present
+        const filtered = current.filter(c => !residenceTypes.includes(c));
+        updateFormData('projectContexts', [...filtered, value]);
+      } else {
+        updateFormData('projectContexts', [...current, value]);
+      }
+    }
+  };
+
   return (
     <FormSection
       title="Quel est le projet que vous souhaitez mener ?"
@@ -67,14 +86,17 @@ export const StepProjectType: React.FC = () => {
         </div>
       </FormQuestion>
 
-      {/* Project context */}
-      <FormQuestion label="Ce projet est envisagé dans quel contexte ?">
+      {/* Project context - multi-select with mutual exclusion for residences */}
+      <FormQuestion 
+        label="Ce projet est envisagé dans quel contexte ?"
+        hint="Sélection multiple possible"
+      >
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {projectContexts.map((ctx) => (
             <SelectableCard
               key={ctx.value}
-              selected={formData.projectContext === ctx.value}
-              onClick={() => updateFormData('projectContext', ctx.value as typeof formData.projectContext)}
+              selected={formData.projectContexts.includes(ctx.value)}
+              onClick={() => toggleProjectContext(ctx.value)}
               icon={ctx.icon}
               title={ctx.label}
               size="sm"
