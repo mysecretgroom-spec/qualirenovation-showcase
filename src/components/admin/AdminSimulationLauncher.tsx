@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,9 +39,16 @@ const AdminSimulationLauncher = ({
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedClient, setSelectedClient] = useState<Client | null>(preselectedClient || null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Sync selectedClient when preselectedClient changes
+  useEffect(() => {
+    if (preselectedClient) {
+      setSelectedClient(preselectedClient);
+    }
+  }, [preselectedClient]);
 
   const fetchClients = async () => {
     setLoading(true);
