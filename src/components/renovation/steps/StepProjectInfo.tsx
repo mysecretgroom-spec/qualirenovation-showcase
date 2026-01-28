@@ -17,17 +17,17 @@ export const StepProjectInfo: React.FC = () => {
     >
       {/* Property Type */}
       <FormQuestion label="Quel type de bien est concerné ?" required>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <SelectableCard
             selected={formData.propertyType === 'appartement'}
             onClick={() => updateFormData('propertyType', 'appartement')}
-            icon={<Building2 className="w-8 h-8" />}
+            icon={<Building2 className="w-6 h-6 sm:w-8 sm:h-8" />}
             title="Appartement"
           />
           <SelectableCard
             selected={formData.propertyType === 'maison'}
             onClick={() => updateFormData('propertyType', 'maison')}
-            icon={<Home className="w-8 h-8" />}
+            icon={<Home className="w-6 h-6 sm:w-8 sm:h-8" />}
             title="Maison"
           />
         </div>
@@ -39,15 +39,15 @@ export const StepProjectInfo: React.FC = () => {
         required
         hint="Une estimation suffit à ce stade"
       >
-        <div className="flex items-center gap-2 max-w-xs">
+        <div className="flex items-center gap-2 max-w-[200px] sm:max-w-xs">
           <Input
             type="number"
             value={formData.surface}
             onChange={(e) => updateFormData('surface', e.target.value)}
             placeholder="Ex: 75"
-            className="text-center"
+            className="text-center text-base"
           />
-          <span className="text-muted-foreground">m²</span>
+          <span className="text-muted-foreground text-sm">m²</span>
         </div>
       </FormQuestion>
 

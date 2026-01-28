@@ -24,33 +24,35 @@ export const FormNavigation: React.FC<FormNavigationProps> = ({ onSubmit, isLast
   };
 
   return (
-    <div className="flex justify-between items-center pt-8 border-t border-border">
+    <div className="flex justify-between items-center pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-border gap-3">
       <Button
         variant="outline"
         onClick={handlePrevious}
         disabled={currentStep === 0}
-        className="gap-2"
+        className="gap-1.5 sm:gap-2 text-sm sm:text-base px-3 sm:px-4"
       >
         <ChevronLeft className="w-4 h-4" />
-        Précédent
+        <span className="hidden sm:inline">Précédent</span>
+        <span className="sm:hidden">Retour</span>
       </Button>
 
       {isLastStep ? (
         <Button
           onClick={onSubmit}
           disabled={!canProceed}
-          className="gap-2 bg-primary hover:bg-primary/90"
+          className="gap-1.5 sm:gap-2 bg-primary hover:bg-primary/90 text-sm sm:text-base px-3 sm:px-4"
         >
-          Envoyer ma demande
+          <span className="hidden sm:inline">Envoyer ma demande</span>
+          <span className="sm:hidden">Envoyer</span>
           <Send className="w-4 h-4" />
         </Button>
       ) : (
         <Button
           onClick={handleNext}
           disabled={!canProceed}
-          className="gap-2"
+          className="gap-1.5 sm:gap-2 text-sm sm:text-base px-3 sm:px-4"
         >
-          Suivant
+          <span>Suivant</span>
           <ChevronRight className="w-4 h-4" />
         </Button>
       )}

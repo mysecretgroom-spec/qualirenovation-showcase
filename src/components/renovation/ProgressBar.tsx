@@ -46,18 +46,18 @@ export const ProgressBar: React.FC = () => {
   };
 
   return (
-    <div className="w-full space-y-2">
-      <div className="flex justify-between items-center text-sm text-muted-foreground">
-        <span>Étape {currentStep + 1} sur {totalSteps}</span>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-xs">
+    <div className="w-full space-y-1.5 sm:space-y-2">
+      <div className="flex justify-between items-center text-xs sm:text-sm text-muted-foreground">
+        <span>Étape {currentStep + 1}/{totalSteps}</span>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="hidden sm:flex items-center gap-1.5 text-xs">
             <Clock className="w-3.5 h-3.5" />
             {formatTime(remainingMinutes)} restantes
           </span>
-          <span>{Math.round(progressPercent)}%</span>
+          <span className="text-xs sm:text-sm">{Math.round(progressPercent)}%</span>
         </div>
       </div>
-      <Progress value={progressPercent} className="h-2" />
+      <Progress value={progressPercent} className="h-1.5 sm:h-2" />
     </div>
   );
 };

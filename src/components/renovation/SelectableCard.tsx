@@ -31,19 +31,19 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
   size = 'md',
 }) => {
   const sizeClasses = {
-    sm: 'p-3 min-h-[80px]',
-    md: 'p-4 min-h-[120px]',
-    lg: 'p-6 min-h-[160px]',
-    xl: 'p-6 min-h-[200px]',
-    xxl: 'p-6 min-h-[280px]',
+    sm: 'p-2 sm:p-3 min-h-[60px] sm:min-h-[80px]',
+    md: 'p-2.5 sm:p-4 min-h-[80px] sm:min-h-[120px]',
+    lg: 'p-3 sm:p-6 min-h-[100px] sm:min-h-[160px]',
+    xl: 'p-3 sm:p-6 min-h-[120px] sm:min-h-[200px]',
+    xxl: 'p-4 sm:p-6 min-h-[160px] sm:min-h-[280px]',
   };
 
   const imageSizeClasses = {
-    sm: 'h-20',
-    md: 'h-28',
-    lg: 'h-40',
-    xl: 'h-52',
-    xxl: 'h-64',
+    sm: 'h-14 sm:h-20',
+    md: 'h-20 sm:h-28',
+    lg: 'h-28 sm:h-40',
+    xl: 'h-36 sm:h-52',
+    xxl: 'h-44 sm:h-64',
   };
 
   // If image is provided, use a different layout
@@ -91,17 +91,17 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
 
         {/* Title overlay */}
         <div className={cn(
-          'px-3 py-2 text-center',
+          'px-2 sm:px-3 py-1.5 sm:py-2 text-center',
           selected ? 'bg-primary/10' : 'bg-card'
         )}>
           <span className={cn(
-            'text-sm font-medium',
+            'text-xs sm:text-sm font-medium line-clamp-2',
             selected ? 'text-primary' : 'text-foreground'
           )}>
             {title}
           </span>
           {description && (
-            <span className="block text-xs text-muted-foreground mt-0.5">
+            <span className="hidden sm:block text-xs text-muted-foreground mt-0.5">
               {description}
             </span>
           )}
@@ -130,7 +130,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
 
       {/* Emoji */}
       {emoji && (
-        <span className="text-3xl mb-1" role="img" aria-label={title}>
+        <span className="text-xl sm:text-3xl mb-0.5 sm:mb-1" role="img" aria-label={title}>
           {emoji}
         </span>
       )}
@@ -138,7 +138,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
       {/* Icon */}
       {icon && (
         <div className={cn(
-          'flex items-center justify-center',
+          'flex items-center justify-center [&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6',
           selected ? 'text-primary' : 'text-muted-foreground'
         )}>
           {icon}
@@ -147,7 +147,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
 
       {/* Title */}
       <span className={cn(
-        'text-sm font-medium text-center',
+        'text-xs sm:text-sm font-medium text-center line-clamp-2',
         selected ? 'text-primary' : 'text-foreground'
       )}>
         {title}
@@ -155,7 +155,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
 
       {/* Description */}
       {description && (
-        <span className="text-xs text-muted-foreground text-center line-clamp-2">
+        <span className="hidden sm:block text-xs text-muted-foreground text-center line-clamp-2">
           {description}
         </span>
       )}

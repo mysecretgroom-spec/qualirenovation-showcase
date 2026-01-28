@@ -321,9 +321,9 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container-tight py-8 md:py-12">
+      <div className="container-tight py-4 sm:py-8 md:py-12 px-4 sm:px-6 lg:px-8">
         {/* Progress bar */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-8">
           <ProgressBar />
         </div>
 
