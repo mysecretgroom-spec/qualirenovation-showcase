@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLeadContext } from '@/contexts/LeadContext';
 import { supabase } from '@/integrations/supabase/client';
 import { saveSimulationFilesToClient, extractRoomInspirationImages } from '@/hooks/useSimulationFileSaver';
+import { uploadSimulationPDF } from '@/utils/generateSimulationPDF';
 
 const roomLabels: Record<RoomType, string> = {
   'cuisine': 'Cuisine',
@@ -86,10 +87,11 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
         throw dbError;
       }
 
-      // Save uploaded files to client_files if we have a clientId (admin mode)
+      // Save uploaded files and generate PDF if we have a clientId (admin mode)
       if (leadData?.clientId) {
         const roomInspirationImages = extractRoomInspirationImages(formData.selectedRooms);
         
+        // Save inspiration images, plan, and DPE
         const { savedCount } = await saveSimulationFilesToClient({
           clientId: leadData.clientId,
           inspirationImages: formData.inspirationImages,
@@ -100,6 +102,17 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
         
         if (savedCount > 0) {
           console.log(`Saved ${savedCount} files to client documents`);
+        }
+        
+        // Generate and upload comprehensive PDF
+        const pdfResult = await uploadSimulationPDF(leadData.clientId, {
+          leadData,
+          formData,
+          includeImages: true,
+        });
+        
+        if (pdfResult.success) {
+          console.log('PDF generated and saved to client documents');
         }
       }
 
