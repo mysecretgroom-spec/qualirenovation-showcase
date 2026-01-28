@@ -113,8 +113,10 @@ export const RenovationFormProvider: React.FC<RenovationFormProviderProps> = ({ 
     const globalPaintingStep = formData.needsGlobalPainting === 'oui' ? 1 : 0;
     const globalFlooringStep = formData.needsGlobalFlooring === 'oui' ? 1 : 0;
     const globalElectricityStep = formData.needsGlobalElectricity === 'oui' ? 1 : 0;
-    return baseSteps + isolationStep + roomSteps + globalPaintingStep + globalFlooringStep + globalElectricityStep;
-  }, [formData.projectTypes, formData.selectedRooms.length, formData.needsGlobalPainting, formData.needsGlobalFlooring, formData.needsGlobalElectricity]);
+    const globalMouldingsStep = formData.needsGlobalMouldings === 'oui' ? 1 : 0;
+    const globalFurnitureStep = formData.needsGlobalFurniture === 'oui' ? 1 : 0;
+    return baseSteps + isolationStep + roomSteps + globalPaintingStep + globalFlooringStep + globalElectricityStep + globalMouldingsStep + globalFurnitureStep;
+  }, [formData.projectTypes, formData.selectedRooms.length, formData.needsGlobalPainting, formData.needsGlobalFlooring, formData.needsGlobalElectricity, formData.needsGlobalMouldings, formData.needsGlobalFurniture]);
 
   const canProceed = useMemo(() => {
     // Validation logic per step
@@ -158,24 +160,9 @@ function getInitialRoomData(type: RoomType): RoomData {
       return { bathroomData: { ...initialBathroomData } };
     case 'cuisine':
       return { kitchenData: { ...initialKitchenData } };
-    case 'salon-sejour':
-    case 'chambre':
-    case 'entree-couloir':
-    case 'bureau':
-      return {
-        genericRoomData: { description: '', workTypes: [], certaintyLevel: '' },
-      };
     case 'wc':
-      return {
-        genericRoomData: { description: '', workTypes: [], certaintyLevel: '' },
-      };
-    case 'dressing-rangements':
-      return {
-        customFurnitureData: { furnitureType: [], approach: '', supportLevel: '' },
-      };
+      return { wcData: { toiletType: '', existingSanibroyeur: '', wantHandWash: '', handWashType: '', faucetFinish: '', siphonType: '', certaintyLevel: '' } };
     default:
-      return {
-        genericRoomData: { description: '', workTypes: [], certaintyLevel: '' },
-      };
+      return {};
   }
 }

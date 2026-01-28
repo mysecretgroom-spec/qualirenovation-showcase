@@ -9,12 +9,6 @@ const roomLabels: Record<RoomType, string> = {
   'cuisine': 'Cuisine',
   'salle-de-bain': 'Salle de bain',
   'wc': 'WC',
-  'salon-sejour': 'Salon / Séjour',
-  'chambre': 'Chambre',
-  'entree-couloir': 'Entrée / Couloir',
-  'dressing-rangements': 'Dressing / Rangements',
-  'bureau': 'Bureau',
-  'autre': 'Autre pièce',
 };
 
 interface StepSummaryProps {

@@ -4,19 +4,13 @@ import { FormSection } from '../FormSection';
 import { SelectableCard } from '../SelectableCard';
 import { Button } from '@/components/ui/button';
 import { RoomType } from '../types';
-import { Plus, Trash2, ChefHat, Bath, Toilet, Sofa, Bed, DoorOpen, Shirt, Briefcase, HelpCircle } from 'lucide-react';
+import { Plus, Trash2, ChefHat, Bath, Toilet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const roomOptions: { type: RoomType; label: string; icon: React.ReactNode; emoji: string }[] = [
   { type: 'cuisine', label: 'Cuisine', icon: <ChefHat className="w-8 h-8" />, emoji: '🍳' },
   { type: 'salle-de-bain', label: 'Salle de bain', icon: <Bath className="w-8 h-8" />, emoji: '🛁' },
   { type: 'wc', label: 'WC', icon: <Toilet className="w-8 h-8" />, emoji: '🚽' },
-  { type: 'salon-sejour', label: 'Salon / Séjour', icon: <Sofa className="w-8 h-8" />, emoji: '🛋️' },
-  { type: 'chambre', label: 'Chambre', icon: <Bed className="w-8 h-8" />, emoji: '🛏️' },
-  { type: 'entree-couloir', label: 'Entrée / Couloir', icon: <DoorOpen className="w-8 h-8" />, emoji: '🚪' },
-  { type: 'dressing-rangements', label: 'Dressing / Rangements', icon: <Shirt className="w-8 h-8" />, emoji: '👔' },
-  { type: 'bureau', label: 'Bureau', icon: <Briefcase className="w-8 h-8" />, emoji: '💼' },
-  { type: 'autre', label: 'Autre pièce', icon: <HelpCircle className="w-8 h-8" />, emoji: '🏠' },
 ];
 
 export const StepRoomSelection: React.FC = () => {
