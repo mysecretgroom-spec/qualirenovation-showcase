@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   X, Save, Loader2, Home, Calendar, MapPin, Ruler, 
   ChevronRight, Bath, CookingPot, DoorOpen, Settings, 
-  Clock, AlertTriangle, Paintbrush, Zap, Frame
+  Clock, AlertTriangle, Paintbrush, Zap, Frame, Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { uploadSimulationPDF } from "@/utils/generateSimulationPDF";
 import { cn } from "@/lib/utils";
+import RoomEditorPanel from "./RoomEditorPanel";
 
 interface Simulation {
   id: string;
@@ -145,6 +146,7 @@ const SimulationEditor = ({
   const [activeSection, setActiveSection] = useState<SectionId>('projet');
   const [saving, setSaving] = useState(false);
   const [formState, setFormState] = useState<Partial<Simulation>>({});
+  const [editingRoom, setEditingRoom] = useState<any | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -540,32 +542,55 @@ const SimulationEditor = ({
     </div>
   );
 
+  const handleRoomSave = (updatedRoom: any) => {
+    const rooms = [...(formState.selected_rooms || [])];
+    const index = rooms.findIndex((r: any) => r.id === updatedRoom.id);
+    if (index >= 0) {
+      rooms[index] = updatedRoom;
+      setFormState(prev => ({ ...prev, selected_rooms: rooms }));
+    }
+    setEditingRoom(null);
+  };
+
   const renderPiecesSection = () => {
     const rooms = formState.selected_rooms || [];
+    
+    // If editing a specific room, show the room editor
+    if (editingRoom) {
+      return (
+        <RoomEditorPanel
+          room={editingRoom}
+          onSave={handleRoomSave}
+          onCancel={() => setEditingRoom(null)}
+        />
+      );
+    }
     
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          {rooms.length} pièce(s) configurée(s). L'édition détaillée des pièces sera disponible prochainement.
+          {rooms.length} pièce(s) configurée(s). Cliquez sur une pièce pour la modifier.
         </p>
         
         <div className="grid sm:grid-cols-2 gap-3">
           {rooms.map((room: any, index: number) => (
             <div 
               key={room.id || index}
-              className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30"
+              className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors group"
+              onClick={() => setEditingRoom(room)}
             >
               {room.type === 'cuisine' && <CookingPot className="w-5 h-5 text-primary" />}
               {room.type === 'salle-de-bain' && <Bath className="w-5 h-5 text-primary" />}
               {room.type === 'wc' && <DoorOpen className="w-5 h-5 text-primary" />}
               {!['cuisine', 'salle-de-bain', 'wc'].includes(room.type) && <DoorOpen className="w-5 h-5 text-primary" />}
-              <span className="font-medium">
+              <span className="font-medium flex-1">
                 {roomTypeLabels[room.type] || room.type}
                 {room.instanceNumber > 1 ? ` ${room.instanceNumber}` : ''}
               </span>
               {room.data && Object.keys(room.data).length > 0 && (
-                <Badge variant="secondary" className="ml-auto">Configurée</Badge>
+                <Badge variant="secondary">Configurée</Badge>
               )}
+              <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           ))}
         </div>
