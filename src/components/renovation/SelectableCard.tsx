@@ -14,7 +14,7 @@ interface SelectableCardProps {
   badge?: string;
   disabled?: boolean;
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 }
 
 export const SelectableCard: React.FC<SelectableCardProps> = ({
@@ -35,13 +35,15 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
     md: 'p-4 min-h-[120px]',
     lg: 'p-6 min-h-[160px]',
     xl: 'p-6 min-h-[200px]',
+    xxl: 'p-6 min-h-[280px]',
   };
 
   const imageSizeClasses = {
-    sm: 'h-16',
-    md: 'h-24',
-    lg: 'h-32',
-    xl: 'h-40',
+    sm: 'h-20',
+    md: 'h-28',
+    lg: 'h-40',
+    xl: 'h-52',
+    xxl: 'h-64',
   };
 
   // If image is provided, use a different layout

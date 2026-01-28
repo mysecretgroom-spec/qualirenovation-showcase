@@ -8,7 +8,6 @@ import {
   RoomSelection,
   initialBathroomData,
   initialKitchenData,
-  initialPaintingData
 } from './types';
 import { useLeadContext, LeadData } from '@/contexts/LeadContext';
 
@@ -102,16 +101,20 @@ export const RenovationFormProvider: React.FC<RenovationFormProviderProps> = ({ 
     }));
   }, []);
 
-  // Calculate total steps based on selected rooms
+  // Calculate total steps based on selected rooms and global modules
   const totalSteps = useMemo(() => {
-    // Base steps: Project info (1) + Conception (1) + Project type (1) + Room selection (1) + Conditions (1) + Summary (1)
-    const baseSteps = 6;
+    // Base steps: Project info (1) + Conception (1) + Project type (1) + Room selection (1) + Global works selection (1) + Conditions (1) + Summary (1)
+    const baseSteps = 7;
     // Add isolation step if applicable
     const isolationStep = formData.projectTypes.includes('dpe') ? 1 : 0;
     // Add one step per selected room
     const roomSteps = formData.selectedRooms.length;
-    return baseSteps + isolationStep + roomSteps;
-  }, [formData.projectTypes, formData.selectedRooms.length]);
+    // Add global module steps
+    const globalPaintingStep = formData.needsGlobalPainting === 'oui' ? 1 : 0;
+    const globalFlooringStep = formData.needsGlobalFlooring === 'oui' ? 1 : 0;
+    const globalElectricityStep = formData.needsGlobalElectricity === 'oui' ? 1 : 0;
+    return baseSteps + isolationStep + roomSteps + globalPaintingStep + globalFlooringStep + globalElectricityStep;
+  }, [formData.projectTypes, formData.selectedRooms.length, formData.needsGlobalPainting, formData.needsGlobalFlooring, formData.needsGlobalElectricity]);
 
   const canProceed = useMemo(() => {
     // Validation logic per step
@@ -160,10 +163,7 @@ function getInitialRoomData(type: RoomType): RoomData {
     case 'entree-couloir':
     case 'bureau':
       return {
-        paintingData: { ...initialPaintingData },
-        flooringData: { floorType: '', tileTypes: [], tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' },
-        electricityData: { workType: [], lightingTypes: [], switchStyle: '', additionalNeeds: [] },
-        glassPanelData: { purpose: [], panelType: '' },
+        genericRoomData: { description: '', workTypes: [], certaintyLevel: '' },
       };
     case 'wc':
       return {

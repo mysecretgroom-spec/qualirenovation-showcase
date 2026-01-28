@@ -10,17 +10,16 @@ import { StepRoomSelection } from './steps/StepRoomSelection';
 import { StepConditions } from './steps/StepConditions';
 import { StepIsolation } from './steps/StepIsolation';
 import { StepSummary } from './steps/StepSummary';
+import { StepGlobalWorksSelection } from './steps/StepGlobalWorksSelection';
 import { BathroomModule } from './modules/BathroomModule';
 import { KitchenModule } from './modules/KitchenModule';
 import { WCModule } from './modules/WCModule';
 import { CustomFurnitureModule } from './modules/CustomFurnitureModule';
 import { GenericRoomModule } from './modules/GenericRoomModule';
-import { FlooringModule } from './modules/FlooringModule';
-import { PaintingModule } from './modules/PaintingModule';
-import { ElectricityModule } from './modules/ElectricityModule';
-import { GlassPanelModule } from './modules/GlassPanelModule';
-import { LivingRoomModule } from './modules/LivingRoomModule';
-import { RoomType, initialBathroomData, initialKitchenData, initialPaintingData, initialWCData } from './types';
+import { GlobalFlooringModule } from './modules/GlobalFlooringModule';
+import { GlobalPaintingModule } from './modules/GlobalPaintingModule';
+import { GlobalElectricityModule } from './modules/GlobalElectricityModule';
+import { RoomType, initialBathroomData, initialKitchenData, initialWCData, initialGlobalFlooringData, initialGlobalPaintingData, initialGlobalElectricityData } from './types';
 import { useToast } from '@/hooks/use-toast';
 import { useLeadContext } from '@/contexts/LeadContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,7 +50,7 @@ interface RenovationFormContentProps {
 }
 
 const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMode = false }) => {
-  const { formData, currentStep, setCurrentStep } = useRenovationForm();
+  const { formData, currentStep, setCurrentStep, updateFormData } = useRenovationForm();
   const { leadData, clearLeadData } = useLeadContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -233,20 +232,6 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
         case 'chambre':
         case 'entree-couloir':
         case 'bureau':
-          component = (
-            <LivingRoomModule
-              key={room.id}
-              roomId={room.id}
-              roomName={roomName}
-              paintingData={room.data.paintingData || initialPaintingData}
-              flooringData={room.data.flooringData || { floorType: '', tileTypes: [], tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '', existingAction: '' }}
-              electricityData={room.data.electricityData || { workType: [], lightingTypes: [], switchStyle: '', additionalNeeds: [] }}
-              glassPanelData={room.data.glassPanelData || { purpose: [], panelType: '' }}
-              showGlassPanel={room.type === 'salon-sejour' || room.type === 'entree-couloir'}
-              onSkip={handleSkipSection}
-            />
-          );
-          break;
         default:
           component = (
             <GenericRoomModule
@@ -263,6 +248,52 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
       steps.push({ id: `room-${room.id}`, component, isSkippable: true });
     });
 
+    // Add global works selection step after rooms
+    steps.push({ id: 'global-works-selection', component: <StepGlobalWorksSelection /> });
+
+    // Add global modules based on user selection
+    if (formData.needsGlobalPainting === 'oui') {
+      steps.push({
+        id: 'global-painting',
+        component: (
+          <GlobalPaintingModule
+            data={formData.globalPainting || initialGlobalPaintingData}
+            onUpdate={(updates) => updateFormData('globalPainting', { ...formData.globalPainting, ...updates })}
+            onSkip={handleSkipSection}
+          />
+        ),
+        isSkippable: true,
+      });
+    }
+
+    if (formData.needsGlobalFlooring === 'oui') {
+      steps.push({
+        id: 'global-flooring',
+        component: (
+          <GlobalFlooringModule
+            data={formData.globalFlooring || initialGlobalFlooringData}
+            onUpdate={(updates) => updateFormData('globalFlooring', { ...formData.globalFlooring, ...updates })}
+            onSkip={handleSkipSection}
+          />
+        ),
+        isSkippable: true,
+      });
+    }
+
+    if (formData.needsGlobalElectricity === 'oui') {
+      steps.push({
+        id: 'global-electricity',
+        component: (
+          <GlobalElectricityModule
+            data={formData.globalElectricity || initialGlobalElectricityData}
+            onUpdate={(updates) => updateFormData('globalElectricity', { ...formData.globalElectricity, ...updates })}
+            onSkip={handleSkipSection}
+          />
+        ),
+        isSkippable: true,
+      });
+    }
+
     // Add isolation step if DPE is selected
     if (formData.projectTypes.includes('dpe')) {
       steps.push({ id: 'isolation', component: <StepIsolation /> });
@@ -272,7 +303,7 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
     steps.push({ id: 'conditions', component: <StepConditions /> });
 
     return steps;
-  }, [formData.selectedRooms, formData.projectTypes]);
+  }, [formData.selectedRooms, formData.projectTypes, formData.needsGlobalPainting, formData.needsGlobalFlooring, formData.needsGlobalElectricity, formData.globalPainting, formData.globalFlooring, formData.globalElectricity]);
 
   // Add summary step separately since it needs the handleSubmit function
   const allSteps = useMemo(() => {

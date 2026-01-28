@@ -96,17 +96,19 @@ export const GlobalPaintingModule: React.FC<GlobalPaintingModuleProps> = ({
     const colorName = match?.[2]?.trim() || '';
     const roomsToAssign = [...selectedColorRooms];
     
-    // Add loading placeholder
+    // Generate unique temp ID for tracking this specific color
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    
+    // Add loading placeholder with temp ID
     const loadingColor: FarrowBallColor = {
       colorNumber: colorNumber,
       colorName: colorName || colorRef,
       rooms: roomsToAssign,
       isLoading: true,
+      _tempId: tempId,
     };
     
-    const currentColors = data.farrowBallColors || [];
-    const loadingIndex = currentColors.length;
-    onUpdate({ farrowBallColors: [...currentColors, loadingColor] });
+    onUpdate({ farrowBallColors: [...(data.farrowBallColors || []), loadingColor] });
     
     setNewColorRef('');
     setSelectedColorRooms([]);
@@ -118,9 +120,26 @@ export const GlobalPaintingModule: React.FC<GlobalPaintingModuleProps> = ({
 
       if (error) throw error;
 
-      // Update the specific color at the loading index
-      onUpdate({ 
-        farrowBallColors: [...currentColors, {
+      // Update by replacing the loading item using tempId
+      const currentColors = data.farrowBallColors || [];
+      const updatedColors = currentColors.map(c => 
+        c._tempId === tempId
+          ? {
+              colorNumber: scrapeData?.colorNumber || colorNumber,
+              colorName: scrapeData?.colorName || colorName || colorRef,
+              rooms: roomsToAssign,
+              imageUrl: scrapeData?.imageUrl || undefined,
+              hexColor: scrapeData?.hexColor || undefined,
+              productUrl: scrapeData?.productUrl || undefined,
+              isLoading: false,
+              _tempId: undefined,
+            }
+          : c
+      );
+      
+      // If no item was updated (race condition), add as new
+      if (!updatedColors.some(c => c.colorNumber === (scrapeData?.colorNumber || colorNumber) && !c.isLoading && !c._tempId)) {
+        updatedColors.push({
           colorNumber: scrapeData?.colorNumber || colorNumber,
           colorName: scrapeData?.colorName || colorName || colorRef,
           rooms: roomsToAssign,
@@ -128,8 +147,10 @@ export const GlobalPaintingModule: React.FC<GlobalPaintingModuleProps> = ({
           hexColor: scrapeData?.hexColor || undefined,
           productUrl: scrapeData?.productUrl || undefined,
           isLoading: false,
-        }]
-      });
+        });
+      }
+      
+      onUpdate({ farrowBallColors: updatedColors.filter(c => c._tempId !== tempId || !c.isLoading) });
       
       if (scrapeData?.imageUrl || scrapeData?.hexColor) {
         toast.success(`Couleur trouvée: ${scrapeData?.colorName || colorRef}`);
@@ -138,16 +159,21 @@ export const GlobalPaintingModule: React.FC<GlobalPaintingModuleProps> = ({
       }
     } catch (error) {
       console.error('Error scraping Farrow & Ball:', error);
-      // Update with error state
-      onUpdate({ 
-        farrowBallColors: [...currentColors, {
-          colorNumber: colorNumber,
-          colorName: colorName || colorRef,
-          rooms: roomsToAssign,
-          isLoading: false,
-          error: 'Couleur non trouvée',
-        }]
-      });
+      // Update with error state using tempId
+      const currentColors = data.farrowBallColors || [];
+      const updatedColors = currentColors.map(c => 
+        c._tempId === tempId
+          ? {
+              colorNumber: colorNumber,
+              colorName: colorName || colorRef,
+              rooms: roomsToAssign,
+              isLoading: false,
+              error: 'Couleur non trouvée',
+              _tempId: undefined,
+            }
+          : c
+      );
+      onUpdate({ farrowBallColors: updatedColors });
       toast.error(`Couleur ${colorRef} non trouvée`);
     }
   };

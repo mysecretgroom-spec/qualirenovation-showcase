@@ -638,7 +638,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
               image={type.image}
               emoji={type.emoji}
               title={type.label}
-              size="lg"
+              size="xl"
             />
           ))}
         </div>
@@ -655,7 +655,7 @@ export const BathroomModule: React.FC<BathroomModuleProps> = ({ roomId, roomName
               image={type.image}
               emoji={type.emoji}
               title={type.label}
-              size="lg"
+              size="xl"
             />
           ))}
         </div>
