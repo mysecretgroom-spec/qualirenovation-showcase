@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { generateSimulationPDF } from "@/utils/generateSimulationPDF";
-import { Loader2, FileText, Maximize2, X } from "lucide-react";
+import { Loader2, FileText, Maximize2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,70 +23,93 @@ const SimulationPdfPreview = ({ pdfData, simulationId }: SimulationPdfPreviewPro
   const [error, setError] = useState(false);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    let currentUrl: string | null = null;
-
-    const generatePreview = async () => {
-      setLoading(true);
-      setError(false);
+  const generatePreview = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    
+    // Cleanup previous URL
+    if (pdfUrl) {
+      URL.revokeObjectURL(pdfUrl);
+      setPdfUrl(null);
+    }
+    
+    try {
+      // Ensure we have valid data with all required defaults
+      const safeLeadData = {
+        name: pdfData.leadData?.name || 'Client',
+        email: pdfData.leadData?.email || '',
+        phone: pdfData.leadData?.phone || '',
+        address: pdfData.leadData?.address || '',
+        postalCode: pdfData.leadData?.postalCode || '',
+        city: pdfData.leadData?.city || pdfData.formData?.city || '',
+        surface: pdfData.leadData?.surface || pdfData.formData?.surface || '',
+        budget: pdfData.leadData?.budget || '',
+        timeline: pdfData.leadData?.timeline || '',
+        message: pdfData.leadData?.message || '',
+      };
       
-      try {
-        // Ensure we have valid data with defaults
-        const safeLeadData = {
-          name: pdfData.leadData?.name || 'Client',
-          email: pdfData.leadData?.email || '',
-          phone: pdfData.leadData?.phone || '',
-          address: pdfData.leadData?.address || '',
-          postalCode: pdfData.leadData?.postalCode || '',
-          city: pdfData.leadData?.city || '',
-          surface: pdfData.leadData?.surface || '',
-          budget: pdfData.leadData?.budget || '',
-          timeline: pdfData.leadData?.timeline || '',
-          message: pdfData.leadData?.message || '',
-        };
-        
-        const safeFormData = {
-          ...pdfData.formData,
-          propertyType: pdfData.formData?.propertyType || '',
-          surface: pdfData.formData?.surface || '',
-          constructionPeriod: pdfData.formData?.constructionPeriod || '',
-          city: pdfData.formData?.city || '',
-          selectedRooms: pdfData.formData?.selectedRooms || [],
-          inspirationImages: [],
-        };
+      const safeFormData = {
+        propertyType: pdfData.formData?.propertyType || '',
+        surface: pdfData.formData?.surface || '',
+        constructionPeriod: pdfData.formData?.constructionPeriod || '',
+        city: pdfData.formData?.city || '',
+        hasArchitect: pdfData.formData?.hasArchitect || '',
+        modifyLayout: pdfData.formData?.modifyLayout || '',
+        uploadedPlan: null,
+        projectTypes: pdfData.formData?.projectTypes || [],
+        projectContexts: pdfData.formData?.projectContexts || [],
+        hasDPE: pdfData.formData?.hasDPE || '',
+        uploadedDPE: null,
+        occupyDuringWorks: pdfData.formData?.occupyDuringWorks || '',
+        constraints: pdfData.formData?.constraints || [],
+        constraintDetails: pdfData.formData?.constraintDetails || '',
+        startDate: pdfData.formData?.startDate || '',
+        startDateValue: pdfData.formData?.startDateValue || '',
+        endDateMax: pdfData.formData?.endDateMax || '',
+        inspirationImages: [],
+        selectedRooms: pdfData.formData?.selectedRooms || [],
+        isolation: pdfData.formData?.isolation || { wantIsolation: '' },
+        needsGlobalPainting: pdfData.formData?.needsGlobalPainting || 'non',
+        needsGlobalFlooring: pdfData.formData?.needsGlobalFlooring || 'non',
+        needsGlobalElectricity: pdfData.formData?.needsGlobalElectricity || 'non',
+        needsGlobalMouldings: pdfData.formData?.needsGlobalMouldings || 'non',
+        needsGlobalFurniture: pdfData.formData?.needsGlobalFurniture || 'non',
+        globalPainting: pdfData.formData?.globalPainting || { selectedRooms: [], surfaces: [], intention: '', finish: '', hasDefinedColors: '', wallCondition: '', farrowBallColors: [] },
+        globalFlooring: pdfData.formData?.globalFlooring || { selectedRooms: [], existingAction: '', hasLambourdes: '', refinishType: '', floorType: '', tileTypes: [], tileFormat: '', layingPattern: '', woodType: '', plankWidth: '', finish: '' },
+        globalElectricity: pdfData.formData?.globalElectricity || { selectedRooms: [], workType: [], lightingTypes: [], switchStyle: '', additionalNeeds: [] },
+        globalMouldings: pdfData.formData?.globalMouldings || { selectedRooms: [], intention: '', style: '' },
+        globalFurniture: pdfData.formData?.globalFurniture || { selectedRooms: [], furnitureType: [], approach: '', description: '' },
+      };
 
-        const blob = await generateSimulationPDF({
-          leadData: safeLeadData,
-          formData: safeFormData as any,
-          includeImages: false, // Faster preview without images
-        });
-        
-        if (!cancelled && blob) {
-          currentUrl = URL.createObjectURL(blob);
-          setPdfUrl(currentUrl);
-        }
-      } catch (err) {
-        console.error("Error generating PDF preview:", err);
-        if (!cancelled) {
-          setError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      const blob = await generateSimulationPDF({
+        leadData: safeLeadData,
+        formData: safeFormData as any,
+        includeImages: false,
+      });
+      
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+      } else {
+        setError(true);
       }
-    };
-
-    generatePreview();
-
-    return () => {
-      cancelled = true;
-      if (currentUrl) {
-        URL.revokeObjectURL(currentUrl);
-      }
-    };
+    } catch (err) {
+      console.error("Error generating PDF preview:", err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [simulationId, pdfData]);
+
+  useEffect(() => {
+    generatePreview();
+    
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [simulationId]);
 
   if (loading) {
     return (
@@ -102,6 +125,10 @@ const SimulationPdfPreview = ({ pdfData, simulationId }: SimulationPdfPreviewPro
       <div className="w-full h-48 bg-muted rounded-lg flex flex-col items-center justify-center gap-2">
         <FileText className="w-8 h-8 text-muted-foreground" />
         <span className="text-xs text-muted-foreground">Aperçu non disponible</span>
+        <Button variant="ghost" size="sm" onClick={generatePreview}>
+          <RefreshCw className="w-4 h-4 mr-1" />
+          Réessayer
+        </Button>
       </div>
     );
   }
