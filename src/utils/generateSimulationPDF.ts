@@ -237,16 +237,15 @@ const stripHtml = (text: string): string => {
     .trim();
 };
 
-// Add section title with icon
-const addSectionTitle = (doc: jsPDF, title: string, y: number, icon?: string): number => {
+// Add section title (no emojis - jsPDF has limited unicode support)
+const addSectionTitle = (doc: jsPDF, title: string, y: number): number => {
   const cleanTitle = stripHtml(title);
   doc.setFillColor(...PRIMARY_COLOR);
   doc.rect(15, y, 180, 10, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  const displayTitle = icon ? `${icon}  ${cleanTitle.toUpperCase()}` : cleanTitle.toUpperCase();
-  doc.text(displayTitle, 20, y + 7);
+  doc.text(cleanTitle.toUpperCase(), 20, y + 7);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   return y + 14;
@@ -615,7 +614,7 @@ export const generateSimulationPDF = async ({
   doc.setTextColor(0, 0, 0);
   
   // ========== CLIENT INFO ==========
-  y = addSectionTitle(doc, 'Informations Client', y, '👤');
+  y = addSectionTitle(doc, 'Informations Client', y);
   
   // Two columns for client info
   const col1X = 20;
@@ -687,7 +686,7 @@ export const generateSimulationPDF = async ({
   
   // ========== PROJECT DETAILS ==========
   y = checkNewPage(doc, y, 50);
-  y = addSectionTitle(doc, 'Détails du Projet', y, '📋');
+  y = addSectionTitle(doc, 'Details du Projet', y);
   
   if (formData.propertyType) y = addInfoRow(doc, 'Type de bien', propertyTypeLabels[formData.propertyType] || formData.propertyType, y);
   if (formData.constructionPeriod) y = addInfoRow(doc, 'Période de construction', constructionPeriodLabels[formData.constructionPeriod] || formData.constructionPeriod, y);
@@ -726,11 +725,11 @@ export const generateSimulationPDF = async ({
   
   if (hasGlobalWorks) {
     y = checkNewPage(doc, y, 60);
-    y = addSectionTitle(doc, 'Travaux Transversaux', y, '🔧');
+    y = addSectionTitle(doc, 'Travaux Transversaux', y);
     
     // Global Painting with F&B colors
     if (formData.needsGlobalPainting === 'oui' && formData.globalPainting) {
-      y = addSubsectionTitle(doc, '🎨 Peinture', y);
+      y = addSubsectionTitle(doc, 'Peinture', y);
       
       if (formData.globalPainting.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalPainting.selectedRooms.join(', '), y, 40);
@@ -751,7 +750,7 @@ export const generateSimulationPDF = async ({
           }));
         
         if (fbColors.length > 0) {
-          y = await addReferenceCards(doc, fbColors, y, '🎨 Couleurs Farrow & Ball');
+          y = await addReferenceCards(doc, fbColors, y, 'Couleurs Farrow & Ball');
         }
       }
       y += 3;
@@ -760,7 +759,7 @@ export const generateSimulationPDF = async ({
     // Global Flooring
     if (formData.needsGlobalFlooring === 'oui' && formData.globalFlooring) {
       y = checkNewPage(doc, y, 30);
-      y = addSubsectionTitle(doc, '🪵 Revêtements de sol', y);
+      y = addSubsectionTitle(doc, 'Revetements de sol', y);
       
       if (formData.globalFlooring.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalFlooring.selectedRooms.join(', '), y, 40);
@@ -783,7 +782,7 @@ export const generateSimulationPDF = async ({
     // Global Electricity
     if (formData.needsGlobalElectricity === 'oui' && formData.globalElectricity) {
       y = checkNewPage(doc, y, 30);
-      y = addSubsectionTitle(doc, '⚡ Électricité', y);
+      y = addSubsectionTitle(doc, 'Electricite', y);
       
       if (formData.globalElectricity.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalElectricity.selectedRooms.join(', '), y, 40);
@@ -803,7 +802,7 @@ export const generateSimulationPDF = async ({
     // Global Mouldings
     if (formData.needsGlobalMouldings === 'oui' && formData.globalMouldings) {
       y = checkNewPage(doc, y, 25);
-      y = addSubsectionTitle(doc, '🏛️ Moulures', y);
+      y = addSubsectionTitle(doc, 'Moulures', y);
       
       if (formData.globalMouldings.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalMouldings.selectedRooms.join(', '), y, 40);
@@ -817,7 +816,7 @@ export const generateSimulationPDF = async ({
     // Global Furniture
     if (formData.needsGlobalFurniture === 'oui' && formData.globalFurniture) {
       y = checkNewPage(doc, y, 25);
-      y = addSubsectionTitle(doc, '🪑 Aménagements sur mesure', y);
+      y = addSubsectionTitle(doc, 'Amenagements sur mesure', y);
       
       if (formData.globalFurniture.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalFurniture.selectedRooms.join(', '), y, 40);
@@ -837,7 +836,7 @@ export const generateSimulationPDF = async ({
     
     const roomLabel = roomTypeLabels[room.type] || room.type;
     const roomTitle = room.instanceNumber > 1 ? `${roomLabel} ${room.instanceNumber}` : roomLabel;
-    const roomIcon = room.type === 'cuisine' ? '🍳' : room.type === 'salle-de-bain' ? '🚿' : room.type === 'wc' ? '🚽' : '🏠';
+    // Note: Emojis removed - jsPDF has limited unicode support and emojis cause spacing issues
     
     let tableData: string[][] = [];
     let eggerRefs: EggerReference[] = [];
@@ -869,7 +868,7 @@ export const generateSimulationPDF = async ({
     // Skip rooms with no configuration data
     if (tableData.length === 0 && eggerRefs.length === 0 && planiziaRefs.length === 0 && fbColors.length === 0) {
       // Still show section but with "Not configured" message
-      y = addSectionTitle(doc, roomTitle, y, roomIcon);
+      y = addSectionTitle(doc, roomTitle, y);
       doc.setFontSize(9);
       doc.setTextColor(150, 150, 150);
       doc.setFont('helvetica', 'italic');
@@ -880,7 +879,7 @@ export const generateSimulationPDF = async ({
       continue;
     }
     
-    y = addSectionTitle(doc, roomTitle, y, roomIcon);
+    y = addSectionTitle(doc, roomTitle, y);
     
     // Room configuration table
     if (tableData.length > 0) {
@@ -918,7 +917,7 @@ export const generateSimulationPDF = async ({
       
       if (validRefs.length > 0) {
         y = checkNewPage(doc, y, 60);
-        y = await addReferenceCards(doc, validRefs, y, '📦 Finitions EGGER');
+        y = await addReferenceCards(doc, validRefs, y, 'Finitions EGGER');
       }
     }
     
@@ -934,7 +933,7 @@ export const generateSimulationPDF = async ({
       
       if (validRefs.length > 0) {
         y = checkNewPage(doc, y, 60);
-        y = await addReferenceCards(doc, validRefs, y, '🪨 Plans de travail Planizia');
+        y = await addReferenceCards(doc, validRefs, y, 'Plans de travail Planizia');
       }
     }
     
@@ -951,7 +950,7 @@ export const generateSimulationPDF = async ({
       
       if (validColors.length > 0) {
         y = checkNewPage(doc, y, 60);
-        y = await addReferenceCards(doc, validColors, y, '🎨 Couleurs Farrow & Ball');
+        y = await addReferenceCards(doc, validColors, y, 'Couleurs Farrow & Ball');
       }
     }
     
@@ -961,7 +960,7 @@ export const generateSimulationPDF = async ({
   // ========== ISOLATION ==========
   if (formData.projectTypes.includes('dpe') && formData.isolation?.wantIsolation) {
     y = checkNewPage(doc, y, 45);
-    y = addSectionTitle(doc, 'Isolation', y, '🌡️');
+    y = addSectionTitle(doc, 'Isolation', y);
     
     y = addInfoRow(doc, 'Souhaite isolation', yesNoLabels[formData.isolation.wantIsolation] || formData.isolation.wantIsolation, y);
     if (formData.isolation.isolationType) {
@@ -980,7 +979,7 @@ export const generateSimulationPDF = async ({
   // ========== GLOBAL INSPIRATION IMAGES ==========
   if (includeImages && formData.inspirationImages && formData.inspirationImages.length > 0) {
     y = checkNewPage(doc, y, 70);
-    y = addSectionTitle(doc, 'Photos d\'Inspiration', y, '📸');
+    y = addSectionTitle(doc, 'Photos d\'Inspiration', y);
     
     const inspirationImagesForPdf = formData.inspirationImages.map((img: InspirationImage) => ({
       url: img.url,
