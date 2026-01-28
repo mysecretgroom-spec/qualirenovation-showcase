@@ -3,11 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   FileText, Home, Calendar, MapPin, Ruler, 
   ChevronDown, ChevronRight, Bath, CookingPot, 
-  Bed, Sofa, DoorOpen, Briefcase, Palette
+  Bed, Sofa, DoorOpen, Briefcase, Palette, Download, Loader2, RefreshCw
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
+import { downloadSimulationPDF, uploadSimulationPDF } from "@/utils/generateSimulationPDF";
 
 interface Simulation {
   id: string;
@@ -33,7 +36,11 @@ interface Simulation {
 
 interface ClientSimulationTabProps {
   clientId: string;
+  clientName?: string;
+  clientEmail?: string;
+  clientPhone?: string;
   quoteRequestId: string | null;
+  onPdfGenerated?: () => void;
 }
 
 const roomTypeLabels: Record<string, { label: string; icon: React.ComponentType<any> }> = {
@@ -64,10 +71,12 @@ const constructionPeriodLabels: Record<string, string> = {
   'ne-sais-pas': 'Ne sait pas',
 };
 
-const ClientSimulationTab = ({ clientId, quoteRequestId }: ClientSimulationTabProps) => {
+const ClientSimulationTab = ({ clientId, clientName, clientEmail, clientPhone, quoteRequestId, onPdfGenerated }: ClientSimulationTabProps) => {
   const [simulations, setSimulations] = useState<Simulation[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
+  const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSimulations = async () => {
@@ -104,6 +113,99 @@ const ClientSimulationTab = ({ clientId, quoteRequestId }: ClientSimulationTabPr
     fetchSimulations();
   }, [clientId, quoteRequestId]);
 
+  // Convert simulation data to format expected by PDF generator
+  const convertSimulationToPDFFormat = (simulation: Simulation) => {
+    return {
+      leadData: {
+        name: clientName || 'Client',
+        email: clientEmail || '',
+        phone: clientPhone || '',
+        address: '',
+        postalCode: '',
+        city: simulation.city || '',
+        surface: simulation.surface || '',
+        budget: '',
+        timeline: simulation.start_date || '',
+        message: '',
+      },
+      formData: {
+        propertyType: simulation.property_type || '',
+        surface: simulation.surface || '',
+        constructionPeriod: simulation.construction_period || '',
+        city: simulation.city || '',
+        hasArchitect: simulation.has_architect || '',
+        modifyLayout: simulation.modify_layout || '',
+        projectTypes: simulation.project_types || [],
+        projectContexts: simulation.project_contexts || [],
+        hasDPE: simulation.has_dpe || '',
+        occupyDuringWorks: simulation.occupy_during_works || '',
+        constraints: simulation.constraints || [],
+        constraintDetails: simulation.constraint_details || '',
+        startDate: simulation.start_date || '',
+        startDateValue: simulation.start_date_value || '',
+        endDateMax: simulation.end_date_max || '',
+        selectedRooms: simulation.selected_rooms || [],
+        isolation: simulation.isolation_data || {},
+        inspirationImages: [],
+        needsGlobalPainting: 'non',
+        globalPainting: null,
+        needsGlobalFlooring: 'non',
+        globalFlooring: null,
+        needsGlobalElectricity: 'non',
+        globalElectricity: null,
+        needsGlobalMouldings: 'non',
+        globalMouldings: null,
+        needsGlobalFurniture: 'non',
+        globalFurniture: null,
+      },
+    };
+  };
+
+  const handleDownloadPdf = async (simulation: Simulation) => {
+    setGeneratingPdf(simulation.id);
+    try {
+      const pdfData = convertSimulationToPDFFormat(simulation);
+      await downloadSimulationPDF(pdfData as any);
+      toast({
+        title: "PDF téléchargé",
+        description: "Le PDF de la simulation a été téléchargé.",
+      });
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le PDF.",
+        variant: "destructive",
+      });
+    }
+    setGeneratingPdf(null);
+  };
+
+  const handleRegeneratePdf = async (simulation: Simulation) => {
+    setGeneratingPdf(simulation.id);
+    try {
+      const pdfData = convertSimulationToPDFFormat(simulation);
+      const result = await uploadSimulationPDF(clientId, pdfData as any);
+      if (result.success) {
+        toast({
+          title: "PDF régénéré",
+          description: "Le PDF a été régénéré et sauvegardé dans les documents.",
+        });
+        onPdfGenerated?.();
+      } else {
+        throw new Error("Upload failed");
+      }
+    } catch (error) {
+      console.error("Error regenerating PDF:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de régénérer le PDF.",
+        variant: "destructive",
+      });
+    }
+    setGeneratingPdf(null);
+  };
+
   const toggleRoom = (roomId: string) => {
     setExpandedRooms(prev => ({ ...prev, [roomId]: !prev[roomId] }));
   };
@@ -135,14 +237,42 @@ const ClientSimulationTab = ({ clientId, quoteRequestId }: ClientSimulationTabPr
         <div key={simulation.id} className="border border-border rounded-lg overflow-hidden">
           {/* Header */}
           <div className="bg-muted/50 px-4 py-3 border-b border-border">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-primary" />
                 <span className="font-medium">Simulation du {new Date(simulation.created_at).toLocaleDateString("fr-FR")}</span>
+                <Badge variant="outline">
+                  {simulation.selected_rooms?.length || 0} pièce(s)
+                </Badge>
               </div>
-              <Badge variant="outline">
-                {simulation.selected_rooms?.length || 0} pièce(s)
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDownloadPdf(simulation)}
+                  disabled={generatingPdf === simulation.id}
+                >
+                  {generatingPdf === simulation.id ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4 mr-1" />
+                  )}
+                  PDF
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => handleRegeneratePdf(simulation)}
+                  disabled={generatingPdf === simulation.id}
+                >
+                  {generatingPdf === simulation.id ? (
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                  )}
+                  Régénérer
+                </Button>
+              </div>
             </div>
           </div>
 
