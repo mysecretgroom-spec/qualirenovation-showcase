@@ -36,6 +36,10 @@ const getInitialFormDataWithLead = (leadData: LeadData | null): RenovationFormDa
     ...initialFormData,
     surface: leadData.surface || '',
     city: leadData.city || '',
+    address: leadData.address || '',
+    postalCode: leadData.postalCode || '',
+    latitude: leadData.latitude,
+    longitude: leadData.longitude,
   };
 };
 
@@ -53,6 +57,10 @@ export const RenovationFormProvider: React.FC<RenovationFormProviderProps> = ({ 
         ...prev,
         surface: leadData.surface || prev.surface,
         city: leadData.city || prev.city,
+        address: leadData.address || prev.address,
+        postalCode: leadData.postalCode || prev.postalCode,
+        latitude: leadData.latitude ?? prev.latitude,
+        longitude: leadData.longitude ?? prev.longitude,
       }));
     }
   }, [leadData]);
@@ -122,7 +130,7 @@ export const RenovationFormProvider: React.FC<RenovationFormProviderProps> = ({ 
     // Validation logic per step
     switch (currentStep) {
       case 0: // Project info
-        return formData.propertyType !== '' && formData.surface !== '' && formData.city !== '';
+        return formData.propertyType !== '' && formData.surface !== '' && formData.address !== '';
       case 1: // Conception
         return formData.hasArchitect !== '';
       case 2: // Project type

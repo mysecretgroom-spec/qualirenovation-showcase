@@ -14,6 +14,10 @@ export interface RenovationFormData {
   surface: string;
   constructionPeriod: 'avant-1949' | '1949-1974' | '1975-1999' | 'apres-2000' | 'ne-sais-pas' | '';
   city: string;
+  address: string;
+  postalCode: string;
+  latitude?: number;
+  longitude?: number;
   
   // Conception & organisation
   hasArchitect: 'oui' | 'non' | 'en-reflexion' | '';
@@ -328,6 +332,10 @@ export const initialFormData: RenovationFormData = {
   surface: '',
   constructionPeriod: '',
   city: '',
+  address: '',
+  postalCode: '',
+  latitude: undefined,
+  longitude: undefined,
   hasArchitect: '',
   modifyLayout: '',
   uploadedPlan: null,
