@@ -179,9 +179,9 @@ const wcLabels: Record<string, Record<string, string>> = {
   },
 };
 
-// Primary color for headers
-const PRIMARY_COLOR: [number, number, number] = [139, 90, 43];
-const SECONDARY_COLOR: [number, number, number] = [245, 241, 235];
+// Brand colors - QualiRénovation blue (#114a67)
+const PRIMARY_COLOR: [number, number, number] = [17, 74, 103];
+const SECONDARY_COLOR: [number, number, number] = [230, 241, 248];
 
 // Helper to load image as base64
 const loadImageAsBase64 = async (url: string): Promise<string | null> => {
