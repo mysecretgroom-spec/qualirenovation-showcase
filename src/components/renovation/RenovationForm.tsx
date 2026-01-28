@@ -14,11 +14,11 @@ import { StepGlobalWorksSelection } from './steps/StepGlobalWorksSelection';
 import { BathroomModule } from './modules/BathroomModule';
 import { KitchenModule } from './modules/KitchenModule';
 import { WCModule } from './modules/WCModule';
-import { CustomFurnitureModule } from './modules/CustomFurnitureModule';
-import { GenericRoomModule } from './modules/GenericRoomModule';
 import { GlobalFlooringModule } from './modules/GlobalFlooringModule';
 import { GlobalPaintingModule } from './modules/GlobalPaintingModule';
 import { GlobalElectricityModule } from './modules/GlobalElectricityModule';
+import { GlobalMouldingsModule } from './modules/GlobalMouldingsModule';
+import { GlobalFurnitureModule } from './modules/GlobalFurnitureModule';
 import { RoomType, initialBathroomData, initialKitchenData, initialWCData, initialGlobalFlooringData, initialGlobalPaintingData, initialGlobalElectricityData } from './types';
 import { useToast } from '@/hooks/use-toast';
 import { useLeadContext } from '@/contexts/LeadContext';
@@ -28,12 +28,6 @@ const roomLabels: Record<RoomType, string> = {
   'cuisine': 'Cuisine',
   'salle-de-bain': 'Salle de bain',
   'wc': 'WC',
-  'salon-sejour': 'Salon / Séjour',
-  'chambre': 'Chambre',
-  'entree-couloir': 'Entrée / Couloir',
-  'dressing-rangements': 'Dressing / Rangements',
-  'bureau': 'Bureau',
-  'autre': 'Autre pièce',
 };
 
 // Helper function to format room name with proper numbering
@@ -217,32 +211,6 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
             />
           );
           break;
-        case 'dressing-rangements':
-          component = (
-            <CustomFurnitureModule
-              key={room.id}
-              roomId={room.id}
-              roomName={roomName}
-              data={room.data.customFurnitureData || { furnitureType: [], approach: '', supportLevel: '' }}
-              onSkip={handleSkipSection}
-            />
-          );
-          break;
-        case 'salon-sejour':
-        case 'chambre':
-        case 'entree-couloir':
-        case 'bureau':
-        default:
-          component = (
-            <GenericRoomModule
-              key={room.id}
-              roomId={room.id}
-              roomName={roomName}
-              instanceNumber={room.instanceNumber}
-              data={room.data.genericRoomData || { description: '', workTypes: [], certaintyLevel: '' }}
-              onSkip={handleSkipSection}
-            />
-          );
       }
 
       steps.push({ id: `room-${room.id}`, component, isSkippable: true });
@@ -294,6 +262,32 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
       });
     }
 
+    if (formData.needsGlobalMouldings === 'oui') {
+      steps.push({
+        id: 'global-mouldings',
+        component: (
+          <GlobalMouldingsModule
+            data={formData.globalMouldings || { selectedRooms: [], intention: '', style: '' }}
+            onUpdate={(updates) => updateFormData('globalMouldings', { ...formData.globalMouldings, ...updates })}
+          />
+        ),
+        isSkippable: true,
+      });
+    }
+
+    if (formData.needsGlobalFurniture === 'oui') {
+      steps.push({
+        id: 'global-furniture',
+        component: (
+          <GlobalFurnitureModule
+            data={formData.globalFurniture || { selectedRooms: [], furnitureType: [], approach: '', description: '' }}
+            onUpdate={(updates) => updateFormData('globalFurniture', { ...formData.globalFurniture, ...updates })}
+          />
+        ),
+        isSkippable: true,
+      });
+    }
+
     // Add isolation step if DPE is selected
     if (formData.projectTypes.includes('dpe')) {
       steps.push({ id: 'isolation', component: <StepIsolation /> });
@@ -303,7 +297,7 @@ const RenovationFormContent: React.FC<RenovationFormContentProps> = ({ isAdminMo
     steps.push({ id: 'conditions', component: <StepConditions /> });
 
     return steps;
-  }, [formData.selectedRooms, formData.projectTypes, formData.needsGlobalPainting, formData.needsGlobalFlooring, formData.needsGlobalElectricity, formData.globalPainting, formData.globalFlooring, formData.globalElectricity]);
+  }, [formData.selectedRooms, formData.projectTypes, formData.needsGlobalPainting, formData.needsGlobalFlooring, formData.needsGlobalElectricity, formData.needsGlobalMouldings, formData.needsGlobalFurniture, formData.globalPainting, formData.globalFlooring, formData.globalElectricity, formData.globalMouldings, formData.globalFurniture]);
 
   // Add summary step separately since it needs the handleSubmit function
   const allSteps = useMemo(() => {

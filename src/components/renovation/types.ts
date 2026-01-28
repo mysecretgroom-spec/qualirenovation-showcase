@@ -47,9 +47,13 @@ export interface RenovationFormData {
   needsGlobalPainting: 'oui' | 'non' | '';
   needsGlobalFlooring: 'oui' | 'non' | '';
   needsGlobalElectricity: 'oui' | 'non' | '';
+  needsGlobalMouldings: 'oui' | 'non' | '';
+  needsGlobalFurniture: 'oui' | 'non' | '';
   globalPainting: GlobalPaintingData;
   globalFlooring: GlobalFlooringData;
   globalElectricity: GlobalElectricityData;
+  globalMouldings: GlobalMouldingsData;
+  globalFurniture: GlobalFurnitureData;
 }
 
 export interface RoomSelection {
@@ -62,13 +66,7 @@ export interface RoomSelection {
 export type RoomType = 
   | 'cuisine'
   | 'salle-de-bain'
-  | 'wc'
-  | 'salon-sejour'
-  | 'chambre'
-  | 'entree-couloir'
-  | 'dressing-rangements'
-  | 'bureau'
-  | 'autre';
+  | 'wc';
 
 export interface RoomData {
   bathroomData?: BathroomData;
@@ -169,6 +167,21 @@ export interface GlobalElectricityData {
   lightingTypes: string[];
   switchStyle: string;
   additionalNeeds: string[];
+}
+
+// Global mouldings data
+export interface GlobalMouldingsData {
+  selectedRooms: string[];
+  intention: string;
+  style: string;
+}
+
+// Global furniture/aménagement data
+export interface GlobalFurnitureData {
+  selectedRooms: string[];
+  furnitureType: string[];
+  approach: string;
+  description: string;
 }
 
 // Kitchen module
@@ -343,6 +356,8 @@ export const initialFormData: RenovationFormData = {
   needsGlobalPainting: '',
   needsGlobalFlooring: '',
   needsGlobalElectricity: '',
+  needsGlobalMouldings: '',
+  needsGlobalFurniture: '',
   globalPainting: {
     selectedRooms: [],
     surfaces: [],
@@ -371,6 +386,17 @@ export const initialFormData: RenovationFormData = {
     lightingTypes: [],
     switchStyle: '',
     additionalNeeds: [],
+  },
+  globalMouldings: {
+    selectedRooms: [],
+    intention: '',
+    style: '',
+  },
+  globalFurniture: {
+    selectedRooms: [],
+    furnitureType: [],
+    approach: '',
+    description: '',
   },
 };
 
