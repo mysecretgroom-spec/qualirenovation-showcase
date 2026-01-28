@@ -461,36 +461,186 @@ const addReferenceCards = async (
   return currentY + totalRows * (cardHeight + 8) + 5;
 };
 
+// Image URL mappings for visual selections
+const bathroomImageMappings: Record<string, Record<string, string>> = {
+  showerTrayType: {
+    'a-poser': '/assets/bathroom/receveur-a-poser.jpg',
+    'encastre': '/assets/bathroom/receveur-encastre.jpg',
+    'carreler': '/assets/bathroom/receveur-carreler.jpg',
+    'resine': '/assets/bathroom/receveur-resine.jpg',
+  },
+  showerDoorType: {
+    'fixe': '/assets/bathroom/paroi-fixe.jpg',
+    'battante': '/assets/bathroom/paroi-battante.jpg',
+    'coulissante': '/assets/bathroom/paroi-coulissante.jpg',
+    'pliante': '/assets/bathroom/paroi-pliante.jpg',
+  },
+  bathtubType: {
+    'encastree': '/assets/bathroom/baignoire-encastree.jpg',
+    'ilot': '/assets/bathroom/baignoire-ilot.jpg',
+    'angle': '/assets/bathroom/baignoire-angle.jpg',
+    'droite': '/assets/bathroom/baignoire-droite.jpg',
+    'balneo': '/assets/bathroom/baignoire-balneo.jpg',
+  },
+  bathtubScreenType: {
+    'fixe': '/assets/bathroom/pare-bain-fixe.jpg',
+    'pivotant': '/assets/bathroom/pare-bain-pivotant.jpg',
+    'coulissant': '/assets/bathroom/pare-bain-coulissant.jpg',
+    'rideau': '/assets/bathroom/pare-bain-rideau.jpg',
+  },
+  vanityType: {
+    'vasque-seule': '/assets/bathroom/vasque-seule.jpg',
+    'suspendu': '/assets/bathroom/meuble-suspendu.jpg',
+    'pieds': '/assets/bathroom/meuble-pieds.jpg',
+  },
+  mirrorType: {
+    'led': '/assets/bathroom/miroir-led.jpg',
+    'cadre': '/assets/bathroom/miroir-cadre.jpg',
+    'rond': '/assets/bathroom/miroir-rond.jpg',
+    'armoire': '/assets/bathroom/miroir-armoire.jpg',
+  },
+  faucetFinish: {
+    'chrome': '/assets/bathroom/finition-chrome-chatelet.jpg',
+    'noir-mat': '/assets/bathroom/finition-noir-mat.jpg',
+    'laiton-brosse': '/assets/bathroom/finition-laiton-brosse.jpg',
+    'or-brosse': '/assets/bathroom/finition-or-brosse.jpg',
+    'nickel-brosse': '/assets/bathroom/finition-nickel-brosse.jpg',
+    'cuivre': '/assets/bathroom/finition-cuivre.jpg',
+  },
+  toiletType: {
+    'suspendu': '/assets/bathroom/wc-suspendu.jpg',
+    'sol': '/assets/bathroom/wc-sol.jpg',
+  },
+  showerFaucetType: {
+    'apparente': '/assets/bathroom/robinetterie-apparente.jpg',
+    'encastree': '/assets/bathroom/robinetterie-encastree.jpg',
+  },
+  showerheadType: {
+    'fixe': '/assets/bathroom/pommeau-fixe.jpg',
+    'douchette': '/assets/bathroom/pommeau-douchette.jpg',
+    'combo': '/assets/bathroom/pommeau-combo.jpg',
+  },
+  ambiance: {
+    'moderne': '/assets/bathroom/ambiance-moderne.jpg',
+    'epure': '/assets/bathroom/ambiance-epure.jpg',
+    'classique': '/assets/bathroom/ambiance-classique.jpg',
+    'nature': '/assets/bathroom/ambiance-nature.jpg',
+    'luxe': '/assets/bathroom/ambiance-luxe.jpg',
+    'zellige': '/assets/bathroom/ambiance-zellige.jpg',
+    'marbre': '/assets/bathroom/ambiance-marbre.jpg',
+    'beton-cire': '/assets/bathroom/ambiance-beton-cire.jpg',
+    'terrazzo': '/assets/bathroom/ambiance-terrazzo.jpg',
+    'graphique': '/assets/bathroom/ambiance-graphique.jpg',
+  },
+};
+
+const tileImageMappings: Record<string, string> = {
+  'zellige': '/assets/flooring/carrelage-zellige-new.jpg',
+  'marbre': '/assets/flooring/carrelage-marbre.jpg',
+  'travertin': '/assets/flooring/carrelage-travertin.jpg',
+  'pierre': '/assets/flooring/carrelage-pierre.jpg',
+  'ciment': '/assets/flooring/carrelage-ciment.jpg',
+  'beton': '/assets/flooring/carrelage-beton.jpg',
+  'unicolore': '/assets/flooring/carrelage-unicolore.jpg',
+  'terracotta': '/assets/flooring/carrelage-terracotta.jpg',
+  'gres-cerame': '/assets/flooring/carrelage-gres-cerame.jpg',
+  'imitation-bois': '/assets/flooring/carrelage-imitation-bois.jpg',
+  'terrazzo': '/assets/flooring/carrelage-terrazzo.jpg',
+  'mosaique': '/assets/flooring/carrelage-mosaique.jpg',
+};
+
+const tileFormatMappings: Record<string, string> = {
+  'grand-format': '/assets/flooring/carrelage-grand-format.jpg',
+  'rectangulaire': '/assets/flooring/carrelage-rectangulaire.jpg',
+  'hexagonal': '/assets/flooring/carrelage-hexagonal.jpg',
+  'metro': '/assets/flooring/carrelage-metro.jpg',
+  'carre': '/assets/flooring/carrelage-carre.jpg',
+};
+
 // Format bathroom data with images
 const formatBathroomDataWithImages = (data: any): { rows: string[][]; images: { url: string; caption: string }[] } => {
   const rows: string[][] = [];
   const images: { url: string; caption: string }[] = [];
   
-  // Map selection values to images (these would need actual image URLs from assets)
   const getLabel = (category: string, value: string) => bathroomLabels[category]?.[value] || value;
+  const addImage = (category: string, value: string, label: string) => {
+    const url = bathroomImageMappings[category]?.[value];
+    if (url) images.push({ url, caption: label });
+  };
   
   if (data.bathroomType) rows.push(['Configuration', data.bathroomType === 'douche' ? 'Douche' : data.bathroomType === 'baignoire' ? 'Baignoire' : 'Douche + Baignoire']);
-  if (data.showerTrayType) rows.push(['Receveur de douche', getLabel('showerTrayType', data.showerTrayType)]);
-  if (data.showerDoorType) rows.push(['Paroi de douche', getLabel('showerDoorType', data.showerDoorType)]);
-  if (data.showerheadType) rows.push(['Pommeau de douche', data.showerheadType === 'fixe' ? 'Pommeau fixe' : data.showerheadType === 'douchette' ? 'Douchette' : 'Combiné fixe + douchette']);
-  if (data.bathtubType) rows.push(['Type de baignoire', getLabel('bathtubType', data.bathtubType)]);
-  if (data.bathtubScreenType) rows.push(['Pare-baignoire', getLabel('bathtubScreenType', data.bathtubScreenType)]);
-  if (data.vanityType) rows.push(['Meuble vasque', getLabel('vanityType', data.vanityType)]);
+  
+  if (data.showerTrayType) {
+    const label = getLabel('showerTrayType', data.showerTrayType);
+    rows.push(['Receveur de douche', label]);
+    addImage('showerTrayType', data.showerTrayType, label);
+  }
+  if (data.showerDoorType) {
+    const label = getLabel('showerDoorType', data.showerDoorType);
+    rows.push(['Paroi de douche', label]);
+    addImage('showerDoorType', data.showerDoorType, label);
+  }
+  if (data.showerheadType) {
+    const label = data.showerheadType === 'fixe' ? 'Pommeau fixe' : data.showerheadType === 'douchette' ? 'Douchette' : 'Combine fixe + douchette';
+    rows.push(['Pommeau de douche', label]);
+    addImage('showerheadType', data.showerheadType, label);
+  }
+  if (data.bathtubType) {
+    const label = getLabel('bathtubType', data.bathtubType);
+    rows.push(['Type de baignoire', label]);
+    addImage('bathtubType', data.bathtubType, label);
+  }
+  if (data.bathtubScreenType) {
+    const label = getLabel('bathtubScreenType', data.bathtubScreenType);
+    rows.push(['Pare-baignoire', label]);
+    addImage('bathtubScreenType', data.bathtubScreenType, label);
+  }
+  if (data.vanityType) {
+    const label = getLabel('vanityType', data.vanityType);
+    rows.push(['Meuble vasque', label]);
+    addImage('vanityType', data.vanityType, label);
+  }
   if (data.vanityCount) rows.push(['Nombre de vasques', data.vanityCount === '1' ? 'Simple vasque' : 'Double vasque']);
   if (data.siphonType) rows.push(['Type de siphon', bathroomLabels.siphonType?.[data.siphonType] || data.siphonType]);
-  if (data.mirrorType) rows.push(['Miroir', getLabel('mirrorType', data.mirrorType)]);
-  if (data.showerFaucetType) rows.push(['Robinetterie douche', data.showerFaucetType === 'apparente' ? 'Apparente' : 'Encastrée']);
-  if (data.faucetFinish) rows.push(['Finition robinetterie', getLabel('faucetFinish', data.faucetFinish)]);
-  // Use "Toilettes" instead of "WC" to avoid font rendering issues
+  if (data.mirrorType) {
+    const label = getLabel('mirrorType', data.mirrorType);
+    rows.push(['Miroir', label]);
+    addImage('mirrorType', data.mirrorType, label);
+  }
+  if (data.showerFaucetType) {
+    const label = data.showerFaucetType === 'apparente' ? 'Apparente' : 'Encastree';
+    rows.push(['Robinetterie douche', label]);
+    addImage('showerFaucetType', data.showerFaucetType, label);
+  }
+  if (data.faucetFinish) {
+    const label = getLabel('faucetFinish', data.faucetFinish);
+    rows.push(['Finition robinetterie', label]);
+    addImage('faucetFinish', data.faucetFinish, label);
+  }
   if (data.toiletType && data.toiletType !== 'conserver') {
-    rows.push(['Toilettes', getLabel('toiletType', data.toiletType)]);
+    const label = getLabel('toiletType', data.toiletType);
+    rows.push(['Toilettes', label]);
+    addImage('toiletType', data.toiletType, label);
   } else if (data.toiletType === 'conserver') {
     rows.push(['Toilettes', 'Conserver existant']);
   }
-  if (data.ambiance?.length > 0) rows.push(['Ambiances', data.ambiance.map((a: string) => getLabel('ambiance', a)).join(', ')]);
-  if (data.tileTypes?.length > 0) rows.push(['Types de carrelage', data.tileTypes.join(', ')]);
-  if (data.tileFormat) rows.push(['Format carrelage', data.tileFormat]);
-  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel === 'sur' ? 'Sûr de mes choix' : data.certaintyLevel === 'besoin-conseil' ? 'Besoin de conseils' : 'À définir']);
+  if (data.ambiance?.length > 0) {
+    rows.push(['Ambiances', data.ambiance.map((a: string) => getLabel('ambiance', a)).join(', ')]);
+    data.ambiance.forEach((a: string) => addImage('ambiance', a, getLabel('ambiance', a)));
+  }
+  if (data.tileTypes?.length > 0) {
+    rows.push(['Types de carrelage', data.tileTypes.join(', ')]);
+    data.tileTypes.forEach((t: string) => {
+      const url = tileImageMappings[t];
+      if (url) images.push({ url, caption: t });
+    });
+  }
+  if (data.tileFormat) {
+    rows.push(['Format carrelage', data.tileFormat]);
+    const url = tileFormatMappings[data.tileFormat];
+    if (url) images.push({ url, caption: data.tileFormat });
+  }
+  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel === 'sur' ? 'Sur de mes choix' : data.certaintyLevel === 'besoin-conseil' ? 'Besoin de conseils' : 'A definir']);
   
   return { rows, images };
 };
@@ -505,20 +655,90 @@ const siphonTypeLabels: Record<string, string> = {
 // Add siphon labels to bathroom
 bathroomLabels.siphonType = siphonTypeLabels;
 
+// Kitchen image mappings
+const kitchenImageMappings: Record<string, Record<string, string>> = {
+  layoutType: {
+    'lineaire': '/assets/kitchen/implantation-lineaire-3d.jpg',
+    'l': '/assets/kitchen/implantation-l-3d.jpg',
+    'u': '/assets/kitchen/implantation-u-3d-v2.jpg',
+    'ilot': '/assets/kitchen/implantation-ilot-3d.jpg',
+  },
+  facadeFinish: {
+    'bois': '/assets/kitchen/facade-bois.jpg',
+    'laque': '/assets/kitchen/facade-laque.jpg',
+    'mat': '/assets/kitchen/facade-mat.jpg',
+    'effet-matiere': '/assets/kitchen/facade-effet-matiere.jpg',
+  },
+  countertopMaterial: {
+    'stratifie': '/assets/kitchen/plan-stratifie.jpg',
+    'quartz': '/assets/kitchen/plan-quartz.jpg',
+    'ceramique': '/assets/kitchen/plan-ceramique.jpg',
+    'bois': '/assets/kitchen/plan-bois.jpg',
+  },
+  backsplashType: {
+    'carrelage': '/assets/kitchen/credence-carrelage.jpg',
+    'pleine-hauteur': '/assets/kitchen/credence-pleine-hauteur.jpg',
+    'verre': '/assets/kitchen/credence-verre.jpg',
+  },
+};
+
+// WC image mappings
+const wcImageMappings: Record<string, Record<string, string>> = {
+  toiletType: {
+    'suspendu': '/assets/bathroom/wc-suspendu.jpg',
+    'sol': '/assets/bathroom/wc-sol.jpg',
+  },
+  handWashType: {
+    'angle': '/assets/wc/lave-main-angle.jpg',
+    'suspendu': '/assets/wc/lave-main-suspendu.jpg',
+    'totem': '/assets/wc/lave-main-totem.jpg',
+    'plan-vasque': '/assets/wc/plan-vasque.jpg',
+  },
+  siphonType: {
+    'design': '/assets/wc/siphon-design.jpg',
+    'gain-place': '/assets/wc/siphon-gain-place.jpg',
+    'classique': '/assets/wc/siphon-classique.jpg',
+  },
+};
+
 // Format kitchen data
 const formatKitchenDataWithImages = (data: any): { rows: string[][]; images: { url: string; caption: string }[] } => {
   const rows: string[][] = [];
   const images: { url: string; caption: string }[] = [];
   
   const getLabel = (category: string, value: string) => kitchenLabels[category]?.[value] || value;
+  const addImage = (category: string, value: string, label: string) => {
+    const url = kitchenImageMappings[category]?.[value];
+    if (url) images.push({ url, caption: label });
+  };
   
-  if (data.layoutType) rows.push(['Implantation', getLabel('layoutType', data.layoutType)]);
-  if (data.facadeFinish) rows.push(['Finition façades', getLabel('facadeFinish', data.facadeFinish)]);
-  if (data.hasHandles) rows.push(['Poignées', data.hasHandles === 'oui' ? 'Avec poignées' : 'Sans poignées (push-to-open)']);
-  if (data.countertopMaterial) rows.push(['Plan de travail', getLabel('countertopMaterial', data.countertopMaterial)]);
-  if (data.backsplashType) rows.push(['Crédence', getLabel('backsplashType', data.backsplashType)]);
-  if (data.backsplashTileType) rows.push(['Type carrelage crédence', data.backsplashTileType]);
-  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel === 'sur' ? 'Sûr de mes choix' : 'Besoin de conseils']);
+  if (data.layoutType) {
+    const label = getLabel('layoutType', data.layoutType);
+    rows.push(['Implantation', label]);
+    addImage('layoutType', data.layoutType, label);
+  }
+  if (data.facadeFinish) {
+    const label = getLabel('facadeFinish', data.facadeFinish);
+    rows.push(['Finition facades', label]);
+    addImage('facadeFinish', data.facadeFinish, label);
+  }
+  if (data.hasHandles) rows.push(['Poignees', data.hasHandles === 'oui' ? 'Avec poignees' : 'Sans poignees (push-to-open)']);
+  if (data.countertopMaterial) {
+    const label = getLabel('countertopMaterial', data.countertopMaterial);
+    rows.push(['Plan de travail', label]);
+    addImage('countertopMaterial', data.countertopMaterial, label);
+  }
+  if (data.backsplashType) {
+    const label = getLabel('backsplashType', data.backsplashType);
+    rows.push(['Credence', label]);
+    addImage('backsplashType', data.backsplashType, label);
+  }
+  if (data.backsplashTileType) {
+    rows.push(['Type carrelage credence', data.backsplashTileType]);
+    const url = tileImageMappings[data.backsplashTileType];
+    if (url) images.push({ url, caption: data.backsplashTileType });
+  }
+  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel === 'sur' ? 'Sur de mes choix' : 'Besoin de conseils']);
   
   return { rows, images };
 };
@@ -529,14 +749,34 @@ const formatWCDataWithImages = (data: any): { rows: string[][]; images: { url: s
   const images: { url: string; caption: string }[] = [];
   
   const getLabel = (category: string, value: string) => wcLabels[category]?.[value] || value;
+  const addImage = (category: string, value: string, label: string) => {
+    const url = wcImageMappings[category]?.[value];
+    if (url) images.push({ url, caption: label });
+  };
   
-  // Use "Toilettes" instead of "WC" to avoid font rendering issues
-  if (data.toiletType) rows.push(['Toilettes', getLabel('toiletType', data.toiletType)]);
+  if (data.toiletType) {
+    const label = getLabel('toiletType', data.toiletType);
+    rows.push(['Toilettes', label]);
+    addImage('toiletType', data.toiletType, label);
+  }
   if (data.existingSanibroyeur) rows.push(['Sanibroyeur existant', yesNoLabels[data.existingSanibroyeur] || data.existingSanibroyeur]);
-  if (data.wantHandWash) rows.push(['Lave-mains souhaité', yesNoLabels[data.wantHandWash] || data.wantHandWash]);
-  if (data.handWashType) rows.push(['Type de lave-mains', getLabel('handWashType', data.handWashType)]);
-  if (data.faucetFinish) rows.push(['Finition robinetterie', bathroomLabels.faucetFinish?.[data.faucetFinish] || data.faucetFinish]);
-  if (data.siphonType) rows.push(['Type de siphon', siphonTypeLabels[data.siphonType] || data.siphonType]);
+  if (data.wantHandWash) rows.push(['Lave-mains souhaite', yesNoLabels[data.wantHandWash] || data.wantHandWash]);
+  if (data.handWashType) {
+    const label = getLabel('handWashType', data.handWashType);
+    rows.push(['Type de lave-mains', label]);
+    addImage('handWashType', data.handWashType, label);
+  }
+  if (data.faucetFinish) {
+    const label = bathroomLabels.faucetFinish?.[data.faucetFinish] || data.faucetFinish;
+    rows.push(['Finition robinetterie', label]);
+    const url = bathroomImageMappings.faucetFinish?.[data.faucetFinish];
+    if (url) images.push({ url, caption: label });
+  }
+  if (data.siphonType) {
+    const label = siphonTypeLabels[data.siphonType] || data.siphonType;
+    rows.push(['Type de siphon', label]);
+    addImage('siphonType', data.siphonType, label);
+  }
   
   return { rows, images };
 };
@@ -839,29 +1079,33 @@ export const generateSimulationPDF = async ({
     // Note: Emojis removed - jsPDF has limited unicode support and emojis cause spacing issues
     
     let tableData: string[][] = [];
+    let selectionImages: { url: string; caption: string }[] = [];
     let eggerRefs: EggerReference[] = [];
     let planiziaRefs: PlaniziaReference[] = [];
     let fbColors: FarrowBallColor[] = [];
     
     if (room.data.bathroomData) {
-      const { rows } = formatBathroomDataWithImages(room.data.bathroomData);
+      const { rows, images } = formatBathroomDataWithImages(room.data.bathroomData);
       tableData = rows;
+      selectionImages = images;
       eggerRefs = room.data.bathroomData.eggerReferences || [];
     } else if (room.data.kitchenData) {
-      const { rows } = formatKitchenDataWithImages(room.data.kitchenData);
+      const { rows, images } = formatKitchenDataWithImages(room.data.kitchenData);
       tableData = rows;
+      selectionImages = images;
       eggerRefs = room.data.kitchenData.eggerReferences || [];
       planiziaRefs = room.data.kitchenData.planiziaReferences || [];
     } else if (room.data.wcData) {
-      const { rows } = formatWCDataWithImages(room.data.wcData);
+      const { rows, images } = formatWCDataWithImages(room.data.wcData);
       tableData = rows;
+      selectionImages = images;
     } else if (room.data.paintingData) {
       // Handle room-specific painting data
       const paintData = room.data.paintingData;
       if (paintData.surfaces?.length > 0) tableData.push(['Surfaces', paintData.surfaces.join(', ')]);
       if (paintData.intention) tableData.push(['Intention', paintData.intention]);
       if (paintData.finish) tableData.push(['Finition', paintData.finish]);
-      if (paintData.wallCondition) tableData.push(['État des murs', paintData.wallCondition]);
+      if (paintData.wallCondition) tableData.push(['Etat des murs', paintData.wallCondition]);
       fbColors = paintData.farrowBallColors || [];
     }
     
@@ -903,6 +1147,19 @@ export const generateSimulationPDF = async ({
       });
       
       y = (doc as any).lastAutoTable.finalY + 8;
+    }
+    
+    // Selection images grid (bathroom fixtures, kitchen layouts, etc.)
+    if (includeImages && selectionImages.length > 0) {
+      y = checkNewPage(doc, y, 60);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...PRIMARY_COLOR);
+      doc.text('Visuels des selections', 20, y);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      y += 6;
+      y = await addImagesGrid(doc, selectionImages, y, 4, 42, 32);
     }
     
     // EGGER references for this room (vanity finishes, countertops)
