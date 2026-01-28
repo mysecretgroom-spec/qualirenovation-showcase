@@ -11,6 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { downloadSimulationPDF, uploadSimulationPDF } from "@/utils/generateSimulationPDF";
+import SimulationPdfPreview from "./SimulationPdfPreview";
 
 interface Simulation {
   id: string;
@@ -276,34 +277,46 @@ const ClientSimulationTab = ({ clientId, clientName, clientEmail, clientPhone, q
             </div>
           </div>
 
-          {/* Project Info */}
-          <div className="p-4 space-y-4">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {simulation.property_type && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Home className="w-4 h-4 text-muted-foreground" />
-                  <span className="capitalize">{simulation.property_type}</span>
+          {/* Content wrapper with PDF preview sidebar */}
+          <div className="p-4">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* PDF Preview */}
+              <div className="lg:w-64 shrink-0">
+                <h4 className="text-sm font-medium mb-2 text-muted-foreground">Aperçu PDF</h4>
+                <SimulationPdfPreview 
+                  pdfData={convertSimulationToPDFFormat(simulation)}
+                  simulationId={simulation.id}
+                />
+              </div>
+              
+              {/* Project Info */}
+              <div className="flex-1 space-y-4">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {simulation.property_type && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Home className="w-4 h-4 text-muted-foreground" />
+                      <span className="capitalize">{simulation.property_type}</span>
+                    </div>
+                  )}
+                  {simulation.surface && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Ruler className="w-4 h-4 text-muted-foreground" />
+                      <span>{simulation.surface} m²</span>
+                    </div>
+                  )}
+                  {simulation.city && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <span>{simulation.city}</span>
+                    </div>
+                  )}
+                  {simulation.construction_period && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <span>{constructionPeriodLabels[simulation.construction_period] || simulation.construction_period}</span>
+                    </div>
+                  )}
                 </div>
-              )}
-              {simulation.surface && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Ruler className="w-4 h-4 text-muted-foreground" />
-                  <span>{simulation.surface} m²</span>
-                </div>
-              )}
-              {simulation.city && (
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span>{simulation.city}</span>
-                </div>
-              )}
-              {simulation.construction_period && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
-                  <span>{constructionPeriodLabels[simulation.construction_period] || simulation.construction_period}</span>
-                </div>
-              )}
-            </div>
 
             {/* Project Types */}
             {simulation.project_types && simulation.project_types.length > 0 && (
@@ -432,7 +445,9 @@ const ClientSimulationTab = ({ clientId, clientName, clientEmail, clientPhone, q
                 </div>
               </div>
             )}
-          </div>
+              </div>{/* End flex-1 */}
+            </div>{/* End flex container */}
+          </div>{/* End p-4 */}
         </div>
       ))}
     </div>
