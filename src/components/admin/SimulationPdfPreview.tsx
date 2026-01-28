@@ -25,21 +25,46 @@ const SimulationPdfPreview = ({ pdfData, simulationId }: SimulationPdfPreviewPro
 
   useEffect(() => {
     let cancelled = false;
+    let currentUrl: string | null = null;
 
     const generatePreview = async () => {
       setLoading(true);
       setError(false);
       
       try {
+        // Ensure we have valid data with defaults
+        const safeLeadData = {
+          name: pdfData.leadData?.name || 'Client',
+          email: pdfData.leadData?.email || '',
+          phone: pdfData.leadData?.phone || '',
+          address: pdfData.leadData?.address || '',
+          postalCode: pdfData.leadData?.postalCode || '',
+          city: pdfData.leadData?.city || '',
+          surface: pdfData.leadData?.surface || '',
+          budget: pdfData.leadData?.budget || '',
+          timeline: pdfData.leadData?.timeline || '',
+          message: pdfData.leadData?.message || '',
+        };
+        
+        const safeFormData = {
+          ...pdfData.formData,
+          propertyType: pdfData.formData?.propertyType || '',
+          surface: pdfData.formData?.surface || '',
+          constructionPeriod: pdfData.formData?.constructionPeriod || '',
+          city: pdfData.formData?.city || '',
+          selectedRooms: pdfData.formData?.selectedRooms || [],
+          inspirationImages: [],
+        };
+
         const blob = await generateSimulationPDF({
-          leadData: pdfData.leadData,
-          formData: pdfData.formData,
+          leadData: safeLeadData,
+          formData: safeFormData as any,
           includeImages: false, // Faster preview without images
         });
         
-        if (!cancelled) {
-          const url = URL.createObjectURL(blob);
-          setPdfUrl(url);
+        if (!cancelled && blob) {
+          currentUrl = URL.createObjectURL(blob);
+          setPdfUrl(currentUrl);
         }
       } catch (err) {
         console.error("Error generating PDF preview:", err);
@@ -57,11 +82,11 @@ const SimulationPdfPreview = ({ pdfData, simulationId }: SimulationPdfPreviewPro
 
     return () => {
       cancelled = true;
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
       }
     };
-  }, [simulationId]);
+  }, [simulationId, pdfData]);
 
   if (loading) {
     return (
