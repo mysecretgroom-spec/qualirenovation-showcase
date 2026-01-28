@@ -53,6 +53,8 @@ const SimulationPdfPreview = ({ pdfData, simulationId }: SimulationPdfPreviewPro
         surface: pdfData.formData?.surface || '',
         constructionPeriod: pdfData.formData?.constructionPeriod || '',
         city: pdfData.formData?.city || '',
+        address: pdfData.formData?.address || '',
+        postalCode: pdfData.formData?.postalCode || '',
         hasArchitect: pdfData.formData?.hasArchitect || '',
         modifyLayout: pdfData.formData?.modifyLayout || '',
         uploadedPlan: null,

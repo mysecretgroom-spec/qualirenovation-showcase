@@ -223,14 +223,29 @@ const loadImageAsBase64 = async (url: string): Promise<string | null> => {
   }
 };
 
+// Strip HTML tags from text
+const stripHtml = (text: string): string => {
+  if (!text) return '';
+  return text
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+    .replace(/&amp;/g, '&') // Replace &amp; with &
+    .replace(/&lt;/g, '<') // Replace &lt; with <
+    .replace(/&gt;/g, '>') // Replace &gt; with >
+    .replace(/&quot;/g, '"') // Replace &quot; with "
+    .replace(/&#39;/g, "'") // Replace &#39; with '
+    .trim();
+};
+
 // Add section title with icon
 const addSectionTitle = (doc: jsPDF, title: string, y: number, icon?: string): number => {
+  const cleanTitle = stripHtml(title);
   doc.setFillColor(...PRIMARY_COLOR);
   doc.rect(15, y, 180, 10, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  const displayTitle = icon ? `${icon}  ${title.toUpperCase()}` : title.toUpperCase();
+  const displayTitle = icon ? `${icon}  ${cleanTitle.toUpperCase()}` : cleanTitle.toUpperCase();
   doc.text(displayTitle, 20, y + 7);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
@@ -239,12 +254,13 @@ const addSectionTitle = (doc: jsPDF, title: string, y: number, icon?: string): n
 
 // Add subsection title
 const addSubsectionTitle = (doc: jsPDF, title: string, y: number): number => {
+  const cleanTitle = stripHtml(title);
   doc.setFillColor(...SECONDARY_COLOR);
   doc.rect(15, y, 180, 7, 'F');
   doc.setTextColor(...PRIMARY_COLOR);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(title, 20, y + 5);
+  doc.text(cleanTitle, 20, y + 5);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
   return y + 10;
@@ -252,15 +268,17 @@ const addSubsectionTitle = (doc: jsPDF, title: string, y: number): number => {
 
 // Add key-value row
 const addInfoRow = (doc: jsPDF, label: string, value: string, y: number, labelWidth: number = 55): number => {
+  const cleanLabel = stripHtml(label);
+  const cleanValue = stripHtml(value);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(80, 80, 80);
-  doc.text(label, 20, y);
+  doc.text(cleanLabel, 20, y);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 0);
   
   const maxWidth = 175 - labelWidth;
-  const lines = doc.splitTextToSize(value || '-', maxWidth);
+  const lines = doc.splitTextToSize(cleanValue || '-', maxWidth);
   doc.text(lines, 20 + labelWidth, y);
   
   return y + (lines.length * 5) + 2;
@@ -533,18 +551,18 @@ export const generateSimulationPDF = async ({
   const doc = new jsPDF();
   let y = 20;
   
-  // ========== HEADER ==========
+  // ========== HEADER - Increased height for larger logo ==========
   doc.setFillColor(...PRIMARY_COLOR);
-  doc.rect(0, 0, 210, 45, 'F');
+  doc.rect(0, 0, 210, 55, 'F');
   
-  // Load and add logo with proper aspect ratio
+  // Load and add logo with proper aspect ratio - 2x larger
   try {
     const logoUrl = '/logo-qualirenovation-email.png';
     const logoData = await loadImageAsBase64WithDimensions(logoUrl);
     if (logoData) {
-      // Calculate dimensions preserving aspect ratio
-      const maxHeight = 18;
-      const maxWidth = 80;
+      // Calculate dimensions preserving aspect ratio - doubled from 18 to 36
+      const maxHeight = 36;
+      const maxWidth = 160;
       const aspectRatio = logoData.width / logoData.height;
       
       let logoWidth = maxHeight * aspectRatio;
@@ -558,7 +576,7 @@ export const generateSimulationPDF = async ({
       
       // Center horizontally
       const logoX = (210 - logoWidth) / 2;
-      doc.addImage(logoData.base64, 'PNG', logoX, 6, logoWidth, logoHeight);
+      doc.addImage(logoData.base64, 'PNG', logoX, 4, logoWidth, logoHeight);
     }
   } catch (e) {
     // Fallback: just text if logo fails
@@ -568,23 +586,23 @@ export const generateSimulationPDF = async ({
     doc.text('QUALIRENOVATION', 105, 18, { align: 'center' });
   }
   
-  doc.setFontSize(13);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(255, 255, 255);
-  doc.text('Dossier de Simulation de Projet', 105, 32, { align: 'center' });
+  doc.text('Dossier de Simulation de Projet', 105, 42, { align: 'center' });
   
-  // Client name badge
+  // Client name badge - moved down for larger logo
   doc.setFillColor(255, 255, 255);
-  doc.roundedRect(60, 37, 90, 10, 2, 2, 'F');
+  doc.roundedRect(60, 47, 90, 10, 2, 2, 'F');
   doc.setTextColor(...PRIMARY_COLOR);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(leadData.name || 'Client', 105, 43.5, { align: 'center' });
+  doc.text(leadData.name || 'Client', 105, 53.5, { align: 'center' });
   
   doc.setTextColor(0, 0, 0);
-  y = 55;
+  y = 65;
   
-  // Date
+  // Date - adjusted for larger header
   doc.setFontSize(9);
   doc.setTextColor(128, 128, 128);
   doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR', { 
@@ -593,7 +611,7 @@ export const generateSimulationPDF = async ({
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  })}`, 195, 53, { align: 'right' });
+  })}`, 195, 63, { align: 'right' });
   doc.setTextColor(0, 0, 0);
   
   // ========== CLIENT INFO ==========
@@ -609,7 +627,21 @@ export const generateSimulationPDF = async ({
   if (leadData.email) { doc.setFont('helvetica', 'bold'); doc.text('Email :', col1X, col1Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.email, col1X + 30, col1Y); col1Y += 6; }
   if (leadData.phone) { doc.setFont('helvetica', 'bold'); doc.text('Téléphone :', col1X, col1Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.phone, col1X + 30, col1Y); col1Y += 6; }
   
-  if (formData.city) { doc.setFont('helvetica', 'bold'); doc.text('Ville :', col2X, col2Y); doc.setFont('helvetica', 'normal'); doc.text(formData.city, col2X + 30, col2Y); col2Y += 6; }
+  // Full address with postal code and city
+  const fullAddress = formData.address || leadData.address || '';
+  const addressParts = [
+    fullAddress,
+    formData.postalCode ? `${formData.postalCode} ${formData.city}` : formData.city,
+  ].filter(Boolean);
+  
+  if (addressParts.length > 0) { 
+    doc.setFont('helvetica', 'bold'); 
+    doc.text('Adresse :', col2X, col2Y); 
+    doc.setFont('helvetica', 'normal'); 
+    const addressLines = doc.splitTextToSize(addressParts.join('\n'), 80);
+    doc.text(addressLines, col2X + 30, col2Y); 
+    col2Y += addressLines.length * 5 + 1; 
+  }
   if (formData.surface) { doc.setFont('helvetica', 'bold'); doc.text('Surface :', col2X, col2Y); doc.setFont('helvetica', 'normal'); doc.text(`${formData.surface} m²`, col2X + 30, col2Y); col2Y += 6; }
   if (leadData.budget) { doc.setFont('helvetica', 'bold'); doc.text('Budget :', col2X, col2Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.budget, col2X + 30, col2Y); col2Y += 6; }
   

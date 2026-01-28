@@ -3,7 +3,7 @@ import { useRenovationForm } from '../RenovationFormContext';
 import { FormSection } from '../FormSection';
 import { FormQuestion } from '../FormQuestion';
 import { SelectableCard } from '../SelectableCard';
-import { CityAutocomplete } from '../CityAutocomplete';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Input } from '@/components/ui/input';
 import { Building2, Home } from 'lucide-react';
 
@@ -51,12 +51,26 @@ export const StepProjectInfo: React.FC = () => {
         </div>
       </FormQuestion>
 
-      {/* City */}
-      <FormQuestion label="Ville du projet" required>
-        <CityAutocomplete
-          value={formData.city}
-          onChange={(city) => updateFormData('city', city)}
-          className="max-w-md"
+      {/* Address */}
+      <FormQuestion label="Adresse complète du projet" required>
+        <AddressAutocomplete
+          value={formData.address}
+          onChange={(result) => {
+            if (result) {
+              updateFormData('address', result.address);
+              updateFormData('city', result.city || '');
+              updateFormData('postalCode', result.postalCode || '');
+              if (result.latitude) updateFormData('latitude', result.latitude);
+              if (result.longitude) updateFormData('longitude', result.longitude);
+            } else {
+              updateFormData('address', '');
+              updateFormData('city', '');
+              updateFormData('postalCode', '');
+              updateFormData('latitude', undefined);
+              updateFormData('longitude', undefined);
+            }
+          }}
+          className="max-w-lg"
         />
       </FormQuestion>
     </FormSection>
