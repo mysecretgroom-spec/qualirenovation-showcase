@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   X, Save, Loader2, Home, Calendar, MapPin, Ruler, 
   ChevronRight, Bath, CookingPot, DoorOpen, Settings, 
-  Clock, AlertTriangle, Paintbrush, Zap, Frame, Pencil
+  Clock, AlertTriangle, Paintbrush, Zap, Frame, Pencil,
+  Plus, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -552,6 +553,39 @@ const SimulationEditor = ({
     setEditingRoom(null);
   };
 
+  const addRoom = (type: string) => {
+    const rooms = [...(formState.selected_rooms || [])];
+    // Calculate instance number for this room type
+    const sameTypeRooms = rooms.filter((r: any) => r.type === type);
+    const instanceNumber = sameTypeRooms.length + 1;
+    
+    const newRoom = {
+      id: `${type}-${Date.now()}`,
+      type,
+      instanceNumber,
+      data: {},
+    };
+    
+    rooms.push(newRoom);
+    setFormState(prev => ({ ...prev, selected_rooms: rooms }));
+  };
+
+  const removeRoom = (roomId: string) => {
+    const rooms = (formState.selected_rooms || []).filter((r: any) => r.id !== roomId);
+    // Recalculate instance numbers for each type
+    const reindexedRooms = rooms.map((room: any, index: number) => {
+      const sameTypeBefore = rooms.slice(0, index).filter((r: any) => r.type === room.type);
+      return { ...room, instanceNumber: sameTypeBefore.length + 1 };
+    });
+    setFormState(prev => ({ ...prev, selected_rooms: reindexedRooms }));
+  };
+
+  const roomTypes = [
+    { type: 'cuisine', label: 'Cuisine', icon: CookingPot },
+    { type: 'salle-de-bain', label: 'Salle de bain', icon: Bath },
+    { type: 'wc', label: 'WC', icon: DoorOpen },
+  ];
+
   const renderPiecesSection = () => {
     const rooms = formState.selected_rooms || [];
     
@@ -567,39 +601,83 @@ const SimulationEditor = ({
     }
     
     return (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {rooms.length} pièce(s) configurée(s). Cliquez sur une pièce pour la modifier.
-        </p>
-        
-        <div className="grid sm:grid-cols-2 gap-3">
-          {rooms.map((room: any, index: number) => (
-            <div 
-              key={room.id || index}
-              className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors group"
-              onClick={() => setEditingRoom(room)}
-            >
-              {room.type === 'cuisine' && <CookingPot className="w-5 h-5 text-primary" />}
-              {room.type === 'salle-de-bain' && <Bath className="w-5 h-5 text-primary" />}
-              {room.type === 'wc' && <DoorOpen className="w-5 h-5 text-primary" />}
-              {!['cuisine', 'salle-de-bain', 'wc'].includes(room.type) && <DoorOpen className="w-5 h-5 text-primary" />}
-              <span className="font-medium flex-1">
-                {roomTypeLabels[room.type] || room.type}
-                {room.instanceNumber > 1 ? ` ${room.instanceNumber}` : ''}
-              </span>
-              {room.data && Object.keys(room.data).length > 0 && (
-                <Badge variant="secondary">Configurée</Badge>
-              )}
-              <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          ))}
+      <div className="space-y-6">
+        {/* Add room buttons */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Ajouter une pièce</Label>
+          <div className="flex flex-wrap gap-2">
+            {roomTypes.map(({ type, label, icon: Icon }) => (
+              <Button
+                key={type}
+                variant="outline"
+                size="sm"
+                onClick={() => addRoom(type)}
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <Icon className="w-4 h-4" />
+                {label}
+              </Button>
+            ))}
+          </div>
         </div>
-        
-        {rooms.length === 0 && (
-          <p className="text-center py-8 text-muted-foreground">
-            Aucune pièce sélectionnée
-          </p>
-        )}
+
+        {/* Room list */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">
+            Pièces configurées ({rooms.length})
+          </Label>
+          
+          {rooms.length > 0 ? (
+            <div className="grid sm:grid-cols-2 gap-3">
+              {rooms.map((room: any, index: number) => {
+                const roomType = roomTypes.find(r => r.type === room.type);
+                const Icon = roomType?.icon || DoorOpen;
+                
+                return (
+                  <div 
+                    key={room.id || index}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors group"
+                  >
+                    <Icon className="w-5 h-5 text-primary" />
+                    <span className="font-medium flex-1">
+                      {roomTypeLabels[room.type] || room.type}
+                      {room.instanceNumber > 1 ? ` ${room.instanceNumber}` : ''}
+                    </span>
+                    {room.data && Object.keys(room.data).length > 0 && (
+                      <Badge variant="secondary" className="text-xs">Configurée</Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => setEditingRoom(room)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeRoom(room.id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground border border-dashed border-border rounded-lg">
+              <DoorOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p>Aucune pièce sélectionnée</p>
+              <p className="text-xs mt-1">Utilisez les boutons ci-dessus pour ajouter des pièces</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
