@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { RenovationFormData, InspirationImage, EggerReference, PlaniziaReference, FarrowBallColor } from '@/components/renovation/types';
 import { LeadData } from '@/contexts/LeadContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PDFGeneratorOptions {
   leadData: LeadData;
@@ -1007,8 +1008,6 @@ export const uploadSimulationPDF = async (
     const blob = await generateSimulationPDF(options);
     const fileName = `simulation-${new Date().toISOString().split('T')[0]}.pdf`;
     const filePath = `${clientId}/Simulation/${Date.now()}_${fileName}`;
-    
-    const { supabase } = await import('@/integrations/supabase/client');
     
     const { error: uploadError } = await supabase.storage
       .from('client-files')
