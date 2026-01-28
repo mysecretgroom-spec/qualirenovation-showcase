@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   FileText, Home, Calendar, MapPin, Ruler, 
   ChevronDown, ChevronRight, Bath, CookingPot, 
-  Bed, Sofa, DoorOpen, Briefcase, Palette, Download, Loader2, RefreshCw
+  Bed, Sofa, DoorOpen, Briefcase, Palette, Download, Loader2, RefreshCw, Pencil
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { downloadSimulationPDF, uploadSimulationPDF } from "@/utils/generateSimulationPDF";
 import SimulationPdfPreview from "./SimulationPdfPreview";
+import SimulationEditor from "./SimulationEditor";
 
 interface Simulation {
   id: string;
@@ -77,40 +78,41 @@ const ClientSimulationTab = ({ clientId, clientName, clientEmail, clientPhone, q
   const [loading, setLoading] = useState(true);
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
   const [generatingPdf, setGeneratingPdf] = useState<string | null>(null);
+  const [editingSimulation, setEditingSimulation] = useState<Simulation | null>(null);
   const { toast } = useToast();
 
+  const fetchSimulations = async () => {
+    setLoading(true);
+    
+    // Fetch simulations by client_id OR quote_request_id
+    let query = supabase
+      .from("renovation_simulations")
+      .select("*")
+      .order("created_at", { ascending: false });
+    
+    if (quoteRequestId) {
+      query = query.or(`client_id.eq.${clientId},quote_request_id.eq.${quoteRequestId}`);
+    } else {
+      query = query.eq("client_id", clientId);
+    }
+    
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching simulations:", error);
+    } else {
+      // Parse JSONB fields properly
+      const parsedData = (data || []).map(sim => ({
+        ...sim,
+        selected_rooms: Array.isArray(sim.selected_rooms) ? sim.selected_rooms : [],
+        isolation_data: typeof sim.isolation_data === 'object' ? sim.isolation_data : {},
+      }));
+      setSimulations(parsedData);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchSimulations = async () => {
-      setLoading(true);
-      
-      // Fetch simulations by client_id OR quote_request_id
-      let query = supabase
-        .from("renovation_simulations")
-        .select("*")
-        .order("created_at", { ascending: false });
-      
-      if (quoteRequestId) {
-        query = query.or(`client_id.eq.${clientId},quote_request_id.eq.${quoteRequestId}`);
-      } else {
-        query = query.eq("client_id", clientId);
-      }
-      
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching simulations:", error);
-      } else {
-        // Parse JSONB fields properly
-        const parsedData = (data || []).map(sim => ({
-          ...sim,
-          selected_rooms: Array.isArray(sim.selected_rooms) ? sim.selected_rooms : [],
-          isolation_data: typeof sim.isolation_data === 'object' ? sim.isolation_data : {},
-        }));
-        setSimulations(parsedData);
-      }
-      setLoading(false);
-    };
-
     fetchSimulations();
   }, [clientId, quoteRequestId]);
 
@@ -247,6 +249,14 @@ const ClientSimulationTab = ({ clientId, clientName, clientEmail, clientPhone, q
                 </Badge>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setEditingSimulation(simulation)}
+                >
+                  <Pencil className="w-4 h-4 mr-1" />
+                  Modifier
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -450,6 +460,23 @@ const ClientSimulationTab = ({ clientId, clientName, clientEmail, clientPhone, q
           </div>{/* End p-4 */}
         </div>
       ))}
+
+      {/* Simulation Editor Dialog */}
+      {editingSimulation && (
+        <SimulationEditor
+          simulation={editingSimulation}
+          clientId={clientId}
+          clientName={clientName}
+          clientEmail={clientEmail}
+          clientPhone={clientPhone}
+          open={!!editingSimulation}
+          onOpenChange={(open) => !open && setEditingSimulation(null)}
+          onSaved={() => {
+            fetchSimulations();
+            onPdfGenerated?.();
+          }}
+        />
+      )}
     </div>
   );
 };
