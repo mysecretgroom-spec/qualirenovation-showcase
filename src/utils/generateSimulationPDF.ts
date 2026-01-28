@@ -459,27 +459,39 @@ export const generateSimulationPDF = async ({
   
   // ========== HEADER ==========
   doc.setFillColor(...PRIMARY_COLOR);
-  doc.rect(0, 0, 210, 40, 'F');
+  doc.rect(0, 0, 210, 45, 'F');
   
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  doc.text('QUALIRENOVATION', 105, 18, { align: 'center' });
+  // Load and add logo
+  try {
+    const logoUrl = '/logo-qualirenovation-email.png';
+    const logoBase64 = await loadImageAsBase64(logoUrl);
+    if (logoBase64) {
+      // Add logo centered in header (adjust dimensions as needed)
+      doc.addImage(logoBase64, 'PNG', 75, 5, 60, 20);
+    }
+  } catch (e) {
+    // Fallback: just text if logo fails
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('QUALIRENOVATION', 105, 18, { align: 'center' });
+  }
   
   doc.setFontSize(13);
   doc.setFont('helvetica', 'normal');
-  doc.text('Dossier de Simulation de Projet', 105, 28, { align: 'center' });
+  doc.setTextColor(255, 255, 255);
+  doc.text('Dossier de Simulation de Projet', 105, 32, { align: 'center' });
   
   // Client name badge
   doc.setFillColor(255, 255, 255);
-  doc.roundedRect(60, 32, 90, 10, 2, 2, 'F');
+  doc.roundedRect(60, 37, 90, 10, 2, 2, 'F');
   doc.setTextColor(...PRIMARY_COLOR);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(leadData.name || 'Client', 105, 38.5, { align: 'center' });
+  doc.text(leadData.name || 'Client', 105, 43.5, { align: 'center' });
   
   doc.setTextColor(0, 0, 0);
-  y = 50;
+  y = 55;
   
   // Date
   doc.setFontSize(9);
@@ -490,7 +502,7 @@ export const generateSimulationPDF = async ({
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  })}`, 195, 48, { align: 'right' });
+  })}`, 195, 53, { align: 'right' });
   doc.setTextColor(0, 0, 0);
   
   // ========== CLIENT INFO ==========
