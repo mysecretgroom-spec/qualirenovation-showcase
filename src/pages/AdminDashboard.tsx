@@ -2,9 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Upload, MessageSquare, Link2, Eye, LogOut, Shield, FolderOpen, Users, Newspaper } from "lucide-react";
+import { 
+  FileText, Upload, MessageSquare, Link2, Eye, 
+  Users, Newspaper, Download, ChevronRight, RefreshCw
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { AdminMobileLayout } from "@/components/admin/AdminMobileLayout";
 
 interface DashboardStats {
   pendingQuotes: number;
@@ -33,8 +37,19 @@ const AdminDashboard = () => {
     totalPress: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // PWA install prompt
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -114,97 +129,99 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+    } else {
+      navigate("/admin/install");
+    }
   };
+
+  const quickStats = [
+    { 
+      label: "Clients actifs", 
+      value: stats.activeClients, 
+      total: stats.totalClients,
+      color: "bg-teal-500",
+    },
+    { 
+      label: "Devis en attente", 
+      value: stats.pendingQuotes,
+      color: "bg-primary",
+    },
+  ];
 
   const adminSections = [
     {
       title: "Clients",
-      description: "Gérer les fiches clients et dossiers",
+      description: "Gérer les fiches clients",
       href: "/admin/clients",
       icon: Users,
       color: "bg-teal-500/10 text-teal-600",
       badge: stats.activeClients > 0 ? stats.activeClients : null,
       badgeColor: "bg-teal-500 text-white",
-      stat: `${stats.totalClients} clients`,
     },
     {
       title: "Devis",
-      description: "Gérer les demandes de devis reçues",
+      description: "Demandes de devis",
       href: "/admin/devis",
       icon: FileText,
       color: "bg-primary/10 text-primary",
       badge: stats.pendingQuotes > 0 ? stats.pendingQuotes : null,
       badgeColor: "bg-primary text-primary-foreground",
-      stat: `${stats.totalQuotes} total`,
-    },
-    {
-      title: "Import Houzz",
-      description: "Importer des projets et avis depuis Houzz",
-      href: "/admin/import",
-      icon: Upload,
-      color: "bg-accent/20 text-accent",
-      badge: stats.pendingImports > 0 ? stats.pendingImports : null,
-      badgeColor: "bg-accent text-accent-foreground",
-      stat: null,
     },
     {
       title: "Avis",
-      description: "Gérer les témoignages clients",
+      description: "Témoignages clients",
       href: "/admin/avis",
       icon: MessageSquare,
       color: "bg-green-500/10 text-green-600",
       badge: null,
       badgeColor: "",
-      stat: `${stats.visibleTestimonials}/${stats.totalTestimonials} visibles`,
     },
     {
-      title: "Projets",
-      description: "Voir les projets importés",
-      href: "/",
-      icon: FolderOpen,
+      title: "Import Houzz",
+      description: "Importer des projets",
+      href: "/admin/import",
+      icon: Upload,
       color: "bg-orange-500/10 text-orange-600",
-      badge: null,
-      badgeColor: "",
-      stat: `${stats.totalProjects} projets`,
+      badge: stats.pendingImports > 0 ? stats.pendingImports : null,
+      badgeColor: "bg-orange-500 text-white",
     },
     {
-      title: "Publications Presse",
-      description: "Gérer les mentions presse et médias",
+      title: "Presse",
+      description: "Mentions médias",
       href: "/admin/presse",
       icon: Newspaper,
       color: "bg-pink-500/10 text-pink-600",
       badge: null,
       badgeColor: "",
-      stat: `${stats.totalPress} publications`,
     },
     {
-      title: "Vérificateur de liens",
-      description: "Vérifier les liens cassés du site",
+      title: "Liens",
+      description: "Vérificateur de liens",
       href: "/admin/liens",
       icon: Link2,
       color: "bg-blue-500/10 text-blue-600",
       badge: null,
       badgeColor: "",
-      stat: null,
     },
     {
-      title: "Tests visuels",
-      description: "Tester l'affichage des composants",
+      title: "Tests",
+      description: "Tests visuels",
       href: "/admin/visual",
       icon: Eye,
       color: "bg-purple-500/10 text-purple-600",
       badge: null,
       badgeColor: "",
-      stat: null,
     },
   ];
 
   if (isAdmin === null) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-[100svh] bg-background flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Vérification des accès...</div>
       </div>
     );
@@ -217,86 +234,108 @@ const AdminDashboard = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b border-border bg-card">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Shield className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">Administration</h1>
-                <p className="text-sm text-muted-foreground">{userEmail}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link to="/">
-                <Button variant="outline" size="sm">
-                  Voir le site
+      <AdminMobileLayout 
+        title="Tableau de bord"
+        rightAction={
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-9 w-9"
+            onClick={fetchStats}
+            disabled={loadingStats}
+          >
+            <RefreshCw className={`h-4 w-4 ${loadingStats ? 'animate-spin' : ''}`} />
+          </Button>
+        }
+      >
+        <div className="p-4 space-y-6">
+          {/* Welcome Card with Install CTA */}
+          {deferredPrompt && (
+            <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-4 text-primary-foreground">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold mb-1">Installer l'application</h2>
+                  <p className="text-sm opacity-90">Accès rapide depuis l'écran d'accueil</p>
+                </div>
+                <Button 
+                  variant="secondary" 
+                  size="sm"
+                  onClick={handleInstall}
+                  className="shrink-0"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Installer
                 </Button>
-              </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Déconnexion
-              </Button>
+              </div>
             </div>
+          )}
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 gap-3">
+            {quickStats.map((stat) => (
+              <div 
+                key={stat.label}
+                className="bg-card border border-border rounded-xl p-4"
+              >
+                <p className="text-xs text-muted-foreground mb-1">{stat.label}</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-foreground">
+                    {loadingStats ? "..." : stat.value}
+                  </span>
+                  {stat.total !== undefined && (
+                    <span className="text-sm text-muted-foreground">
+                      / {stat.total}
+                    </span>
+                  )}
+                </div>
+                <div className={`h-1 w-full ${stat.color} rounded-full mt-2 opacity-20`} />
+              </div>
+            ))}
           </div>
-        </header>
 
-        {/* Main content */}
-        <main className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold text-foreground mb-2">
-                Tableau de bord
-              </h2>
-              <p className="text-muted-foreground">
-                Sélectionnez une section pour gérer votre site
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Admin Sections Grid - Mobile Optimized */}
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
+              Accès rapide
+            </h3>
+            <div className="space-y-2">
               {adminSections.map((section) => (
                 <Link
                   key={section.href + section.title}
                   to={section.href}
-                  className="group p-6 rounded-lg border border-border bg-card hover:border-primary/50 hover:shadow-lg transition-all duration-200 relative"
+                  className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card active:bg-muted/50 transition-colors"
                 >
-                  {/* Badge for pending items */}
-                  {section.badge && (
-                    <span className={`absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold rounded-full ${section.badgeColor}`}>
-                      {section.badge} en attente
-                    </span>
-                  )}
-                  
-                  <div className={`w-12 h-12 rounded-lg ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <div className={`w-12 h-12 rounded-xl ${section.color} flex items-center justify-center shrink-0`}>
                     <section.icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                    {section.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {section.description}
-                  </p>
-                  
-                  {/* Stats display */}
-                  {section.stat && !loadingStats && (
-                    <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-                      {section.stat}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-foreground">
+                        {section.title}
+                      </h3>
+                      {section.badge && (
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${section.badgeColor}`}>
+                          {section.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {section.description}
                     </p>
-                  )}
-                  {section.stat && loadingStats && (
-                    <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border animate-pulse">
-                      Chargement...
-                    </p>
-                  )}
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                 </Link>
               ))}
             </div>
           </div>
-        </main>
-      </div>
+
+          {/* User Info Card */}
+          <div className="bg-muted/30 rounded-xl p-4">
+            <p className="text-xs text-muted-foreground">Connecté en tant que</p>
+            <p className="font-medium text-foreground truncate">{userEmail}</p>
+          </div>
+        </div>
+      </AdminMobileLayout>
     </>
   );
 };

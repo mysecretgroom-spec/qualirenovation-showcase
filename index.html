@@ -2,11 +2,19 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>QUALIRENOVATION - Rénovation d'intérieur à Paris</title>
     <meta name="description" content="Entreprise de rénovation d'intérieur à Paris et Île-de-France. Salle de bain, cuisine, appartement complet. Devis gratuit." />
     <meta name="author" content="Qualiconcept" />
     <link rel="icon" href="/favicon.webp" type="image/webp" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#114a67" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="QR Admin" />
+    <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     
     <!-- Preconnect for faster font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,6 +30,19 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="/logo-qualirenovation-email.webp" />
+    
+    <style>
+      /* Safe area CSS variables for PWA */
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+      }
+      .safe-area-top { padding-top: var(--sat); }
+      .safe-area-bottom { padding-bottom: var(--sab); }
+      .pb-safe { padding-bottom: max(1rem, var(--sab)); }
+    </style>
   </head>
 
   <body>

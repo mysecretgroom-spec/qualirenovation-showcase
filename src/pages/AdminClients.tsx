@@ -3,7 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { 
-  ArrowLeft, Plus, Search, User, MapPin, Phone, Mail, 
+  Plus, Search, User, MapPin, Phone, Mail, 
   Calendar, FileText, MoreVertical, Trash2, Edit, ExternalLink, FolderOpen, Settings2, Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import ClientFiles from "@/components/ClientFiles";
 import ClientSimulationTab from "@/components/admin/ClientSimulationTab";
 import AdminSimulationLauncher from "@/components/admin/AdminSimulationLauncher";
+import { AdminMobileLayout } from "@/components/admin/AdminMobileLayout";
 import {
   Dialog,
   DialogContent,
@@ -387,61 +388,53 @@ const AdminClients = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b border-border bg-card sticky top-0 z-10">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/admin">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">Gestion Clients</h1>
-                <p className="text-sm text-muted-foreground">{clients.length} clients</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {quoteRequests.length > 0 && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsFromQuoteModalOpen(true)}
-                  className="relative"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Depuis un devis
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                    {quoteRequests.length}
-                  </span>
-                </Button>
-              )}
-              <Button onClick={openNewClientModal}>
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau client
+      <AdminMobileLayout 
+        title="Clients" 
+        showBackButton
+        rightAction={
+          <div className="flex items-center gap-1">
+            {quoteRequests.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-9 w-9 relative"
+                onClick={() => setIsFromQuoteModalOpen(true)}
+              >
+                <FileText className="w-5 h-5" />
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center">
+                  {quoteRequests.length}
+                </span>
               </Button>
-            </div>
+            )}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-9 w-9"
+              onClick={openNewClientModal}
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
           </div>
-        </header>
-
-        {/* Filters */}
-        <div className="container mx-auto px-4 py-4 border-b border-border bg-card/50">
-          <div className="flex flex-col sm:flex-row gap-4">
+        }
+      >
+        {/* Filters - Mobile optimized */}
+        <div className="px-4 py-3 border-b border-border bg-card/50 sticky top-14 z-30">
+          <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher un client..."
+                placeholder="Rechercher..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="w-32 h-10">
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="all">Tous</SelectItem>
                 {statusOptions.map((status) => (
                   <SelectItem key={status.value} value={status.value}>
                     {status.label}
@@ -452,8 +445,8 @@ const AdminClients = () => {
           </div>
         </div>
 
-        {/* Client list */}
-        <main className="container mx-auto px-4 py-6">
+        {/* Client list - Mobile optimized */}
+        <div className="p-4">
           {loading ? (
             <div className="text-center py-12 text-muted-foreground">Chargement...</div>
           ) : filteredClients.length === 0 ? (
@@ -566,8 +559,8 @@ const AdminClients = () => {
               })}
             </div>
           )}
-        </main>
-      </div>
+        </div>
+      </AdminMobileLayout>
 
       {/* Client form modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
