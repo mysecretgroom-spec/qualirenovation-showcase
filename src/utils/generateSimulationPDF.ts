@@ -340,73 +340,107 @@ const addImagesGrid = async (
   return currentY + totalRows * (imgHeight + 15);
 };
 
-// Add reference cards (EGGER, Planizia, F&B)
+// Add reference cards (EGGER, Planizia, F&B) with color swatches
 const addReferenceCards = async (
   doc: jsPDF,
-  references: { imageUrl?: string; label: string; sublabel?: string }[],
+  references: { imageUrl?: string; hexColor?: string; label: string; sublabel?: string }[],
   y: number,
   title: string
 ): Promise<number> => {
   if (!references || references.length === 0) return y;
   
-  let currentY = checkNewPage(doc, y, 50);
+  let currentY = checkNewPage(doc, y, 60);
   
-  // Subsection title
+  // Subsection title with icon
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...PRIMARY_COLOR);
   doc.text(title, 20, currentY);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
-  currentY += 5;
+  currentY += 8;
   
-  const cardWidth = 40;
-  const cardHeight = 35;
+  const cardWidth = 42;
+  const cardHeight = 50;
   const cols = 4;
-  const margin = 5;
+  const margin = 6;
+  const swatchHeight = 28;
   
   for (let i = 0; i < references.length; i++) {
     const col = i % cols;
     if (col === 0 && i > 0) {
-      currentY = checkNewPage(doc, currentY + cardHeight + 10, cardHeight + 15);
+      currentY = checkNewPage(doc, currentY + cardHeight + 8, cardHeight + 15);
     }
     
-    const x = 20 + col * (cardWidth + margin);
+    const x = 18 + col * (cardWidth + margin);
     const ref = references[i];
     
-    // Card background
-    doc.setFillColor(250, 250, 250);
-    doc.setDrawColor(220, 220, 220);
-    doc.roundedRect(x, currentY, cardWidth, cardHeight, 2, 2, 'FD');
+    // Card shadow effect
+    doc.setFillColor(235, 235, 235);
+    doc.roundedRect(x + 1, currentY + 1, cardWidth, cardHeight, 3, 3, 'F');
     
+    // Card background
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(200, 200, 200);
+    doc.roundedRect(x, currentY, cardWidth, cardHeight, 3, 3, 'FD');
+    
+    // Try to add image swatch first
+    let hasVisual = false;
     if (ref.imageUrl) {
       try {
         const base64 = await loadImageAsBase64(ref.imageUrl);
         if (base64) {
-          doc.addImage(base64, 'JPEG', x + 2, currentY + 2, cardWidth - 4, 20);
+          // Clip to rounded rectangle area
+          doc.addImage(base64, 'JPEG', x + 2, currentY + 2, cardWidth - 4, swatchHeight);
+          hasVisual = true;
         }
       } catch {
-        // Silent fail
+        // Try hex color fallback
       }
     }
     
-    // Label
+    // If no image, try hex color swatch
+    if (!hasVisual && ref.hexColor) {
+      const hex = ref.hexColor.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      
+      doc.setFillColor(r, g, b);
+      doc.roundedRect(x + 2, currentY + 2, cardWidth - 4, swatchHeight, 2, 2, 'F');
+      hasVisual = true;
+    }
+    
+    // If still no visual, show placeholder
+    if (!hasVisual) {
+      doc.setFillColor(245, 245, 245);
+      doc.roundedRect(x + 2, currentY + 2, cardWidth - 4, swatchHeight, 2, 2, 'F');
+      doc.setFontSize(6);
+      doc.setTextColor(180, 180, 180);
+      doc.text('Aperçu non disponible', x + cardWidth / 2, currentY + swatchHeight / 2 + 2, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+    }
+    
+    // Label (reference name)
     doc.setFontSize(7);
     doc.setFont('helvetica', 'bold');
-    const labelLines = doc.splitTextToSize(ref.label, cardWidth - 4);
-    doc.text(labelLines, x + cardWidth / 2, currentY + 25, { align: 'center' });
+    doc.setTextColor(50, 50, 50);
+    const labelLines = doc.splitTextToSize(ref.label || 'Référence', cardWidth - 4);
+    doc.text(labelLines.slice(0, 2), x + cardWidth / 2, currentY + swatchHeight + 6, { align: 'center' });
     
+    // Sublabel (rooms or brand)
     if (ref.sublabel) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6);
-      doc.setTextColor(100, 100, 100);
-      doc.text(ref.sublabel, x + cardWidth / 2, currentY + 31, { align: 'center' });
+      doc.setTextColor(120, 120, 120);
+      const sublabelLines = doc.splitTextToSize(ref.sublabel, cardWidth - 4);
+      doc.text(sublabelLines.slice(0, 1), x + cardWidth / 2, currentY + swatchHeight + 14, { align: 'center' });
       doc.setTextColor(0, 0, 0);
     }
   }
   
   const totalRows = Math.ceil(references.length / cols);
-  return currentY + totalRows * (cardHeight + 5) + 5;
+  return currentY + totalRows * (cardHeight + 8) + 5;
 };
 
 // Format bathroom data with images
@@ -420,14 +454,21 @@ const formatBathroomDataWithImages = (data: any): { rows: string[][]; images: { 
   if (data.bathroomType) rows.push(['Configuration', data.bathroomType === 'douche' ? 'Douche' : data.bathroomType === 'baignoire' ? 'Baignoire' : 'Douche + Baignoire']);
   if (data.showerTrayType) rows.push(['Receveur de douche', getLabel('showerTrayType', data.showerTrayType)]);
   if (data.showerDoorType) rows.push(['Paroi de douche', getLabel('showerDoorType', data.showerDoorType)]);
+  if (data.showerheadType) rows.push(['Pommeau de douche', data.showerheadType === 'fixe' ? 'Pommeau fixe' : data.showerheadType === 'douchette' ? 'Douchette' : 'Combiné fixe + douchette']);
   if (data.bathtubType) rows.push(['Type de baignoire', getLabel('bathtubType', data.bathtubType)]);
   if (data.bathtubScreenType) rows.push(['Pare-baignoire', getLabel('bathtubScreenType', data.bathtubScreenType)]);
   if (data.vanityType) rows.push(['Meuble vasque', getLabel('vanityType', data.vanityType)]);
   if (data.vanityCount) rows.push(['Nombre de vasques', data.vanityCount === '1' ? 'Simple vasque' : 'Double vasque']);
+  if (data.siphonType) rows.push(['Type de siphon', bathroomLabels.siphonType?.[data.siphonType] || data.siphonType]);
   if (data.mirrorType) rows.push(['Miroir', getLabel('mirrorType', data.mirrorType)]);
   if (data.showerFaucetType) rows.push(['Robinetterie douche', data.showerFaucetType === 'apparente' ? 'Apparente' : 'Encastrée']);
   if (data.faucetFinish) rows.push(['Finition robinetterie', getLabel('faucetFinish', data.faucetFinish)]);
-  if (data.toiletType) rows.push(['WC', getLabel('toiletType', data.toiletType)]);
+  // Use "Toilettes" instead of "WC" to avoid font rendering issues
+  if (data.toiletType && data.toiletType !== 'conserver') {
+    rows.push(['Toilettes', getLabel('toiletType', data.toiletType)]);
+  } else if (data.toiletType === 'conserver') {
+    rows.push(['Toilettes', 'Conserver existant']);
+  }
   if (data.ambiance?.length > 0) rows.push(['Ambiances', data.ambiance.map((a: string) => getLabel('ambiance', a)).join(', ')]);
   if (data.tileTypes?.length > 0) rows.push(['Types de carrelage', data.tileTypes.join(', ')]);
   if (data.tileFormat) rows.push(['Format carrelage', data.tileFormat]);
@@ -435,6 +476,16 @@ const formatBathroomDataWithImages = (data: any): { rows: string[][]; images: { 
   
   return { rows, images };
 };
+
+// Siphon type labels
+const siphonTypeLabels: Record<string, string> = {
+  'design': 'Siphon design',
+  'gain-place': 'Siphon gain de place',
+  'classique': 'Siphon classique',
+};
+
+// Add siphon labels to bathroom
+bathroomLabels.siphonType = siphonTypeLabels;
 
 // Format kitchen data
 const formatKitchenDataWithImages = (data: any): { rows: string[][]; images: { url: string; caption: string }[] } => {
@@ -461,12 +512,13 @@ const formatWCDataWithImages = (data: any): { rows: string[][]; images: { url: s
   
   const getLabel = (category: string, value: string) => wcLabels[category]?.[value] || value;
   
-  if (data.toiletType) rows.push(['Type de WC', getLabel('toiletType', data.toiletType)]);
+  // Use "Toilettes" instead of "WC" to avoid font rendering issues
+  if (data.toiletType) rows.push(['Toilettes', getLabel('toiletType', data.toiletType)]);
   if (data.existingSanibroyeur) rows.push(['Sanibroyeur existant', yesNoLabels[data.existingSanibroyeur] || data.existingSanibroyeur]);
   if (data.wantHandWash) rows.push(['Lave-mains souhaité', yesNoLabels[data.wantHandWash] || data.wantHandWash]);
   if (data.handWashType) rows.push(['Type de lave-mains', getLabel('handWashType', data.handWashType)]);
   if (data.faucetFinish) rows.push(['Finition robinetterie', bathroomLabels.faucetFinish?.[data.faucetFinish] || data.faucetFinish]);
-  if (data.siphonType) rows.push(['Type de siphon', getLabel('siphonType', data.siphonType)]);
+  if (data.siphonType) rows.push(['Type de siphon', siphonTypeLabels[data.siphonType] || data.siphonType]);
   
   return { rows, images };
 };
@@ -654,18 +706,19 @@ export const generateSimulationPDF = async ({
         y = addInfoRow(doc, 'Finition', formData.globalPainting.finish, y, 40);
       }
       
-      // Farrow & Ball colors as visual cards
+      // Farrow & Ball colors as visual cards with swatches
       if (includeImages && formData.globalPainting.farrowBallColors?.length > 0) {
         const fbColors = formData.globalPainting.farrowBallColors
           .filter((c: FarrowBallColor) => !c.error)
           .map((c: FarrowBallColor) => ({
             imageUrl: c.imageUrl,
-            label: c.colorName || c.colorNumber,
-            sublabel: c.rooms?.join(', '),
+            hexColor: c.hexColor,
+            label: c.colorNumber ? `No.${c.colorNumber} ${c.colorName}` : c.colorName || 'Couleur',
+            sublabel: c.rooms?.join(', ') || '',
           }));
         
         if (fbColors.length > 0) {
-          y = await addReferenceCards(doc, fbColors, y, 'Couleurs Farrow & Ball sélectionnées');
+          y = await addReferenceCards(doc, fbColors, y, '🎨 Couleurs Farrow & Ball');
         }
       }
       y += 3;
@@ -753,11 +806,10 @@ export const generateSimulationPDF = async ({
     const roomTitle = room.instanceNumber > 1 ? `${roomLabel} ${room.instanceNumber}` : roomLabel;
     const roomIcon = room.type === 'cuisine' ? '🍳' : room.type === 'salle-de-bain' ? '🚿' : room.type === 'wc' ? '🚽' : '🏠';
     
-    y = addSectionTitle(doc, roomTitle, y, roomIcon);
-    
     let tableData: string[][] = [];
     let eggerRefs: EggerReference[] = [];
     let planiziaRefs: PlaniziaReference[] = [];
+    let fbColors: FarrowBallColor[] = [];
     
     if (room.data.bathroomData) {
       const { rows } = formatBathroomDataWithImages(room.data.bathroomData);
@@ -771,7 +823,31 @@ export const generateSimulationPDF = async ({
     } else if (room.data.wcData) {
       const { rows } = formatWCDataWithImages(room.data.wcData);
       tableData = rows;
+    } else if (room.data.paintingData) {
+      // Handle room-specific painting data
+      const paintData = room.data.paintingData;
+      if (paintData.surfaces?.length > 0) tableData.push(['Surfaces', paintData.surfaces.join(', ')]);
+      if (paintData.intention) tableData.push(['Intention', paintData.intention]);
+      if (paintData.finish) tableData.push(['Finition', paintData.finish]);
+      if (paintData.wallCondition) tableData.push(['État des murs', paintData.wallCondition]);
+      fbColors = paintData.farrowBallColors || [];
     }
+    
+    // Skip rooms with no configuration data
+    if (tableData.length === 0 && eggerRefs.length === 0 && planiziaRefs.length === 0 && fbColors.length === 0) {
+      // Still show section but with "Not configured" message
+      y = addSectionTitle(doc, roomTitle, y, roomIcon);
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.setFont('helvetica', 'italic');
+      doc.text('Configuration non renseignée', 20, y);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('helvetica', 'normal');
+      y += 10;
+      continue;
+    }
+    
+    y = addSectionTitle(doc, roomTitle, y, roomIcon);
     
     // Room configuration table
     if (tableData.length > 0) {
@@ -786,7 +862,7 @@ export const generateSimulationPDF = async ({
           fontStyle: 'bold',
         },
         bodyStyles: { fontSize: 9 },
-        alternateRowStyles: { fillColor: [252, 250, 248] },
+        alternateRowStyles: { fillColor: SECONDARY_COLOR },
         columnStyles: {
           0: { cellWidth: 55, fontStyle: 'bold', textColor: [80, 80, 80] },
           1: { cellWidth: 'auto' },
@@ -797,35 +873,52 @@ export const generateSimulationPDF = async ({
       y = (doc as any).lastAutoTable.finalY + 8;
     }
     
-    // EGGER references for this room
+    // EGGER references for this room (vanity finishes, countertops)
     if (includeImages && eggerRefs.length > 0) {
       const validRefs = eggerRefs
-        .filter(r => !r.error && r.imageUrl)
+        .filter(r => !r.error)
         .map(r => ({
           imageUrl: r.imageUrl,
-          label: r.reference,
-          sublabel: r.decorName,
+          label: r.reference || 'Référence EGGER',
+          sublabel: r.decorName || '',
         }));
       
       if (validRefs.length > 0) {
-        y = checkNewPage(doc, y, 50);
-        y = await addReferenceCards(doc, validRefs, y, '📦 Références EGGER sélectionnées');
+        y = checkNewPage(doc, y, 60);
+        y = await addReferenceCards(doc, validRefs, y, '📦 Finitions EGGER');
       }
     }
     
-    // Planizia references for kitchen
+    // Planizia references for kitchen (quartz/ceramic countertops)
     if (includeImages && planiziaRefs.length > 0) {
       const validRefs = planiziaRefs
-        .filter(r => !r.error && r.imageUrl)
+        .filter(r => !r.error)
         .map(r => ({
           imageUrl: r.imageUrl,
-          label: r.reference,
-          sublabel: r.brand,
+          label: r.reference || 'Référence Planizia',
+          sublabel: r.brand || '',
         }));
       
       if (validRefs.length > 0) {
-        y = checkNewPage(doc, y, 50);
-        y = await addReferenceCards(doc, validRefs, y, '🪨 Références Planizia sélectionnées');
+        y = checkNewPage(doc, y, 60);
+        y = await addReferenceCards(doc, validRefs, y, '🪨 Plans de travail Planizia');
+      }
+    }
+    
+    // Farrow & Ball colors for room-specific painting
+    if (includeImages && fbColors.length > 0) {
+      const validColors = fbColors
+        .filter((c: FarrowBallColor) => !c.error)
+        .map((c: FarrowBallColor) => ({
+          imageUrl: c.imageUrl,
+          hexColor: c.hexColor,
+          label: c.colorNumber ? `No.${c.colorNumber} ${c.colorName}` : c.colorName || 'Couleur',
+          sublabel: c.rooms?.join(', ') || '',
+        }));
+      
+      if (validColors.length > 0) {
+        y = checkNewPage(doc, y, 60);
+        y = await addReferenceCards(doc, validColors, y, '🎨 Couleurs Farrow & Ball');
       }
     }
     
