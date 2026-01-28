@@ -791,7 +791,13 @@ const AdminClients = () => {
                 </div>
                 <ClientSimulationTab 
                   clientId={selectedClientForFiles.id}
+                  clientName={selectedClientForFiles.name}
+                  clientEmail={selectedClientForFiles.email || undefined}
+                  clientPhone={selectedClientForFiles.phone || undefined}
                   quoteRequestId={selectedClientForFiles.quote_request_id}
+                  onPdfGenerated={() => {
+                    // Switch to documents tab to see the new PDF
+                  }}
                 />
               </TabsContent>
             </Tabs>
