@@ -183,6 +183,29 @@ const wcLabels: Record<string, Record<string, string>> = {
 const PRIMARY_COLOR: [number, number, number] = [17, 74, 103];
 const SECONDARY_COLOR: [number, number, number] = [230, 241, 248];
 
+// Helper to load image as base64 with dimensions
+const loadImageAsBase64WithDimensions = async (url: string): Promise<{ base64: string; width: number; height: number } | null> => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        // Create image to get natural dimensions
+        const img = new Image();
+        img.onload = () => resolve({ base64, width: img.naturalWidth, height: img.naturalHeight });
+        img.onerror = () => resolve({ base64, width: 300, height: 100 }); // Default fallback
+        img.src = base64;
+      };
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+};
+
 // Helper to load image as base64
 const loadImageAsBase64 = async (url: string): Promise<string | null> => {
   try {
@@ -461,13 +484,28 @@ export const generateSimulationPDF = async ({
   doc.setFillColor(...PRIMARY_COLOR);
   doc.rect(0, 0, 210, 45, 'F');
   
-  // Load and add logo
+  // Load and add logo with proper aspect ratio
   try {
     const logoUrl = '/logo-qualirenovation-email.png';
-    const logoBase64 = await loadImageAsBase64(logoUrl);
-    if (logoBase64) {
-      // Add logo centered in header (adjust dimensions as needed)
-      doc.addImage(logoBase64, 'PNG', 75, 5, 60, 20);
+    const logoData = await loadImageAsBase64WithDimensions(logoUrl);
+    if (logoData) {
+      // Calculate dimensions preserving aspect ratio
+      const maxHeight = 18;
+      const maxWidth = 80;
+      const aspectRatio = logoData.width / logoData.height;
+      
+      let logoWidth = maxHeight * aspectRatio;
+      let logoHeight = maxHeight;
+      
+      // If width exceeds max, scale down
+      if (logoWidth > maxWidth) {
+        logoWidth = maxWidth;
+        logoHeight = maxWidth / aspectRatio;
+      }
+      
+      // Center horizontally
+      const logoX = (210 - logoWidth) / 2;
+      doc.addImage(logoData.base64, 'PNG', logoX, 6, logoWidth, logoHeight);
     }
   } catch (e) {
     // Fallback: just text if logo fails
