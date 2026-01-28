@@ -15,6 +15,7 @@ import AdminLinkChecker from "./pages/AdminLinkChecker";
 import AdminVisualTesting from "./pages/AdminVisualTesting";
 import AdminClients from "./pages/AdminClients";
 import AdminPress from "./pages/AdminPress";
+import AdminInstall from "./pages/AdminInstall";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import CGV from "./pages/CGV";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/renovation-complete" element={<RenovationComplete />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/install" element={<AdminInstall />} />
               <Route path="/admin/import" element={<AdminImport />} />
               <Route path="/admin/devis" element={<AdminQuotes />} />
               <Route path="/admin/avis" element={<AdminTestimonials />} />
