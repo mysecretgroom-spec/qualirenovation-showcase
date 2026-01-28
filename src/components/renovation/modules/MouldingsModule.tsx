@@ -38,7 +38,7 @@ export const MouldingsModule: React.FC<MouldingsModuleProps> = ({ roomId, roomNa
       subtitle="Définissez vos besoins en moulures pour cette pièce"
     >
       <FormQuestion label="Souhaitez-vous :">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
           {intentions.map((intention) => (
             <SelectableCard
               key={intention.value}
@@ -53,7 +53,7 @@ export const MouldingsModule: React.FC<MouldingsModuleProps> = ({ roomId, roomNa
 
       {(data.intention === 'creer' || data.intention === 'renover') && (
         <FormQuestion label="Style recherché :">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             {styles.map((style) => (
               <SelectableCard
                 key={style.value}

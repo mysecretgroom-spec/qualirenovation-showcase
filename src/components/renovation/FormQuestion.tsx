@@ -19,21 +19,21 @@ export const FormQuestion: React.FC<FormQuestionProps> = ({
   className,
 }) => {
   return (
-    <div className={cn('space-y-3', className)}>
-      <div className="space-y-1">
-        <label className="block text-base font-medium text-foreground">
+    <div className={cn('space-y-2 sm:space-y-3', className)}>
+      <div className="space-y-0.5 sm:space-y-1">
+        <label className="block text-sm sm:text-base font-medium text-foreground">
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </label>
         {hint && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {hint}
           </p>
         )}
       </div>
       {children}
       {error && (
-        <p className="text-sm text-destructive">
+        <p className="text-xs sm:text-sm text-destructive">
           {error}
         </p>
       )}

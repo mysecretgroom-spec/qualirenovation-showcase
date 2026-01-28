@@ -38,39 +38,39 @@ const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
       {/* Main Footer */}
-      <div className="container-tight py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="container-tight py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* Brand */}
-          <div className="lg:col-span-1">
-            <div className="flex items-center gap-3 mb-6">
+          <div className="col-span-2 md:col-span-2 lg:col-span-1">
+            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <img 
                 src={logoQualirenovation} 
                 alt="Qualirénovation by Qualiconcept" 
-                className="h-12 w-auto"
+                className="h-10 sm:h-12 w-auto"
               />
               <div className="flex flex-col">
-                <span className="font-display font-bold text-base tracking-wide">QUALIRÉNOVATION</span>
-                <span className="text-[10px] font-medium text-primary-foreground/70">by Qualiconcept</span>
+                <span className="font-display font-bold text-sm sm:text-base tracking-wide">QUALIRÉNOVATION</span>
+                <span className="text-[9px] sm:text-[10px] font-medium text-primary-foreground/70">by Qualiconcept</span>
               </div>
             </div>
-            <p className="text-primary-foreground/70 text-sm leading-relaxed mb-6">
+            <p className="text-primary-foreground/70 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
               Rénovation, décoration et aménagement d'intérieur à Paris et en Île-de-France. 
               Plus de 10 ans d'expérience au service de votre habitat.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               {socialLinks.map((social) => (
                 <a 
                   key={social.label}
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-primary transition-colors"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-primary transition-colors"
                   aria-label={social.label}
                 >
                   {social.isComponent ? (
-                    <social.icon className="w-4 h-4" />
+                    <social.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   ) : (
-                    <social.icon className="w-4 h-4" />
+                    <social.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   )}
                 </a>
               ))}
@@ -78,14 +78,14 @@ const Footer = () => {
           </div>
 
           {/* Services */}
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-5">Services</h4>
-            <ul className="space-y-3">
+          <div className="col-span-1">
+            <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Services</h4>
+            <ul className="space-y-2 sm:space-y-3">
               {services.map((service) => (
                 <li key={service}>
                   <a 
                     href="#services" 
-                    className="text-primary-foreground/70 text-sm hover:text-primary-foreground transition-colors"
+                    className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
                   >
                     {service}
                   </a>
@@ -95,41 +95,41 @@ const Footer = () => {
           </div>
 
           {/* Zones */}
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-5">Zones d'intervention</h4>
-            <ul className="space-y-3">
+          <div className="col-span-1">
+            <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Zones d'intervention</h4>
+            <ul className="space-y-2 sm:space-y-3">
               {zones.map((zone) => (
                 <li key={zone}>
-                  <span className="text-primary-foreground/70 text-sm">{zone}</span>
+                  <span className="text-primary-foreground/70 text-xs sm:text-sm">{zone}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           {/* Contact */}
-          <div>
-            <h4 className="font-display font-semibold text-lg mb-5">Contact</h4>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gold-light flex-shrink-0 mt-0.5" />
-                <span className="text-primary-foreground/70 text-sm">
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Contact</h4>
+            <ul className="space-y-3 sm:space-y-4">
+              <li className="flex items-start gap-2 sm:gap-3">
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light flex-shrink-0 mt-0.5" />
+                <span className="text-primary-foreground/70 text-xs sm:text-sm">
                   6 rue d'Armaillé<br />75017 Paris
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-gold-light" />
-                <span className="text-primary-foreground/70 text-sm">
+              <li className="flex items-center gap-2 sm:gap-3">
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
+                <span className="text-primary-foreground/70 text-xs sm:text-sm">
                   Sur rendez-vous
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-gold-light" />
-                <span className="text-primary-foreground/70 text-sm">
+              <li className="flex items-center gap-2 sm:gap-3">
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
+                <span className="text-primary-foreground/70 text-xs sm:text-sm">
                   gestion@qualiconcept.fr
                 </span>
               </li>
             </ul>
-            <p className="text-primary-foreground/60 text-xs mt-6">
+            <p className="text-primary-foreground/60 text-[10px] sm:text-xs mt-4 sm:mt-6">
               Assuré par MIC Assurance
             </p>
           </div>
@@ -138,11 +138,11 @@ const Footer = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10">
-        <div className="container-tight py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-primary-foreground/60 text-sm">
+        <div className="container-tight py-4 sm:py-6 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+          <p className="text-primary-foreground/60 text-[10px] sm:text-sm text-center md:text-left">
             © {currentYear} QUALIRENOVATION by Qualiconcept. Tous droits réservés.
           </p>
-          <div className="flex flex-wrap gap-4 md:gap-6 text-sm">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-[10px] sm:text-sm">
             <Link to="/faq" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
               FAQ
             </Link>
