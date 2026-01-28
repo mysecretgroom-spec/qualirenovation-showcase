@@ -1,15 +1,7 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { RenovationFormData, RoomSelection, InspirationImage } from '@/components/renovation/types';
 import { LeadData } from '@/contexts/LeadContext';
-
-// Extend jsPDF type for autotable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-    lastAutoTable: { finalY: number };
-  }
-}
 
 interface PDFGeneratorOptions {
   leadData: LeadData;
@@ -448,7 +440,7 @@ export const generateSimulationPDF = async ({
     }
     
     if (tableData.length > 0) {
-      doc.autoTable({
+      autoTable(doc, {
         startY: y,
         head: [['Élément', 'Choix']],
         body: tableData,
@@ -465,7 +457,7 @@ export const generateSimulationPDF = async ({
         margin: { left: 20, right: 20 },
       });
       
-      y = doc.lastAutoTable.finalY + 10;
+      y = (doc as any).lastAutoTable.finalY + 10;
     }
     
     // Room inspiration images - check for images in room data
