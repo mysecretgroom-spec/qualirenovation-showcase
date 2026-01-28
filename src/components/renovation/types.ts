@@ -42,6 +42,14 @@ export interface RenovationFormData {
   
   // Isolation module
   isolation: IsolationData;
+  
+  // Global works - standalone modules
+  needsGlobalPainting: 'oui' | 'non' | '';
+  needsGlobalFlooring: 'oui' | 'non' | '';
+  needsGlobalElectricity: 'oui' | 'non' | '';
+  globalPainting: GlobalPaintingData;
+  globalFlooring: GlobalFlooringData;
+  globalElectricity: GlobalElectricityData;
 }
 
 export interface RoomSelection {
@@ -192,6 +200,7 @@ export interface FarrowBallColor {
   productUrl?: string;
   isLoading?: boolean;
   error?: string;
+  _tempId?: string; // Temporary ID for async update tracking
 }
 
 export interface KitchenData {
@@ -329,6 +338,39 @@ export const initialFormData: RenovationFormData = {
     primaryGoal: '',
     supportNeeds: [],
     wantFinancingInfo: '',
+  },
+  // Global works
+  needsGlobalPainting: '',
+  needsGlobalFlooring: '',
+  needsGlobalElectricity: '',
+  globalPainting: {
+    selectedRooms: [],
+    surfaces: [],
+    intention: '',
+    finish: '',
+    hasDefinedColors: '',
+    wallCondition: '',
+    farrowBallColors: [],
+  },
+  globalFlooring: {
+    selectedRooms: [],
+    existingAction: '',
+    hasLambourdes: '',
+    refinishType: '',
+    floorType: '',
+    tileTypes: [],
+    tileFormat: '',
+    layingPattern: '',
+    woodType: '',
+    plankWidth: '',
+    finish: '',
+  },
+  globalElectricity: {
+    selectedRooms: [],
+    workType: [],
+    lightingTypes: [],
+    switchStyle: '',
+    additionalNeeds: [],
   },
 };
 

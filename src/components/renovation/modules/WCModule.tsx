@@ -86,7 +86,7 @@ export const WCModule: React.FC<WCModuleProps> = ({
               onClick={() => updateData({ toiletType: type.value })}
               image={type.image}
               title={type.label}
-              size="lg"
+              size="xl"
             />
           ))}
         </div>
@@ -142,7 +142,7 @@ export const WCModule: React.FC<WCModuleProps> = ({
                   onClick={() => updateData({ handWashType: type.value })}
                   image={type.image}
                   title={type.label}
-                  size="lg"
+                  size="xl"
                 />
               ))}
             </div>
@@ -158,7 +158,7 @@ export const WCModule: React.FC<WCModuleProps> = ({
                   onClick={() => updateData({ faucetFinish: finish.value })}
                   image={finish.image}
                   title={finish.label}
-                  size="md"
+                  size="lg"
                 />
               ))}
             </div>
@@ -176,7 +176,7 @@ export const WCModule: React.FC<WCModuleProps> = ({
                     image={type.image}
                     title={type.label}
                     description={type.description}
-                    size="lg"
+                    size="xl"
                   />
                 ))}
               </div>
