@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { RenovationFormData, RoomSelection, InspirationImage } from '@/components/renovation/types';
+import { RenovationFormData, InspirationImage, EggerReference, PlaniziaReference, FarrowBallColor } from '@/components/renovation/types';
 import { LeadData } from '@/contexts/LeadContext';
 
 interface PDFGeneratorOptions {
@@ -45,6 +45,12 @@ const roomTypeLabels: Record<string, string> = {
   'cuisine': 'Cuisine',
   'salle-de-bain': 'Salle de bain',
   'wc': 'WC',
+  'salon-sejour': 'Salon / Séjour',
+  'chambre': 'Chambre',
+  'entree-couloir': 'Entrée / Couloir',
+  'dressing-rangements': 'Dressing / Rangements',
+  'bureau': 'Bureau',
+  'autre': 'Autre pièce',
 };
 
 const yesNoLabels: Record<string, string> = {
@@ -52,6 +58,9 @@ const yesNoLabels: Record<string, string> = {
   'non': 'Non',
   'en-reflexion': 'En réflexion',
   'partiellement': 'Partiellement',
+  'oui-transmis': 'Oui (transmis)',
+  'oui-obsolete': 'Oui (obsolète)',
+  'ne-sais-pas': 'Ne sait pas',
 };
 
 const startDateLabels: Record<string, string> = {
@@ -60,8 +69,119 @@ const startDateLabels: Record<string, string> = {
   'flexible': 'Flexible',
 };
 
+// Bathroom option labels
+const bathroomLabels: Record<string, Record<string, string>> = {
+  showerTrayType: {
+    'a-poser': 'Receveur à poser',
+    'encastre': 'Receveur encastré',
+    'carreler': 'Receveur à carreler',
+    'resine': 'Receveur résine',
+  },
+  showerDoorType: {
+    'fixe': 'Paroi fixe',
+    'battante': 'Paroi battante',
+    'coulissante': 'Paroi coulissante',
+    'pliante': 'Paroi pliante',
+  },
+  bathtubType: {
+    'encastree': 'Baignoire encastrée',
+    'ilot': 'Baignoire îlot',
+    'angle': 'Baignoire d\'angle',
+    'droite': 'Baignoire droite',
+    'balneo': 'Baignoire balnéo',
+  },
+  bathtubScreenType: {
+    'fixe': 'Pare-baignoire fixe',
+    'pivotant': 'Pare-baignoire pivotant',
+    'coulissant': 'Pare-baignoire coulissant',
+    'rideau': 'Rideau de douche',
+  },
+  vanityType: {
+    'vasque-seule': 'Vasque seule (plan sur mesure)',
+    'suspendu': 'Meuble suspendu',
+    'pieds': 'Meuble sur pieds',
+  },
+  mirrorType: {
+    'led': 'Miroir LED intégré',
+    'cadre': 'Miroir avec cadre',
+    'rond': 'Miroir rond',
+    'armoire': 'Armoire de toilette',
+  },
+  faucetFinish: {
+    'chrome': 'Chrome',
+    'noir-mat': 'Noir mat',
+    'laiton-brosse': 'Laiton brossé',
+    'or-brosse': 'Or brossé',
+    'nickel-brosse': 'Nickel brossé',
+    'cuivre': 'Cuivre',
+  },
+  toiletType: {
+    'suspendu': 'WC suspendu',
+    'sol': 'WC au sol',
+  },
+  ambiance: {
+    'moderne': 'Moderne',
+    'epure': 'Épuré',
+    'classique': 'Classique',
+    'nature': 'Nature',
+    'luxe': 'Luxe',
+    'zellige': 'Zellige',
+    'marbre': 'Effet marbre',
+    'beton-cire': 'Béton ciré',
+    'terrazzo': 'Terrazzo',
+    'graphique': 'Graphique',
+  },
+};
+
+// Kitchen option labels
+const kitchenLabels: Record<string, Record<string, string>> = {
+  layoutType: {
+    'lineaire': 'Linéaire',
+    'l': 'En L',
+    'u': 'En U',
+    'ilot': 'Avec îlot',
+  },
+  facadeFinish: {
+    'bois': 'Bois',
+    'laque': 'Laqué',
+    'mat': 'Mat',
+    'effet-matiere': 'Effet matière',
+  },
+  countertopMaterial: {
+    'stratifie': 'Stratifié',
+    'quartz': 'Quartz',
+    'ceramique': 'Céramique',
+    'bois': 'Bois massif',
+  },
+  backsplashType: {
+    'carrelage': 'Carrelage',
+    'pleine-hauteur': 'Pleine hauteur (même matériau)',
+    'verre': 'Verre laqué',
+  },
+};
+
+// WC option labels
+const wcLabels: Record<string, Record<string, string>> = {
+  toiletType: {
+    'suspendu': 'WC suspendu',
+    'sol': 'WC au sol',
+  },
+  handWashType: {
+    'angle': 'Lave-mains d\'angle',
+    'suspendu': 'Lave-mains suspendu',
+    'totem': 'Lave-mains totem',
+    'plan-vasque': 'Plan vasque compact',
+  },
+  siphonType: {
+    'design': 'Siphon design',
+    'gain-place': 'Siphon gain de place',
+    'classique': 'Siphon classique',
+  },
+};
+
 // Primary color for headers
-const PRIMARY_COLOR: [number, number, number] = [139, 90, 43]; // Bronze/gold color
+const PRIMARY_COLOR: [number, number, number] = [139, 90, 43];
+const SECONDARY_COLOR: [number, number, number] = [245, 241, 235];
 
 // Helper to load image as base64
 const loadImageAsBase64 = async (url: string): Promise<string | null> => {
@@ -79,28 +199,43 @@ const loadImageAsBase64 = async (url: string): Promise<string | null> => {
   }
 };
 
-// Add section title
-const addSectionTitle = (doc: jsPDF, title: string, y: number): number => {
+// Add section title with icon
+const addSectionTitle = (doc: jsPDF, title: string, y: number, icon?: string): number => {
   doc.setFillColor(...PRIMARY_COLOR);
-  doc.rect(15, y, 180, 8, 'F');
+  doc.rect(15, y, 180, 10, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text(title.toUpperCase(), 20, y + 5.5);
+  const displayTitle = icon ? `${icon}  ${title.toUpperCase()}` : title.toUpperCase();
+  doc.text(displayTitle, 20, y + 7);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'normal');
-  return y + 12;
+  return y + 14;
+};
+
+// Add subsection title
+const addSubsectionTitle = (doc: jsPDF, title: string, y: number): number => {
+  doc.setFillColor(...SECONDARY_COLOR);
+  doc.rect(15, y, 180, 7, 'F');
+  doc.setTextColor(...PRIMARY_COLOR);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text(title, 20, y + 5);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  return y + 10;
 };
 
 // Add key-value row
-const addInfoRow = (doc: jsPDF, label: string, value: string, y: number, labelWidth: number = 60): number => {
+const addInfoRow = (doc: jsPDF, label: string, value: string, y: number, labelWidth: number = 55): number => {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(label + ' :', 20, y);
+  doc.setTextColor(80, 80, 80);
+  doc.text(label, 20, y);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
   
-  // Handle long text with wrapping
-  const maxWidth = 180 - labelWidth - 5;
+  const maxWidth = 175 - labelWidth;
   const lines = doc.splitTextToSize(value || '-', maxWidth);
   doc.text(lines, 20 + labelWidth, y);
   
@@ -116,105 +251,201 @@ const checkNewPage = (doc: jsPDF, currentY: number, neededSpace: number = 30): n
   return currentY;
 };
 
-// Add images grid
+// Add a single image with caption
+const addImageWithCaption = async (
+  doc: jsPDF,
+  imageUrl: string,
+  caption: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): Promise<boolean> => {
+  try {
+    const base64 = await loadImageAsBase64(imageUrl);
+    if (base64) {
+      // Add subtle border
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.5);
+      doc.rect(x, y, width, height);
+      doc.addImage(base64, 'JPEG', x, y, width, height);
+      
+      // Add caption below
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      const captionLines = doc.splitTextToSize(caption, width);
+      doc.text(captionLines, x + width / 2, y + height + 3, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+      return true;
+    }
+  } catch {
+    // Silent fail
+  }
+  return false;
+};
+
+// Add images grid with captions
 const addImagesGrid = async (
   doc: jsPDF, 
-  images: InspirationImage[], 
-  y: number, 
-  title: string
+  images: { url: string; caption: string }[], 
+  y: number,
+  cols: number = 3,
+  imgWidth: number = 55,
+  imgHeight: number = 40
 ): Promise<number> => {
   if (!images || images.length === 0) return y;
   
-  let currentY = checkNewPage(doc, y, 50);
-  
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text(title, 20, currentY);
-  currentY += 5;
-  
-  const imgWidth = 40;
-  const imgHeight = 30;
-  const cols = 4;
+  let currentY = y;
   const margin = 5;
+  const startX = 20;
   
   for (let i = 0; i < images.length; i++) {
     const col = i % cols;
     const row = Math.floor(i / cols);
     
     if (col === 0 && row > 0) {
-      currentY = checkNewPage(doc, currentY, imgHeight + 10);
+      currentY = checkNewPage(doc, currentY + imgHeight + 12, imgHeight + 20);
     }
     
-    const x = 20 + col * (imgWidth + margin);
-    const imgY = currentY + row * (imgHeight + margin);
+    const x = startX + col * (imgWidth + margin);
+    const imgY = currentY;
     
-    try {
-      const base64 = await loadImageAsBase64(images[i].url);
-      if (base64) {
-        doc.addImage(base64, 'JPEG', x, imgY, imgWidth, imgHeight);
-      } else {
-        doc.setDrawColor(200, 200, 200);
-        doc.rect(x, imgY, imgWidth, imgHeight);
-        doc.setFontSize(8);
-        doc.text('Image', x + imgWidth/2 - 8, imgY + imgHeight/2);
-      }
-    } catch {
-      doc.setDrawColor(200, 200, 200);
-      doc.rect(x, imgY, imgWidth, imgHeight);
-    }
+    await addImageWithCaption(doc, images[i].url, images[i].caption, x, imgY, imgWidth, imgHeight);
   }
   
   const totalRows = Math.ceil(images.length / cols);
-  return currentY + totalRows * (imgHeight + margin) + 5;
+  return currentY + totalRows * (imgHeight + 15);
 };
 
-// Format bathroom data for display
-const formatBathroomData = (data: any): string[][] => {
-  const rows: string[][] = [];
+// Add reference cards (EGGER, Planizia, F&B)
+const addReferenceCards = async (
+  doc: jsPDF,
+  references: { imageUrl?: string; label: string; sublabel?: string }[],
+  y: number,
+  title: string
+): Promise<number> => {
+  if (!references || references.length === 0) return y;
   
-  if (data.bathtubType) rows.push(['Type de baignoire', data.bathtubType]);
-  if (data.showerType) rows.push(['Type de receveur', data.showerType]);
-  if (data.showerDoorType) rows.push(['Paroi de douche', data.showerDoorType]);
-  if (data.showerHeadType) rows.push(['Pommeau', data.showerHeadType]);
-  if (data.bathtubScreenType) rows.push(['Pare-baignoire', data.bathtubScreenType]);
-  if (data.vanityType) rows.push(['Meuble vasque', data.vanityType]);
-  if (data.mirrorType) rows.push(['Miroir', data.mirrorType]);
-  if (data.faucetType) rows.push(['Robinetterie', data.faucetType]);
-  if (data.faucetFinish) rows.push(['Finition robinetterie', data.faucetFinish]);
-  if (data.toiletType) rows.push(['WC', data.toiletType]);
-  if (data.ambiance) rows.push(['Ambiance', data.ambiance]);
+  let currentY = checkNewPage(doc, y, 50);
+  
+  // Subsection title
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...PRIMARY_COLOR);
+  doc.text(title, 20, currentY);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  currentY += 5;
+  
+  const cardWidth = 40;
+  const cardHeight = 35;
+  const cols = 4;
+  const margin = 5;
+  
+  for (let i = 0; i < references.length; i++) {
+    const col = i % cols;
+    if (col === 0 && i > 0) {
+      currentY = checkNewPage(doc, currentY + cardHeight + 10, cardHeight + 15);
+    }
+    
+    const x = 20 + col * (cardWidth + margin);
+    const ref = references[i];
+    
+    // Card background
+    doc.setFillColor(250, 250, 250);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(x, currentY, cardWidth, cardHeight, 2, 2, 'FD');
+    
+    if (ref.imageUrl) {
+      try {
+        const base64 = await loadImageAsBase64(ref.imageUrl);
+        if (base64) {
+          doc.addImage(base64, 'JPEG', x + 2, currentY + 2, cardWidth - 4, 20);
+        }
+      } catch {
+        // Silent fail
+      }
+    }
+    
+    // Label
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    const labelLines = doc.splitTextToSize(ref.label, cardWidth - 4);
+    doc.text(labelLines, x + cardWidth / 2, currentY + 25, { align: 'center' });
+    
+    if (ref.sublabel) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6);
+      doc.setTextColor(100, 100, 100);
+      doc.text(ref.sublabel, x + cardWidth / 2, currentY + 31, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+    }
+  }
+  
+  const totalRows = Math.ceil(references.length / cols);
+  return currentY + totalRows * (cardHeight + 5) + 5;
+};
+
+// Format bathroom data with images
+const formatBathroomDataWithImages = (data: any): { rows: string[][]; images: { url: string; caption: string }[] } => {
+  const rows: string[][] = [];
+  const images: { url: string; caption: string }[] = [];
+  
+  // Map selection values to images (these would need actual image URLs from assets)
+  const getLabel = (category: string, value: string) => bathroomLabels[category]?.[value] || value;
+  
+  if (data.bathroomType) rows.push(['Configuration', data.bathroomType === 'douche' ? 'Douche' : data.bathroomType === 'baignoire' ? 'Baignoire' : 'Douche + Baignoire']);
+  if (data.showerTrayType) rows.push(['Receveur de douche', getLabel('showerTrayType', data.showerTrayType)]);
+  if (data.showerDoorType) rows.push(['Paroi de douche', getLabel('showerDoorType', data.showerDoorType)]);
+  if (data.bathtubType) rows.push(['Type de baignoire', getLabel('bathtubType', data.bathtubType)]);
+  if (data.bathtubScreenType) rows.push(['Pare-baignoire', getLabel('bathtubScreenType', data.bathtubScreenType)]);
+  if (data.vanityType) rows.push(['Meuble vasque', getLabel('vanityType', data.vanityType)]);
+  if (data.vanityCount) rows.push(['Nombre de vasques', data.vanityCount === '1' ? 'Simple vasque' : 'Double vasque']);
+  if (data.mirrorType) rows.push(['Miroir', getLabel('mirrorType', data.mirrorType)]);
+  if (data.showerFaucetType) rows.push(['Robinetterie douche', data.showerFaucetType === 'apparente' ? 'Apparente' : 'Encastrée']);
+  if (data.faucetFinish) rows.push(['Finition robinetterie', getLabel('faucetFinish', data.faucetFinish)]);
+  if (data.toiletType) rows.push(['WC', getLabel('toiletType', data.toiletType)]);
+  if (data.ambiance?.length > 0) rows.push(['Ambiances', data.ambiance.map((a: string) => getLabel('ambiance', a)).join(', ')]);
+  if (data.tileTypes?.length > 0) rows.push(['Types de carrelage', data.tileTypes.join(', ')]);
   if (data.tileFormat) rows.push(['Format carrelage', data.tileFormat]);
-  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel]);
+  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel === 'sur' ? 'Sûr de mes choix' : data.certaintyLevel === 'besoin-conseil' ? 'Besoin de conseils' : 'À définir']);
   
-  return rows;
+  return { rows, images };
 };
 
-// Format kitchen data for display
-const formatKitchenData = (data: any): string[][] => {
+// Format kitchen data
+const formatKitchenDataWithImages = (data: any): { rows: string[][]; images: { url: string; caption: string }[] } => {
   const rows: string[][] = [];
+  const images: { url: string; caption: string }[] = [];
   
-  if (data.layoutType) rows.push(['Implantation', data.layoutType]);
-  if (data.facadeType) rows.push(['Type de façade', data.facadeType]);
-  if (data.countertopMaterial) rows.push(['Plan de travail', data.countertopMaterial]);
-  if (data.backsplashType) rows.push(['Crédence', data.backsplashType]);
-  if (data.appliancesIncluded) rows.push(['Électroménager inclus', data.appliancesIncluded]);
-  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel]);
+  const getLabel = (category: string, value: string) => kitchenLabels[category]?.[value] || value;
   
-  return rows;
+  if (data.layoutType) rows.push(['Implantation', getLabel('layoutType', data.layoutType)]);
+  if (data.facadeFinish) rows.push(['Finition façades', getLabel('facadeFinish', data.facadeFinish)]);
+  if (data.hasHandles) rows.push(['Poignées', data.hasHandles === 'oui' ? 'Avec poignées' : 'Sans poignées (push-to-open)']);
+  if (data.countertopMaterial) rows.push(['Plan de travail', getLabel('countertopMaterial', data.countertopMaterial)]);
+  if (data.backsplashType) rows.push(['Crédence', getLabel('backsplashType', data.backsplashType)]);
+  if (data.backsplashTileType) rows.push(['Type carrelage crédence', data.backsplashTileType]);
+  if (data.certaintyLevel) rows.push(['Niveau de certitude', data.certaintyLevel === 'sur' ? 'Sûr de mes choix' : 'Besoin de conseils']);
+  
+  return { rows, images };
 };
 
-// Format WC data for display
-const formatWCData = (data: any): string[][] => {
+// Format WC data
+const formatWCDataWithImages = (data: any): { rows: string[][]; images: { url: string; caption: string }[] } => {
   const rows: string[][] = [];
+  const images: { url: string; caption: string }[] = [];
   
-  if (data.toiletType) rows.push(['Type de WC', data.toiletType]);
-  if (data.existingSanibroyeur) rows.push(['Sanibroyeur existant', data.existingSanibroyeur]);
-  if (data.wantHandWash) rows.push(['Lave-mains souhaité', data.wantHandWash]);
-  if (data.handWashType) rows.push(['Type de lave-mains', data.handWashType]);
-  if (data.faucetFinish) rows.push(['Finition robinetterie', data.faucetFinish]);
-  if (data.siphonType) rows.push(['Type de siphon', data.siphonType]);
+  const getLabel = (category: string, value: string) => wcLabels[category]?.[value] || value;
   
-  return rows;
+  if (data.toiletType) rows.push(['Type de WC', getLabel('toiletType', data.toiletType)]);
+  if (data.existingSanibroyeur) rows.push(['Sanibroyeur existant', yesNoLabels[data.existingSanibroyeur] || data.existingSanibroyeur]);
+  if (data.wantHandWash) rows.push(['Lave-mains souhaité', yesNoLabels[data.wantHandWash] || data.wantHandWash]);
+  if (data.handWashType) rows.push(['Type de lave-mains', getLabel('handWashType', data.handWashType)]);
+  if (data.faucetFinish) rows.push(['Finition robinetterie', bathroomLabels.faucetFinish?.[data.faucetFinish] || data.faucetFinish]);
+  if (data.siphonType) rows.push(['Type de siphon', getLabel('siphonType', data.siphonType)]);
+  
+  return { rows, images };
 };
 
 // Main PDF generation function
@@ -228,19 +459,27 @@ export const generateSimulationPDF = async ({
   
   // ========== HEADER ==========
   doc.setFillColor(...PRIMARY_COLOR);
-  doc.rect(0, 0, 210, 35, 'F');
+  doc.rect(0, 0, 210, 40, 'F');
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
+  doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
-  doc.text('QUALIRENOVATION', 105, 15, { align: 'center' });
+  doc.text('QUALIRENOVATION', 105, 18, { align: 'center' });
   
-  doc.setFontSize(12);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'normal');
-  doc.text('Simulation de Projet de Rénovation', 105, 25, { align: 'center' });
+  doc.text('Dossier de Simulation de Projet', 105, 28, { align: 'center' });
+  
+  // Client name badge
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(60, 32, 90, 10, 2, 2, 'F');
+  doc.setTextColor(...PRIMARY_COLOR);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text(leadData.name || 'Client', 105, 38.5, { align: 'center' });
   
   doc.setTextColor(0, 0, 0);
-  y = 45;
+  y = 50;
   
   // Date
   doc.setFontSize(9);
@@ -251,71 +490,85 @@ export const generateSimulationPDF = async ({
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  })}`, 195, 42, { align: 'right' });
+  })}`, 195, 48, { align: 'right' });
   doc.setTextColor(0, 0, 0);
   
   // ========== CLIENT INFO ==========
-  y = addSectionTitle(doc, 'Informations Client', y);
+  y = addSectionTitle(doc, 'Informations Client', y, '👤');
   
-  y = addInfoRow(doc, 'Nom', leadData.name, y);
-  y = addInfoRow(doc, 'Email', leadData.email, y);
-  y = addInfoRow(doc, 'Téléphone', leadData.phone, y);
-  if (leadData.address) y = addInfoRow(doc, 'Adresse', `${leadData.address}, ${leadData.postalCode} ${leadData.city}`, y);
-  if (leadData.surface) y = addInfoRow(doc, 'Surface', `${leadData.surface} m²`, y);
-  if (leadData.budget) y = addInfoRow(doc, 'Budget', leadData.budget, y);
-  if (leadData.timeline) y = addInfoRow(doc, 'Délai souhaité', leadData.timeline, y);
-  if (leadData.message) y = addInfoRow(doc, 'Message', leadData.message, y);
+  // Two columns for client info
+  const col1X = 20;
+  const col2X = 110;
+  let col1Y = y;
+  let col2Y = y;
   
-  y += 5;
+  if (leadData.name) { doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.text('Nom :', col1X, col1Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.name, col1X + 30, col1Y); col1Y += 6; }
+  if (leadData.email) { doc.setFont('helvetica', 'bold'); doc.text('Email :', col1X, col1Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.email, col1X + 30, col1Y); col1Y += 6; }
+  if (leadData.phone) { doc.setFont('helvetica', 'bold'); doc.text('Téléphone :', col1X, col1Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.phone, col1X + 30, col1Y); col1Y += 6; }
   
-  // ========== PROJECT INFO ==========
-  y = checkNewPage(doc, y, 40);
-  y = addSectionTitle(doc, 'Caractéristiques du Bien', y);
+  if (formData.city) { doc.setFont('helvetica', 'bold'); doc.text('Ville :', col2X, col2Y); doc.setFont('helvetica', 'normal'); doc.text(formData.city, col2X + 30, col2Y); col2Y += 6; }
+  if (formData.surface) { doc.setFont('helvetica', 'bold'); doc.text('Surface :', col2X, col2Y); doc.setFont('helvetica', 'normal'); doc.text(`${formData.surface} m²`, col2X + 30, col2Y); col2Y += 6; }
+  if (leadData.budget) { doc.setFont('helvetica', 'bold'); doc.text('Budget :', col2X, col2Y); doc.setFont('helvetica', 'normal'); doc.text(leadData.budget, col2X + 30, col2Y); col2Y += 6; }
+  
+  y = Math.max(col1Y, col2Y) + 5;
+  
+  // ========== PROJECT SUMMARY BOX ==========
+  y = checkNewPage(doc, y, 45);
+  
+  doc.setFillColor(...SECONDARY_COLOR);
+  doc.roundedRect(15, y, 180, 35, 3, 3, 'F');
+  
+  let boxY = y + 8;
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...PRIMARY_COLOR);
+  doc.text('Résumé du Projet', 20, boxY);
+  doc.setTextColor(0, 0, 0);
+  boxY += 7;
+  
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  
+  const summaryItems = [];
+  if (formData.propertyType) summaryItems.push(propertyTypeLabels[formData.propertyType] || formData.propertyType);
+  if (formData.surface) summaryItems.push(`${formData.surface} m²`);
+  if (formData.constructionPeriod) summaryItems.push(constructionPeriodLabels[formData.constructionPeriod] || formData.constructionPeriod);
+  if (formData.projectTypes.length > 0) {
+    summaryItems.push(formData.projectTypes.map(t => projectTypeLabels[t] || t).join(', '));
+  }
+  
+  doc.text(summaryItems.join(' • '), 20, boxY);
+  boxY += 6;
+  
+  if (formData.selectedRooms.length > 0) {
+    const roomSummary = formData.selectedRooms.map(r => {
+      const label = roomTypeLabels[r.type] || r.type;
+      return r.instanceNumber > 1 ? `${label} ${r.instanceNumber}` : label;
+    }).join(', ');
+    doc.text(`Pièces : ${roomSummary}`, 20, boxY);
+  }
+  
+  y += 42;
+  
+  // ========== PROJECT DETAILS ==========
+  y = checkNewPage(doc, y, 50);
+  y = addSectionTitle(doc, 'Détails du Projet', y, '📋');
   
   if (formData.propertyType) y = addInfoRow(doc, 'Type de bien', propertyTypeLabels[formData.propertyType] || formData.propertyType, y);
-  if (formData.surface) y = addInfoRow(doc, 'Surface', `${formData.surface} m²`, y);
   if (formData.constructionPeriod) y = addInfoRow(doc, 'Période de construction', constructionPeriodLabels[formData.constructionPeriod] || formData.constructionPeriod, y);
-  if (formData.city) y = addInfoRow(doc, 'Ville', formData.city, y);
-  
-  y += 5;
-  
-  // ========== PROJECT TYPE ==========
-  y = checkNewPage(doc, y, 40);
-  y = addSectionTitle(doc, 'Nature du Projet', y);
-  
-  if (formData.projectTypes.length > 0) {
-    const types = formData.projectTypes.map(t => projectTypeLabels[t] || t).join(', ');
-    y = addInfoRow(doc, 'Types de travaux', types, y);
-  }
+  if (formData.hasArchitect) y = addInfoRow(doc, 'Architecte', yesNoLabels[formData.hasArchitect] || formData.hasArchitect, y);
+  if (formData.modifyLayout) y = addInfoRow(doc, 'Modification agencement', yesNoLabels[formData.modifyLayout] || formData.modifyLayout, y);
   
   if (formData.projectContexts.length > 0) {
-    const contexts = formData.projectContexts.map(c => projectContextLabels[c] || c).join(', ');
-    y = addInfoRow(doc, 'Contexte', contexts, y);
+    y = addInfoRow(doc, 'Contexte', formData.projectContexts.map(c => projectContextLabels[c] || c).join(', '), y);
   }
   
-  if (formData.hasDPE) y = addInfoRow(doc, 'DPE disponible', formData.hasDPE.replace('-', ' '), y);
-  
-  y += 5;
-  
-  // ========== CONCEPTION ==========
-  y = checkNewPage(doc, y, 40);
-  y = addSectionTitle(doc, 'Conception & Organisation', y);
-  
-  if (formData.hasArchitect) y = addInfoRow(doc, 'Architecte', yesNoLabels[formData.hasArchitect] || formData.hasArchitect, y);
-  if (formData.modifyLayout) y = addInfoRow(doc, 'Modification de l\'agencement', yesNoLabels[formData.modifyLayout] || formData.modifyLayout, y);
-  
-  y += 5;
-  
-  // ========== CONDITIONS ==========
-  y = checkNewPage(doc, y, 40);
-  y = addSectionTitle(doc, 'Conditions de Réalisation', y);
-  
+  if (formData.hasDPE) y = addInfoRow(doc, 'DPE disponible', yesNoLabels[formData.hasDPE] || formData.hasDPE, y);
   if (formData.occupyDuringWorks) y = addInfoRow(doc, 'Occupation pendant travaux', yesNoLabels[formData.occupyDuringWorks] || formData.occupyDuringWorks, y);
   
   if (formData.constraints.length > 0) {
     y = addInfoRow(doc, 'Contraintes', formData.constraints.join(', '), y);
   }
-  
   if (formData.constraintDetails) {
     y = addInfoRow(doc, 'Détails contraintes', formData.constraintDetails, y);
   }
@@ -323,10 +576,9 @@ export const generateSimulationPDF = async ({
   if (formData.startDate) {
     let startInfo = startDateLabels[formData.startDate] || formData.startDate;
     if (formData.startDateValue) startInfo += ` (${formData.startDateValue})`;
-    y = addInfoRow(doc, 'Date de début', startInfo, y);
+    y = addInfoRow(doc, 'Date de début souhaitée', startInfo, y);
   }
-  
-  if (formData.endDateMax) y = addInfoRow(doc, 'Date de fin max', formData.endDateMax, y);
+  if (formData.endDateMax) y = addInfoRow(doc, 'Date de fin impérative', formData.endDateMax, y);
   
   y += 5;
   
@@ -338,15 +590,12 @@ export const generateSimulationPDF = async ({
                          formData.needsGlobalFurniture === 'oui';
   
   if (hasGlobalWorks) {
-    y = checkNewPage(doc, y, 50);
-    y = addSectionTitle(doc, 'Travaux Transversaux', y);
+    y = checkNewPage(doc, y, 60);
+    y = addSectionTitle(doc, 'Travaux Transversaux', y, '🔧');
     
+    // Global Painting with F&B colors
     if (formData.needsGlobalPainting === 'oui' && formData.globalPainting) {
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.text('🎨 Peinture', 20, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
+      y = addSubsectionTitle(doc, '🎨 Peinture', y);
       
       if (formData.globalPainting.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalPainting.selectedRooms.join(', '), y, 40);
@@ -354,59 +603,85 @@ export const generateSimulationPDF = async ({
       if (formData.globalPainting.finish) {
         y = addInfoRow(doc, 'Finition', formData.globalPainting.finish, y, 40);
       }
-      if (formData.globalPainting.farrowBallColors?.length > 0) {
-        const colors = formData.globalPainting.farrowBallColors
-          .map((c: any) => `${c.colorName}${c.colorNumber ? ` (${c.colorNumber})` : ''}`)
-          .join(', ');
-        y = addInfoRow(doc, 'Couleurs F&B', colors, y, 40);
+      
+      // Farrow & Ball colors as visual cards
+      if (includeImages && formData.globalPainting.farrowBallColors?.length > 0) {
+        const fbColors = formData.globalPainting.farrowBallColors
+          .filter((c: FarrowBallColor) => !c.error)
+          .map((c: FarrowBallColor) => ({
+            imageUrl: c.imageUrl,
+            label: c.colorName || c.colorNumber,
+            sublabel: c.rooms?.join(', '),
+          }));
+        
+        if (fbColors.length > 0) {
+          y = await addReferenceCards(doc, fbColors, y, 'Couleurs Farrow & Ball sélectionnées');
+        }
       }
       y += 3;
     }
     
+    // Global Flooring
     if (formData.needsGlobalFlooring === 'oui' && formData.globalFlooring) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('🪵 Sols', 20, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
+      y = checkNewPage(doc, y, 30);
+      y = addSubsectionTitle(doc, '🪵 Revêtements de sol', y);
       
       if (formData.globalFlooring.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalFlooring.selectedRooms.join(', '), y, 40);
       }
       if (formData.globalFlooring.floorType) {
-        y = addInfoRow(doc, 'Type', formData.globalFlooring.floorType, y, 40);
+        y = addInfoRow(doc, 'Type', formData.globalFlooring.floorType === 'parquet' ? 'Parquet' : formData.globalFlooring.floorType === 'carrelage' ? 'Carrelage' : formData.globalFlooring.floorType, y, 40);
+      }
+      if (formData.globalFlooring.woodType) {
+        y = addInfoRow(doc, 'Essence', formData.globalFlooring.woodType, y, 40);
+      }
+      if (formData.globalFlooring.layingPattern) {
+        y = addInfoRow(doc, 'Pose', formData.globalFlooring.layingPattern, y, 40);
+      }
+      if (formData.globalFlooring.tileTypes?.length > 0) {
+        y = addInfoRow(doc, 'Type carrelage', formData.globalFlooring.tileTypes.join(', '), y, 40);
       }
       y += 3;
     }
     
+    // Global Electricity
     if (formData.needsGlobalElectricity === 'oui' && formData.globalElectricity) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('⚡ Électricité', 20, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
+      y = checkNewPage(doc, y, 30);
+      y = addSubsectionTitle(doc, '⚡ Électricité', y);
       
       if (formData.globalElectricity.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalElectricity.selectedRooms.join(', '), y, 40);
       }
-      y += 3;
-    }
-    
-    if (formData.needsGlobalMouldings === 'oui' && formData.globalMouldings) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('🏛️ Moulures', 20, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
-      
-      if (formData.globalMouldings.selectedRooms?.length > 0) {
-        y = addInfoRow(doc, 'Pièces', formData.globalMouldings.selectedRooms.join(', '), y, 40);
+      if (formData.globalElectricity.workType?.length > 0) {
+        y = addInfoRow(doc, 'Travaux', formData.globalElectricity.workType.join(', '), y, 40);
+      }
+      if (formData.globalElectricity.lightingTypes?.length > 0) {
+        y = addInfoRow(doc, 'Éclairages', formData.globalElectricity.lightingTypes.join(', '), y, 40);
+      }
+      if (formData.globalElectricity.switchStyle) {
+        y = addInfoRow(doc, 'Style appareillage', formData.globalElectricity.switchStyle, y, 40);
       }
       y += 3;
     }
     
+    // Global Mouldings
+    if (formData.needsGlobalMouldings === 'oui' && formData.globalMouldings) {
+      y = checkNewPage(doc, y, 25);
+      y = addSubsectionTitle(doc, '🏛️ Moulures', y);
+      
+      if (formData.globalMouldings.selectedRooms?.length > 0) {
+        y = addInfoRow(doc, 'Pièces', formData.globalMouldings.selectedRooms.join(', '), y, 40);
+      }
+      if (formData.globalMouldings.intention) {
+        y = addInfoRow(doc, 'Intention', formData.globalMouldings.intention, y, 40);
+      }
+      y += 3;
+    }
+    
+    // Global Furniture
     if (formData.needsGlobalFurniture === 'oui' && formData.globalFurniture) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('🪑 Aménagements sur mesure', 20, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
+      y = checkNewPage(doc, y, 25);
+      y = addSubsectionTitle(doc, '🪑 Aménagements sur mesure', y);
       
       if (formData.globalFurniture.selectedRooms?.length > 0) {
         y = addInfoRow(doc, 'Pièces', formData.globalFurniture.selectedRooms.join(', '), y, 40);
@@ -422,58 +697,102 @@ export const generateSimulationPDF = async ({
   
   // ========== ROOMS ==========
   for (const room of formData.selectedRooms) {
-    y = checkNewPage(doc, y, 60);
+    y = checkNewPage(doc, y, 70);
     
     const roomLabel = roomTypeLabels[room.type] || room.type;
     const roomTitle = room.instanceNumber > 1 ? `${roomLabel} ${room.instanceNumber}` : roomLabel;
+    const roomIcon = room.type === 'cuisine' ? '🍳' : room.type === 'salle-de-bain' ? '🚿' : room.type === 'wc' ? '🚽' : '🏠';
     
-    y = addSectionTitle(doc, roomTitle, y);
+    y = addSectionTitle(doc, roomTitle, y, roomIcon);
     
     let tableData: string[][] = [];
+    let eggerRefs: EggerReference[] = [];
+    let planiziaRefs: PlaniziaReference[] = [];
     
     if (room.data.bathroomData) {
-      tableData = formatBathroomData(room.data.bathroomData);
+      const { rows } = formatBathroomDataWithImages(room.data.bathroomData);
+      tableData = rows;
+      eggerRefs = room.data.bathroomData.eggerReferences || [];
     } else if (room.data.kitchenData) {
-      tableData = formatKitchenData(room.data.kitchenData);
+      const { rows } = formatKitchenDataWithImages(room.data.kitchenData);
+      tableData = rows;
+      eggerRefs = room.data.kitchenData.eggerReferences || [];
+      planiziaRefs = room.data.kitchenData.planiziaReferences || [];
     } else if (room.data.wcData) {
-      tableData = formatWCData(room.data.wcData);
+      const { rows } = formatWCDataWithImages(room.data.wcData);
+      tableData = rows;
     }
     
+    // Room configuration table
     if (tableData.length > 0) {
       autoTable(doc, {
         startY: y,
-        head: [['Élément', 'Choix']],
+        head: [['Élément', 'Configuration']],
         body: tableData,
         theme: 'striped',
         headStyles: { 
           fillColor: PRIMARY_COLOR,
           fontSize: 9,
+          fontStyle: 'bold',
         },
         bodyStyles: { fontSize: 9 },
+        alternateRowStyles: { fillColor: [252, 250, 248] },
         columnStyles: {
-          0: { cellWidth: 60, fontStyle: 'bold' },
+          0: { cellWidth: 55, fontStyle: 'bold', textColor: [80, 80, 80] },
           1: { cellWidth: 'auto' },
         },
         margin: { left: 20, right: 20 },
       });
       
-      y = (doc as any).lastAutoTable.finalY + 10;
+      y = (doc as any).lastAutoTable.finalY + 8;
     }
     
-    // Room inspiration images - check for images in room data
-    // Note: inspirationImages may not exist in all room types, so we skip this safely
+    // EGGER references for this room
+    if (includeImages && eggerRefs.length > 0) {
+      const validRefs = eggerRefs
+        .filter(r => !r.error && r.imageUrl)
+        .map(r => ({
+          imageUrl: r.imageUrl,
+          label: r.reference,
+          sublabel: r.decorName,
+        }));
+      
+      if (validRefs.length > 0) {
+        y = checkNewPage(doc, y, 50);
+        y = await addReferenceCards(doc, validRefs, y, '📦 Références EGGER sélectionnées');
+      }
+    }
+    
+    // Planizia references for kitchen
+    if (includeImages && planiziaRefs.length > 0) {
+      const validRefs = planiziaRefs
+        .filter(r => !r.error && r.imageUrl)
+        .map(r => ({
+          imageUrl: r.imageUrl,
+          label: r.reference,
+          sublabel: r.brand,
+        }));
+      
+      if (validRefs.length > 0) {
+        y = checkNewPage(doc, y, 50);
+        y = await addReferenceCards(doc, validRefs, y, '🪨 Références Planizia sélectionnées');
+      }
+    }
+    
+    y += 5;
   }
   
   // ========== ISOLATION ==========
-  if (formData.projectTypes.includes('dpe') && formData.isolation) {
-    y = checkNewPage(doc, y, 40);
-    y = addSectionTitle(doc, 'Isolation', y);
+  if (formData.projectTypes.includes('dpe') && formData.isolation?.wantIsolation) {
+    y = checkNewPage(doc, y, 45);
+    y = addSectionTitle(doc, 'Isolation', y, '🌡️');
     
+    y = addInfoRow(doc, 'Souhaite isolation', yesNoLabels[formData.isolation.wantIsolation] || formData.isolation.wantIsolation, y);
     if (formData.isolation.isolationType) {
       y = addInfoRow(doc, 'Type d\'isolation', formData.isolation.isolationType, y);
     }
     if (formData.isolation.zones?.length > 0) {
-      y = addInfoRow(doc, 'Zones', formData.isolation.zones.join(', '), y);
+      y = addInfoRow(doc, 'Zones concernées', formData.isolation.zones.join(', '), y);
     }
     if (formData.isolation.primaryGoal) {
       y = addInfoRow(doc, 'Objectif principal', formData.isolation.primaryGoal, y);
@@ -483,23 +802,40 @@ export const generateSimulationPDF = async ({
   }
   
   // ========== GLOBAL INSPIRATION IMAGES ==========
-  if (includeImages && formData.inspirationImages.length > 0) {
-    y = checkNewPage(doc, y, 60);
-    y = addSectionTitle(doc, 'Photos d\'Inspiration Globales', y);
-    y = await addImagesGrid(doc, formData.inspirationImages, y, '');
+  if (includeImages && formData.inspirationImages && formData.inspirationImages.length > 0) {
+    y = checkNewPage(doc, y, 70);
+    y = addSectionTitle(doc, 'Photos d\'Inspiration', y, '📸');
+    
+    const inspirationImagesForPdf = formData.inspirationImages.map((img: InspirationImage) => ({
+      url: img.url,
+      caption: img.fileName || 'Inspiration',
+    }));
+    
+    y = await addImagesGrid(doc, inspirationImagesForPdf, y, 3, 55, 40);
   }
   
   // ========== FOOTER ON EACH PAGE ==========
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
+    
+    // Footer line
+    doc.setDrawColor(...PRIMARY_COLOR);
+    doc.setLineWidth(0.5);
+    doc.line(15, 287, 195, 287);
+    
     doc.setFontSize(8);
     doc.setTextColor(128, 128, 128);
     doc.text(
-      `QualiRénovation - www.qualirenovation.fr - Page ${i}/${pageCount}`,
-      105, 
-      292, 
-      { align: 'center' }
+      `QualiRénovation • www.qualirenovation.fr`,
+      20, 
+      292
+    );
+    doc.text(
+      `Page ${i}/${pageCount}`,
+      190, 
+      292,
+      { align: 'right' }
     );
   }
   
