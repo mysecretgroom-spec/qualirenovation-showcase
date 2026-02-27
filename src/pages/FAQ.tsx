@@ -1,6 +1,7 @@
+import { useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -8,6 +9,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import CarinIA from "@/components/CarinIA";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Footer from "@/components/Footer";
@@ -239,6 +247,12 @@ Pas d'ego, pas de rapport de force : nous avançons ensemble pour la réussite d
 const allFaqItems = faqSections.flatMap(section => section.items);
 
 const FAQPage = () => {
+  const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const scrollToSection = (index: string) => {
+    const i = parseInt(index);
+    sectionRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -285,9 +299,25 @@ const FAQPage = () => {
             </p>
           </div>
 
+          {/* Menu déroulant de navigation */}
+          <div className="max-w-3xl mx-auto mb-10">
+            <Select onValueChange={scrollToSection}>
+              <SelectTrigger className="w-full bg-card border-border text-foreground font-display font-semibold">
+                <SelectValue placeholder="Accéder à une section…" />
+              </SelectTrigger>
+              <SelectContent>
+                {faqSections.map((section, i) => (
+                  <SelectItem key={i} value={String(i)}>
+                    {section.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="max-w-3xl mx-auto">
             {faqSections.map((section, sectionIndex) => (
-              <div key={sectionIndex} className="mb-12">
+              <div key={sectionIndex} ref={el => { sectionRefs.current[sectionIndex] = el; }} className="mb-12 scroll-mt-24">
                 <h2 className="font-display text-2xl font-bold text-foreground mb-6">
                   {section.title}
                 </h2>
