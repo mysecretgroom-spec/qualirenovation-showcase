@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
-import logoNeg from "@/assets/logo-hor-neg.svg";
+import logoNeg from "@/assets/logo-full-neg.svg";
 import QuoteModal from "./QuoteModal";
 
 const Header = () => {
