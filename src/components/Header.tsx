@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
-import logoFull from "@/assets/logo-qualirenovation-full.svg";
+import logoNeg from "@/assets/logo-hor-neg.svg";
 import QuoteModal from "./QuoteModal";
 
 const Header = () => {
@@ -41,8 +41,8 @@ const Header = () => {
           {/* Logo */}
           <a href="#" className="flex items-center">
             <img 
-              src={logoFull} 
-              alt="QualiRénovation - L'art de rénover by Carina M." 
+              src={logoNeg} 
+              alt="QualiRénovation" 
               className="h-10 sm:h-12 md:h-14 w-auto"
             />
           </a>
