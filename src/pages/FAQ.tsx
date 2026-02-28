@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import CarinIA from "@/components/CarinIA";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CallButton from "@/components/CallButton";
 import Footer from "@/components/Footer";
 
 const faqSections = [
@@ -381,6 +382,7 @@ const FAQPage = () => {
         <Footer />
         <CarinIA />
         <WhatsAppButton />
+        <CallButton />
       </div>
     </>
   );
