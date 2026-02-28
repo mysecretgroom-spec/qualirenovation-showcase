@@ -55,7 +55,7 @@ const Header = () => {
             <img 
               src={logoNeg} 
               alt="QualiRénovation" 
-              className="h-10 sm:h-12 md:h-14 w-auto"
+              className="h-14 sm:h-16 md:h-20 w-auto"
             />
           </Link>
 
