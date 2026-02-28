@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
 import logoNeg from "@/assets/logo-hor-neg.svg";
@@ -9,6 +9,18 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleAnchorClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    if (location.pathname !== "/") {
+      navigate("/" + href);
+    } else {
+      const el = document.querySelector(href);
+      el?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,13 +51,13 @@ const Header = () => {
       >
         <div className="container-tight flex items-center justify-between px-4 md:px-6 lg:px-8">
           {/* Logo */}
-          <a href="#" className="flex items-center">
+          <Link to="/" className="flex items-center">
             <img 
               src={logoNeg} 
               alt="QualiRénovation" 
               className="h-10 sm:h-12 md:h-14 w-auto"
             />
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
@@ -62,6 +74,7 @@ const Header = () => {
                 <a
                   key={link.href}
                   href={link.href}
+                  onClick={(e) => handleAnchorClick(e, link.href)}
                   className="text-sm font-medium transition-colors duration-300 text-primary-foreground/90 hover:text-gold whitespace-nowrap"
                 >
                   {link.label}
@@ -125,7 +138,7 @@ const Header = () => {
                   key={link.href}
                   href={link.href}
                   className="text-primary-foreground/90 text-base font-medium py-3 px-2 hover:text-gold hover:bg-primary-foreground/5 rounded-sm transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => { handleAnchorClick(e, link.href); setIsMobileMenuOpen(false); }}
                 >
                   {link.label}
                 </a>
