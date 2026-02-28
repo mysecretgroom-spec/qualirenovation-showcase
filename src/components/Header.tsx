@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone } from "lucide-react";
-import logoFull from "@/assets/logo-qualirenovation-full.png";
+import logoFull from "@/assets/logo-qualirenovation-full.svg";
 import QuoteModal from "./QuoteModal";
 
 const Header = () => {
