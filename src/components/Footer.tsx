@@ -1,6 +1,6 @@
 import { MapPin, Phone, Mail, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
-import logoQualirenovation from "@/assets/logo-qualirenovation.webp";
+import logoNeg from "@/assets/logo-hor-neg.svg";
 
 // Houzz icon component
 const HouzzIcon = ({ className }: { className?: string }) => (
@@ -42,16 +42,12 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="mb-4 sm:mb-6">
               <img 
-                src={logoQualirenovation} 
-                alt="Qualirénovation by Qualiconcept" 
-                className="h-10 sm:h-12 w-auto"
+                src={logoNeg} 
+                alt="QualiRénovation" 
+                className="h-12 sm:h-14 w-auto"
               />
-              <div className="flex flex-col">
-                <span className="font-display font-bold text-sm sm:text-base tracking-wide">QUALIRÉNOVATION</span>
-                <span className="text-[9px] sm:text-[10px] font-medium text-primary-foreground/70">by Qualiconcept</span>
-              </div>
             </div>
             <p className="text-primary-foreground/70 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
               Rénovation, décoration et aménagement d'intérieur à Paris et en Île-de-France. 
