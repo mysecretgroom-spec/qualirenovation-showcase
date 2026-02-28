@@ -11,6 +11,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CallButton from "@/components/CallButton";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -127,6 +128,7 @@ const Index = () => {
         <Footer />
         <CookieConsent />
         <WhatsAppButton />
+        <CallButton />
       </div>
     </>
   );
