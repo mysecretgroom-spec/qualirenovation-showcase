@@ -13,6 +13,7 @@ const Footer = () => {
     { label: "Ouverture mur porteur", href: "/#services" },
     { label: "Parquet & Carrelage", href: "/#services" },
     { label: "Peinture & Finitions", href: "/#services" },
+    { label: "FAQ", href: "/faq" },
   ];
 
   const zones = [
@@ -168,9 +169,6 @@ const Footer = () => {
             © {currentYear} QUALIRENOVATION by Qualiconcept. Tous droits réservés.
           </p>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-[10px] sm:text-sm">
-            <Link to="/faq" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
-              FAQ
-            </Link>
             <Link to="/mentions-legales" className="text-primary-foreground/60 hover:text-primary-foreground transition-colors">
               Mentions légales
             </Link>
