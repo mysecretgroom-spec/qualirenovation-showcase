@@ -93,9 +93,8 @@ const Header = () => {
               <span className="hidden xl:inline">Nous appeler</span>
             </a>
             <Button 
-              variant="outline" 
               size="sm"
-              className="border-gold text-gold hover:bg-gold hover:text-primary"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-5 py-2.5 shadow-lg"
               onClick={() => setIsQuoteModalOpen(true)}
             >
               Devis gratuit
@@ -154,8 +153,7 @@ const Header = () => {
                 <span>Nous appeler</span>
               </a>
               <Button 
-                variant="outline"
-                className="w-full border-gold text-gold hover:bg-gold hover:text-primary" 
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-lg" 
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   setIsQuoteModalOpen(true);
