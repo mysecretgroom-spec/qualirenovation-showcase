@@ -94,7 +94,7 @@ const RenoverSalleDeBain = () => {
             </div>
             <div className="text-center mt-12">
               <Button size="lg" className="rounded-full px-8" asChild>
-                <a href="/#contact">
+                <a href="https://renovermasalledebain.com/devis#devis-form" target="_blank" rel="noopener noreferrer">
                   Demander mon étude personnalisée
                   <FileText className="w-5 h-5" />
                 </a>
