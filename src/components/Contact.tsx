@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, Clock, MapPin, ArrowRight } from "lucide-react";
+import { Phone, Mail, Clock, MapPin, ArrowRight, MessageCircle } from "lucide-react";
 import QuoteModal from "./QuoteModal";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -71,7 +71,7 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* CTA + Phone */}
+          {/* CTA + Phone + WhatsApp */}
           <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
             <Button 
               size="lg" 
@@ -87,6 +87,15 @@ const Contact = () => {
             >
               <Phone className="w-4 h-4 text-accent" />
               06 59 76 46 85
+            </a>
+            <a 
+              href="https://wa.me/33659764685"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border bg-background text-foreground px-8 py-3.5 rounded-sm font-medium hover:bg-secondary transition-colors text-base"
+            >
+              <MessageCircle className="w-4 h-4 text-accent" />
+              WhatsApp
             </a>
           </div>
         </div>

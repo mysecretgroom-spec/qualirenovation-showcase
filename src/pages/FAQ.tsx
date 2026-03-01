@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, ChevronDown, Download } from "lucide-react";
+import { ArrowLeft, ExternalLink, ChevronDown, Download, Mail, Phone, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateFaqPDF } from "@/utils/generateFaqPDF";
 import {
@@ -379,14 +379,29 @@ const FAQPage = () => {
           </div>
 
           <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-6">
               Vous avez une autre question ?
             </p>
-            <Link to="/#contact">
-              <Button className="bg-gold hover:bg-gold-dark text-white">
-                Contactez-nous
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a href="mailto:contact@qualiconcept.fr">
+                <Button className="bg-gold hover:bg-gold-dark text-white">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Nous écrire
+                </Button>
+              </a>
+              <a href="tel:0659764685">
+                <Button variant="outline">
+                  <Phone className="w-4 h-4 mr-2" />
+                  06 59 76 46 85
+                </Button>
+              </a>
+              <a href="https://wa.me/33659764685" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  WhatsApp
+                </Button>
+              </a>
+            </div>
           </div>
         </div>
         <Footer />
