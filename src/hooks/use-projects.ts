@@ -170,6 +170,8 @@ export function useProjects() {
 export function useProject(slug: string) {
   const [project, setProject] = useState<Project | null>(null);
   const [relatedProjects, setRelatedProjects] = useState<Project[]>([]);
+  const [prevProject, setPrevProject] = useState<{ slug: string; title: string } | null>(null);
+  const [nextProject, setNextProject] = useState<{ slug: string; title: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFromDB, setIsFromDB] = useState(false);
@@ -182,6 +184,12 @@ export function useProject(slug: string) {
       }
 
       try {
+        // Fetch all projects for prev/next navigation
+        const { data: allDbProjects, error: allError } = await supabase
+          .from('houzz_projects')
+          .select('slug, title')
+          .order('created_at', { ascending: false });
+
         // First try to fetch from DB
         const { data: dbProject, error: projectError } = await supabase
           .from('houzz_projects')
@@ -205,6 +213,21 @@ export function useProject(slug: string) {
           setProject(appProject);
           setIsFromDB(true);
 
+          // Set prev/next from all DB projects
+          if (allDbProjects && !allError) {
+            const currentIndex = allDbProjects.findIndex(p => p.slug === slug);
+            if (currentIndex > 0) {
+              setPrevProject(allDbProjects[currentIndex - 1]);
+            } else {
+              setPrevProject(null);
+            }
+            if (currentIndex < allDbProjects.length - 1) {
+              setNextProject(allDbProjects[currentIndex + 1]);
+            } else {
+              setNextProject(null);
+            }
+          }
+
           // Fetch related projects (same category)
           const { data: relatedDb } = await supabase
             .from('houzz_projects')
@@ -214,7 +237,6 @@ export function useProject(slug: string) {
             .limit(3);
 
           if (relatedDb) {
-            // Fetch images for related projects
             const relatedIds = relatedDb.map(p => p.id);
             const { data: relatedImages } = await supabase
               .from('houzz_project_images')
@@ -239,6 +261,9 @@ export function useProject(slug: string) {
           const staticProject = staticProjects.find(p => p.slug === slug);
           if (staticProject) {
             setProject(staticProject);
+            const currentIndex = staticProjects.findIndex(p => p.slug === slug);
+            setPrevProject(currentIndex > 0 ? staticProjects[currentIndex - 1] : null);
+            setNextProject(currentIndex < staticProjects.length - 1 ? staticProjects[currentIndex + 1] : null);
             const related = staticProjects
               .filter(p => p.category === staticProject.category && p.slug !== slug)
               .slice(0, 3);
@@ -249,10 +274,12 @@ export function useProject(slug: string) {
         console.error('Error fetching project:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch project');
         
-        // Fallback to static data
         const staticProject = staticProjects.find(p => p.slug === slug);
         if (staticProject) {
           setProject(staticProject);
+          const currentIndex = staticProjects.findIndex(p => p.slug === slug);
+          setPrevProject(currentIndex > 0 ? staticProjects[currentIndex - 1] : null);
+          setNextProject(currentIndex < staticProjects.length - 1 ? staticProjects[currentIndex + 1] : null);
           const related = staticProjects
             .filter(p => p.category === staticProject.category && p.slug !== slug)
             .slice(0, 3);
@@ -266,5 +293,5 @@ export function useProject(slug: string) {
     fetchProject();
   }, [slug]);
 
-  return { project, relatedProjects, isLoading, error, isFromDB };
+  return { project, relatedProjects, prevProject, nextProject, isLoading, error, isFromDB };
 }

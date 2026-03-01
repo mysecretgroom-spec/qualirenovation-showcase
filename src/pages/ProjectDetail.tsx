@@ -21,7 +21,7 @@ import Autoplay from "embla-carousel-autoplay";
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { project, relatedProjects, isLoading, isFromDB } = useProject(slug || "");
+  const { project, relatedProjects, prevProject, nextProject, isLoading, isFromDB } = useProject(slug || "");
   const [selectedImage, setSelectedImage] = useState(0);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -435,6 +435,44 @@ const ProjectDetail = () => {
                     </h3>
                   </Link>
                 ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Prev / Next Album Navigation */}
+        {(prevProject || nextProject) && (
+          <section className="border-t border-border">
+            <div className="container-tight">
+              <div className="grid grid-cols-2">
+                {prevProject ? (
+                  <Link
+                    to={`/projet/${prevProject.slug}`}
+                    className="group flex items-center gap-3 py-6 pr-4 hover:bg-secondary/30 transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Album précédent</span>
+                      <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                        {prevProject.title}
+                      </p>
+                    </div>
+                  </Link>
+                ) : <div />}
+                {nextProject ? (
+                  <Link
+                    to={`/projet/${nextProject.slug}`}
+                    className="group flex items-center justify-end gap-3 py-6 pl-4 border-l border-border hover:bg-secondary/30 transition-colors text-right"
+                  >
+                    <div className="min-w-0">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Album suivant</span>
+                      <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors line-clamp-1">
+                        {nextProject.title}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors flex-shrink-0" />
+                  </Link>
+                ) : <div />}
               </div>
             </div>
           </section>
