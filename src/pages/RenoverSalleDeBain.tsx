@@ -60,7 +60,7 @@ const RenoverSalleDeBain = () => {
                   asChild
                 >
                   <a href="https://renovermasalledebain.com" target="_blank" rel="noopener noreferrer">
-                    Découvrir nos rénovations de salle de bain à Paris
+                    Découvrir le site dédié
                   </a>
                 </Button>
               </div>
