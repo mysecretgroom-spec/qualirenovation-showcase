@@ -421,3 +421,8 @@
     transform: scale(1);
   }
 }
+
+/* Scroll offset for anchor links with fixed header */
+[id] {
+  scroll-margin-top: 100px;
+}
