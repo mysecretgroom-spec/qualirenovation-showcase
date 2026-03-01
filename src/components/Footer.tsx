@@ -1,6 +1,6 @@
 import { MapPin, Phone, Mail, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
-import logoNeg from "@/assets/logo-hor-neg.svg";
+import logoNeg from "@/assets/logo-full-neg.svg";
 import houzzIcon from "@/assets/houzz-icon-white.svg";
 
 const Footer = () => {
