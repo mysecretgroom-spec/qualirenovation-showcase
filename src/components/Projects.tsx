@@ -81,6 +81,13 @@ const Projects = () => {
   };
 
   const handleCategoryChange = (category: string) => {
+    if (category === "Salle de Bain") {
+      const section = document.getElementById("realisations-salle-de-bain");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+    }
     setActiveCategory(category);
     setVisibleCount(6);
   };

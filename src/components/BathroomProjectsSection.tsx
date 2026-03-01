@@ -54,7 +54,7 @@ const bathroomProjects = [
 
 const BathroomProjectsSection = () => {
   return (
-    <section className="section-padding bg-background">
+    <section id="realisations-salle-de-bain" className="section-padding bg-background">
       <div className="container-tight px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <span className="text-accent font-nunito font-bold text-sm sm:text-base tracking-widest uppercase mb-3 sm:mb-4 block">
