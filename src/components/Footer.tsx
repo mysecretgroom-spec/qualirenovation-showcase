@@ -111,7 +111,7 @@ const Footer = () => {
             <div className="mt-6 pt-4 border-t border-primary-foreground/10">
               <h4 className="font-display font-semibold text-sm sm:text-base mb-2">Site dédié</h4>
               <a
-                href="https://renovermasalledebain.com/qualirenovation"
+                href="https://renovermasalledebain.com/devis#devis-form"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-gold-light hover:text-gold text-xs sm:text-sm transition-colors"
