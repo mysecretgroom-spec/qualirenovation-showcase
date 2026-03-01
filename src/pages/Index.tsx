@@ -121,7 +121,7 @@ const Index = () => {
         <main>
           <Hero />
           <About />
-          <section id="projects" className="section-padding bg-secondary/30">
+          <section id="nos-realisations" className="section-padding bg-secondary/30">
             <div className="container-tight px-4 sm:px-6 lg:px-8 text-center">
               <span className="text-accent font-nunito font-bold text-sm sm:text-base tracking-widest uppercase mb-3 sm:mb-4 block">
                 Nos Réalisations
