@@ -7,12 +7,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const services = [
-    { label: "Rénovation complète", href: "#services" },
+    { label: "Rénovation complète", href: "/#services" },
     { label: "Salle de bain", href: "/renover-salle-de-bain", title: "Rénovation salle de bain à Paris – Site spécialisé" },
-    { label: "Cuisine", href: "#services" },
-    { label: "Ouverture mur porteur", href: "#services" },
-    { label: "Parquet & Carrelage", href: "#services" },
-    { label: "Peinture & Finitions", href: "#services" },
+    { label: "Cuisine", href: "/#services" },
+    { label: "Ouverture mur porteur", href: "/#services" },
+    { label: "Parquet & Carrelage", href: "/#services" },
+    { label: "Peinture & Finitions", href: "/#services" },
   ];
 
   const zones = [
