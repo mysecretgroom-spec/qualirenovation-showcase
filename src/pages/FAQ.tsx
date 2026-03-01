@@ -277,7 +277,11 @@ const guideFaqSections = [
     icon: Layers,
     items: [
       { question: "Parquet massif ou contrecollé ?", answer: "Le massif est plus durable (poncé 5 à 7 fois) mais plus cher et contraignant à poser. Le contrecollé offre un excellent compromis avec une couche d'usure en bois noble, une pose plus rapide et une compatibilité avec le chauffage au sol." },
-      { question: "Combien coûte la pose de parquet à Paris ?", answer: `Comptez 40 à 70 €/m² pour un contrecollé pose comprise, 80 à 150 €/m² pour un massif. La pose en point de Hongrie ajoute 20 à 30 % au budget.
+      { question: "Combien coûte la pose de parquet à Paris ?", answer: `Nos tarifs de pose :
+
+• Pose collée : 49 €/m² (hors sous-couche et colle, à prévoir en supplément)
+• Parquet cloué : obligatoire en copropriété (isolation phonique réglementaire)
+• Pose en point de Hongrie : +20 à 30 % sur le budget
 
 Prestations complémentaires :
 • Raccord de parquet ancienne cheminée : 450 € (hors fourniture)
