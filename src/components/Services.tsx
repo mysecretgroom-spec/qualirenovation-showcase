@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { 
   Bath, 
   ChefHat, 
@@ -7,7 +8,8 @@ import {
   Paintbrush, 
   Hammer,
   Layers,
-  Wrench
+  Wrench,
+  Handshake
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import QuoteModal from "./QuoteModal";
@@ -121,6 +123,27 @@ const Services = () => {
                 Prendre rendez-vous
               </a>
             </div>
+          </div>
+
+          {/* Partner CTA */}
+          <div className="mt-10 sm:mt-16 bg-secondary/50 rounded-sm p-6 sm:p-8 md:p-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+            <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+              <Handshake className="w-7 h-7 text-accent" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-1">
+                Devenir partenaire
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Artisan, installateur ou marque ? Rejoignez notre réseau de partenaires de confiance.
+              </p>
+            </div>
+            <Link
+              to="/devenir-partenaire"
+              className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-6 py-3 rounded-sm font-medium hover:bg-accent/90 transition-colors text-sm whitespace-nowrap"
+            >
+              En savoir plus
+            </Link>
           </div>
         </div>
       </section>

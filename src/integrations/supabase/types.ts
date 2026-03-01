@@ -287,6 +287,48 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_requests: {
+        Row: {
+          company_name: string
+          contact_name: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          notes: string | null
+          phone: string | null
+          profile_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          company_name: string
+          contact_name: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          notes?: string | null
+          phone?: string | null
+          profile_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string
+          contact_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          notes?: string | null
+          phone?: string | null
+          profile_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       press_mentions: {
         Row: {
           article_url: string

@@ -25,7 +25,8 @@ import OnParleDeNous from "./pages/OnParleDeNous";
 import FAQPage from "./pages/FAQ";
 import RenovationComplete from "./pages/RenovationComplete";
 import RenoverSalleDeBain from "./pages/RenoverSalleDeBain";
-
+import DevenirPartenaire from "./pages/DevenirPartenaire";
+import AdminPartners from "./pages/AdminPartners";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/renovation-complete" element={<RenovationComplete />} />
               <Route path="/renover-salle-de-bain" element={<RenoverSalleDeBain />} />
+              <Route path="/devenir-partenaire" element={<DevenirPartenaire />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/install" element={<AdminInstall />} />
@@ -56,6 +58,7 @@ const App = () => (
               <Route path="/admin/liens" element={<AdminLinkChecker />} />
               <Route path="/admin/visual" element={<AdminVisualTesting />} />
               <Route path="/admin/presse" element={<AdminPress />} />
+              <Route path="/admin/partenaires" element={<AdminPartners />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
