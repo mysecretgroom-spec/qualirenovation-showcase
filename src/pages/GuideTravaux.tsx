@@ -409,17 +409,32 @@ const GuideTravaux: React.FC = () => {
             </section>
           ))}
 
-          {/* CTA */}
-          <section className="bg-primary text-primary-foreground py-16 md:py-20">
-            <div className="container-tight text-center px-4">
-              <h2 className="font-display text-2xl md:text-3xl font-semibold mb-4">
-                Prêt à lancer votre projet ?
-              </h2>
-              <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
-                Obtenez un devis gratuit et détaillé sous 48h. 
-                Notre équipe vous accompagne de la conception à la livraison.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          {/* CTA – Manifeste */}
+          <section className="bg-primary text-primary-foreground py-16 md:py-24">
+            <div className="container-tight px-4 max-w-3xl mx-auto">
+              <div className="space-y-6 text-center">
+                <p className="text-primary-foreground/90 text-lg md:text-xl leading-relaxed italic">
+                  Rénover, ce n'est pas seulement transformer un espace.
+                  <br />
+                  C'est assumer des choix, une méthode et une responsabilité.
+                </p>
+                <p className="text-primary-foreground/80 text-base md:text-lg leading-relaxed">
+                  Si notre philosophie vous parle, prenez rendez-vous pour votre projet et échangeons ensemble.
+                </p>
+                <p className="text-primary-foreground/70 text-sm md:text-base leading-relaxed">
+                  Un chantier réussi n'est pas celui qui impressionne le jour J,
+                  <br className="hidden sm:block" />
+                  mais celui qui reste juste, solide et serein dans le temps.
+                </p>
+
+                {/* Signature */}
+                <p className="font-script text-2xl md:text-3xl text-accent pt-4">
+                  Carina N.
+                </p>
+              </div>
+
+              {/* CTA buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
                 <button
                   onClick={() => setShowQuoteModal(true)}
                   className="inline-flex items-center justify-center gap-2 bg-accent text-accent-foreground px-8 py-3.5 rounded-sm font-medium hover:bg-accent/90 transition-colors"
