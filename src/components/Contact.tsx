@@ -1,31 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Mail, Clock, ArrowRight } from "lucide-react";
+import { Phone, Mail, Clock, ArrowRight } from "lucide-react";
 import QuoteModal from "./QuoteModal";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
-const contactInfo = [
-  {
-    icon: MapPin,
-    title: "Adresse",
-    details: ["6 rue d'Armaillé", "75017 Paris"],
-  },
-  {
-    icon: Phone,
-    title: "Téléphone",
-    details: ["Appelez-nous pour un devis"],
-  },
-  {
-    icon: Mail,
-    title: "Email",
-    details: ["contact@qualiconcept.fr"],
-  },
-  {
-    icon: Clock,
-    title: "Horaires",
-    details: ["Lun - Ven: 9h00 - 18h00", "Sam: Sur rendez-vous"],
-  },
-];
+
+
 
 const Contact = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -51,23 +31,29 @@ const Contact = () => {
                 Décrivez-nous votre projet et nous vous recontacterons rapidement.
               </p>
 
-              {/* Contact Info Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 sm:gap-6">
-                {contactInfo.map((info) => (
-                  <div key={info.title} className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-sm bg-secondary flex items-center justify-center flex-shrink-0">
-                      <info.icon className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground text-sm sm:text-base mb-0.5 sm:mb-1">{info.title}</h4>
-                      {info.details.map((detail, i) => (
-                        <p key={i} className="text-muted-foreground text-xs sm:text-sm">
-                          {detail}
-                        </p>
-                      ))}
-                    </div>
+              {/* Contact Info Block */}
+              <div className="flex flex-col gap-4">
+                <a href="tel:0659764685" className="flex items-center gap-4 group">
+                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
+                    <Phone className="w-5 h-5 text-accent" />
                   </div>
-                ))}
+                  <span className="text-foreground font-medium text-sm sm:text-base group-hover:text-accent transition-colors">06 59 76 46 85</span>
+                </a>
+                <a href="mailto:gestion@qualiconcept.fr" className="flex items-center gap-4 group">
+                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
+                    <Mail className="w-5 h-5 text-accent" />
+                  </div>
+                  <span className="text-foreground font-medium text-sm sm:text-base group-hover:text-accent transition-colors">gestion@qualiconcept.fr</span>
+                </a>
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-foreground font-medium text-sm sm:text-base">Lun – Ven : 8h – 18h</p>
+                    <p className="text-muted-foreground text-sm">Sam : 9h – 12h</p>
+                  </div>
+                </div>
               </div>
 
               {/* Company Info */}
