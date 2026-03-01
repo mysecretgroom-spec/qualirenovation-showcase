@@ -1,6 +1,7 @@
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoNeg from "@/assets/logo-hor-neg.svg";
+import houzzIcon from "@/assets/houzz-icon-white.svg";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -23,8 +24,8 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { img: "/houzz-icon.png", href: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618", label: "Houzz" },
-    { img: "/instagram-icon.png", href: "https://www.instagram.com/qualirenovation__travaux/", label: "Instagram" },
+    { icon: "houzz", href: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618", label: "Houzz" },
+    { icon: "instagram", href: "https://www.instagram.com/qualirenovation__travaux/", label: "Instagram" },
   ];
 
   return (
@@ -55,7 +56,11 @@ const Footer = () => {
                   className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-gold transition-colors"
                   aria-label={social.label}
                 >
-                  <img src={social.img} alt={social.label} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                  {social.icon === "instagram" ? (
+                    <Instagram className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
+                  ) : (
+                    <img src={houzzIcon} alt={social.label} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                  )}
                 </a>
               ))}
             </div>
