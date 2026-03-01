@@ -81,7 +81,7 @@ const Projects = () => {
   };
 
   const handleCategoryChange = (category: string) => {
-    if (category === "Salle de Bain") {
+    if (category.toLowerCase() === "salle de bain") {
       const section = document.getElementById("realisations-salle-de-bain");
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
