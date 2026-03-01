@@ -293,12 +293,13 @@ Prestations complémentaires :
 
 • Rattrapage (rebouchage, ponçage, sous-couche) : 20 €/m²
 • Entoilage + enduit général (préparation complète des murs) : 40 à 45 €/m²
+• Pose de bande et enduit sur plaque de plâtre : 22 €/m²
 • Mise en peinture (2 couches, finition) : 25 €/m²
 
 Prestations complémentaires :
-• Peinture sur porte médium : 45 € par porte
+• Peinture sur porte médium (2 faces) : 67 € par porte
+• Peinture spéciale boiseries (fenêtres, plinthes, moulures) : plus-value à prévoir selon l'état et la quantité
 • Peinture de bibliothèque sur mesure : sur devis selon dimensions et complexité
-• Peinture sur boiseries (fenêtres, plinthes, moulures) : plus-value à prévoir selon l'état et la quantité
 
 Ces prix s'entendent hors fourniture de peinture haut de gamme. Un devis précis est établi après visite.` },
       { question: "Quelle peinture pour les pièces humides ?", answer: "Utilisez une peinture satinée spéciale pièces humides avec traitement anti-moisissures. Les marques professionnelles proposent des formulations spécifiques pour salles de bain et cuisines." },
