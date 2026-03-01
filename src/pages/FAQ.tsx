@@ -424,15 +424,20 @@ const FAQPage = () => {
                       <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
                         <div className="whitespace-pre-line">{item.answer}</div>
                         {item.link && (
-                          <a
-                            href={item.link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 mt-4 text-gold hover:text-gold-dark font-medium transition-colors"
-                          >
-                            {item.link.label}
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
+                          <div className="mt-6 p-5 bg-secondary/50 border border-border rounded-sm">
+                            <p className="text-sm text-foreground font-medium mb-3">
+                              Retrouvez toutes les réponses sur notre site dédié :
+                            </p>
+                            <a
+                              href={item.link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-medium text-sm rounded-sm hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
+                            >
+                              {item.link.label}
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </div>
                         )}
                       </AccordionContent>
                     </AccordionItem>
