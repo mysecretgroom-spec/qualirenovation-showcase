@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   FileText, Upload, MessageSquare, Link2, Eye, 
-  Users, Newspaper, Download, ChevronRight, RefreshCw
+  Users, Newspaper, Download, ChevronRight, RefreshCw, Handshake
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +20,7 @@ interface DashboardStats {
   totalClients: number;
   activeClients: number;
   totalPress: number;
+  totalPartners: number;
 }
 
 const AdminDashboard = () => {
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
     totalClients: 0,
     activeClients: 0,
     totalPress: 0,
+    totalPartners: 0,
   });
   const [loadingStats, setLoadingStats] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -99,6 +101,7 @@ const AdminDashboard = () => {
         clientsResult,
         activeClientsResult,
         pressResult,
+        partnersResult,
       ] = await Promise.all([
         supabase.from("quote_requests").select("id", { count: "exact", head: true }),
         supabase.from("quote_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -109,6 +112,7 @@ const AdminDashboard = () => {
         supabase.from("clients").select("id", { count: "exact", head: true }),
         supabase.from("clients").select("id", { count: "exact", head: true }).eq("status", "en_cours"),
         supabase.from("press_mentions").select("id", { count: "exact", head: true }),
+        supabase.from("partner_requests" as any).select("id", { count: "exact", head: true }).eq("status", "new"),
       ]);
 
       setStats({
@@ -121,6 +125,7 @@ const AdminDashboard = () => {
         totalClients: clientsResult.count || 0,
         activeClients: activeClientsResult.count || 0,
         totalPress: pressResult.count || 0,
+        totalPartners: partnersResult.count || 0,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -198,6 +203,15 @@ const AdminDashboard = () => {
       color: "bg-pink-500/10 text-pink-600",
       badge: null,
       badgeColor: "",
+    },
+    {
+      title: "Partenaires",
+      description: "Demandes partenaires",
+      href: "/admin/partenaires",
+      icon: Handshake,
+      color: "bg-amber-500/10 text-amber-600",
+      badge: stats.totalPartners > 0 ? stats.totalPartners : null,
+      badgeColor: "bg-amber-500 text-white",
     },
     {
       title: "Liens",
