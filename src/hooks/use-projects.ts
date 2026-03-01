@@ -67,6 +67,7 @@ function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project
     slug: dbProject.slug,
     title: cleanTitle,
     category: dbProject.category || "Rénovation complète",
+    tags: (dbProject as any).tags || [],
     location: dbProject.location || "Paris",
     image: mainImage,
     photoCount: dbProject.image_count || images.length,
@@ -159,7 +160,13 @@ export function useProjects() {
           .map(project => dbToAppProject(project, imagesByProject[project.id] || []));
 
         // Extract unique categories
-        const uniqueCategories = ["Tous", ...new Set(appProjects.map(p => p.category))];
+        // Extract unique categories including tags
+        const allCats = new Set<string>();
+        appProjects.forEach(p => {
+          allCats.add(p.category);
+          if (p.tags) p.tags.forEach(t => allCats.add(t));
+        });
+        const uniqueCategories = ["Tous", ...allCats];
 
         setProjects(appProjects);
         setCategories(uniqueCategories);
