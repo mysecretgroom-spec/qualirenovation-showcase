@@ -34,35 +34,32 @@ const RenoverSalleDeBain = () => {
         <Header />
 
         {/* Hero */}
-        <section className="relative pt-20 md:pt-24 overflow-hidden">
-          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] max-h-[70vh]">
+        <section className="relative pt-24 md:pt-32 pb-0 overflow-hidden bg-primary">
+          <div className="container-tight px-4 sm:px-6 lg:px-8 pb-10 md:pb-16">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold text-background leading-tight mb-4">
+              Un chantier heureux pour votre{" "}
+              <span className="font-script text-[1.1em]">salle de bain</span>
+            </h1>
+            <p className="text-background/80 text-base md:text-lg max-w-xl mb-6">
+              Découvrez notre site entièrement dédié à la rénovation de salle de bain : simulateur, inspirations et accompagnement sur mesure.
+            </p>
+            <Button
+              size="lg"
+              className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg px-8"
+              asChild
+            >
+              <a href={SITE_DEDIE_URL} target="_blank" rel="noopener noreferrer">
+                Visiter le site dédié
+                <ExternalLink className="w-5 h-5" />
+              </a>
+            </Button>
+          </div>
+          <div className="w-full">
             <img
               src={sdbImage}
               alt="Rénovation salle de bain – Soisy-sous-Montmorency"
-              className="w-full h-full object-cover"
+              className="w-full h-auto object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-primary/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
-              <div className="container-tight">
-                <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold text-background leading-tight mb-4">
-                  Un chantier heureux pour votre{" "}
-                  <span className="font-script text-[1.1em]">salle de bain</span>
-                </h1>
-                <p className="text-background/80 text-base md:text-lg max-w-xl mb-6">
-                  Découvrez notre site entièrement dédié à la rénovation de salle de bain : simulateur, inspirations et accompagnement sur mesure.
-                </p>
-                <Button
-                  size="lg"
-                  className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg px-8"
-                  asChild
-                >
-                  <a href={SITE_DEDIE_URL} target="_blank" rel="noopener noreferrer">
-                    Visiter le site dédié
-                    <ExternalLink className="w-5 h-5" />
-                  </a>
-                </Button>
-              </div>
-            </div>
           </div>
         </section>
 
