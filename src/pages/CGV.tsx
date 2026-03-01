@@ -8,8 +8,10 @@ const CGV = () => {
   return (
     <>
       <Helmet>
-        <title>Conditions Générales de Vente | Qualirénovation</title>
-        <meta name="description" content="Conditions générales de vente de Qualirénovation - Rénovation d'intérieur à Paris et Île-de-France." />
+        <title>Conditions Générales de Vente | QualiRénovation</title>
+        <meta name="description" content="Conditions générales de vente de QualiRénovation - Entreprise de rénovation d'intérieur à Paris et Île-de-France." />
+        <link rel="canonical" href="https://qualirenovation.fr/cgv" />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

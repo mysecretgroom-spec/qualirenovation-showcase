@@ -26,11 +26,16 @@ const RenoverSalleDeBain = () => {
   return (
     <>
       <Helmet>
-        <title>Site dédié Salle de Bain | QUALIRENOVATION Paris</title>
+        <title>Rénovation Salle de Bain Paris | QualiRénovation</title>
         <meta
           name="description"
-          content="Découvrez notre site entièrement dédié à la rénovation de salle de bain à Paris. Simulateur, inspirations, devis personnalisé."
+          content="Découvrez notre site dédié à la rénovation de salle de bain à Paris. Simulateur, inspirations, devis personnalisé. Expertise et accompagnement sur mesure."
         />
+        <link rel="canonical" href="https://qualirenovation.fr/renover-salle-de-bain" />
+        <meta property="og:title" content="Rénovation Salle de Bain Paris | QualiRénovation" />
+        <meta property="og:description" content="Site dédié à la rénovation de salle de bain à Paris. Simulateur, inspirations et devis personnalisé." />
+        <meta property="og:url" content="https://qualirenovation.fr/renover-salle-de-bain" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <div className="min-h-screen bg-background">
