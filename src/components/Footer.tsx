@@ -122,10 +122,10 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Services</h4>
             <ul className="space-y-2 sm:space-y-3">
               {services.map((service) => {
-                const isAnchor = service.href.includes("#");
+                const isHomepageAnchor = service.href.startsWith("/#");
                 return (
                   <li key={service.label}>
-                    {isAnchor ? (
+                    {isHomepageAnchor ? (
                       <a
                         href={service.href}
                         onClick={(e) => handleAnchorClick(e, service.href)}
