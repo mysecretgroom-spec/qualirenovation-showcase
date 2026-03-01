@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { ExternalLink, Home, Lightbulb, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,10 @@ const SITE_DEDIE_URL = "https://renovermasalledebain.com/partenaires/contact";
 
 const RenoverSalleDeBain = () => {
   const { ref, animationClasses } = useScrollAnimation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const features = [
     { icon: Home, title: "Adapté à votre vie", desc: "Nous étudions vos habitudes quotidiennes pour créer un espace parfaitement adapté à votre rythme de vie." },
