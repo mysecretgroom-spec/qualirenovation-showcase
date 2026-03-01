@@ -39,7 +39,7 @@ const Footer = () => {
               <img 
                 src={logoNeg} 
                 alt="QualiRénovation" 
-                className="h-12 sm:h-14 w-auto"
+                className="h-14 sm:h-18 w-auto"
               />
             </div>
             <p className="text-primary-foreground/70 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
