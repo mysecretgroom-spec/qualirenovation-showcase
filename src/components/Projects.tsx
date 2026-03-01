@@ -4,11 +4,43 @@ import { ArrowRight, Images, Loader2, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProjects } from "@/hooks/use-projects";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import QuoteModal from "./QuoteModal";
+
+const projectTaglines: Record<string, string[]> = {
+  "Rénovation complète": [
+    "Transformation totale",
+    "Rénovation sur-mesure",
+    "Un intérieur repensé",
+    "Nouvelle vie, même adresse",
+  ],
+  "Salle de Bain": [
+    "Élégance & bien-être",
+    "Finitions soignées",
+    "Un espace détente unique",
+    "Design & fonctionnalité",
+  ],
+  "Cuisine": [
+    "Cuisine pensée pour vous",
+    "Convivialité & design",
+    "L'art de recevoir",
+  ],
+  default: [
+    "Un projet d'exception",
+    "Savoir-faire artisanal",
+    "Qualité & exigence",
+  ],
+};
+
+const getTagline = (category: string, index: number) => {
+  const lines = projectTaglines[category] || projectTaglines.default;
+  return lines[index % lines.length];
+};
 
 const Projects = () => {
   const { projects, categories, isLoading, isFromDB } = useProjects();
   const [activeCategory, setActiveCategory] = useState("Tous");
   const [visibleCount, setVisibleCount] = useState(6);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const { ref, animationClasses } = useScrollAnimation();
 
   // Reset visible count when projects change
@@ -86,10 +118,10 @@ const Projects = () => {
             {/* Projects Grid */}
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {visibleProjects.map((project, index) => (
+                <div key={project.id} className="flex flex-col">
                   <Link
-                    key={project.id}
                     to={`/projet/${project.slug}`}
-                    className="group relative overflow-hidden rounded-sm shadow-elegant hover:shadow-hover transition-all duration-500 block"
+                    className="group relative overflow-hidden rounded-t-sm shadow-elegant hover:shadow-hover transition-all duration-500 block"
                     style={{ transitionDelay: `${(index % 6) * 100}ms` }}
                   >
                     <div className="aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-muted">
@@ -135,6 +167,21 @@ const Projects = () => {
                       </h3>
                     </div>
                   </Link>
+
+                  {/* CTA tagline under each card */}
+                  <button
+                    onClick={() => setIsQuoteModalOpen(true)}
+                    className="bg-primary/5 border border-border rounded-b-sm px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between gap-2 hover:bg-primary/10 transition-colors duration-300 group/cta"
+                  >
+                    <span className="text-[11px] sm:text-sm text-foreground/80 font-medium">
+                      {getTagline(project.category, index)}
+                    </span>
+                    <span className="text-[10px] sm:text-xs text-accent font-semibold whitespace-nowrap flex items-center gap-1 group-hover/cta:gap-2 transition-all">
+                      Devis gratuit
+                      <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    </span>
+                  </button>
+                </div>
               ))}
             </div>
 
@@ -165,6 +212,8 @@ const Projects = () => {
           </>
         )}
       </div>
+
+      <QuoteModal open={isQuoteModalOpen} onOpenChange={setIsQuoteModalOpen} />
     </section>
   );
 };
