@@ -23,6 +23,16 @@ export interface DBProjectImage {
   caption: string | null;
 }
 
+// Clean up URL-encoded characters in titles/descriptions
+function cleanText(text: string): string {
+  try {
+    // Decode URI-encoded characters (e.g., %C2%B2 → ²)
+    return decodeURIComponent(text);
+  } catch {
+    return text;
+  }
+}
+
 // Known bad images to skip (only the Qualirenovation logo)
 const BAD_IMAGE_PATTERNS = [
   'c2a344b60455efef_5281', // Qualirenovation logo
@@ -49,10 +59,13 @@ function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project
     .filter(img => isValidProjectImage(img.image_url) && img.image_url !== mainImage)
     .map(img => img.image_url);
 
+  const cleanTitle = cleanText(dbProject.title);
+  const cleanDescription = cleanText(dbProject.description || "Projet de rénovation réalisé par QualiRénovation.");
+
   return {
     id: parseInt(dbProject.id.replace(/-/g, '').substring(0, 8), 16) || Date.now(),
     slug: dbProject.slug,
-    title: dbProject.title,
+    title: cleanTitle,
     category: dbProject.category || "Rénovation complète",
     location: dbProject.location || "Paris",
     image: mainImage,
@@ -60,8 +73,8 @@ function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project
     houzzUrl: dbProject.houzz_url || "#",
     year: dbProject.year || new Date().getFullYear().toString(),
     budget: "Sur devis",
-    description: dbProject.description || "Projet de rénovation réalisé par QualiRénovation.",
-    highlights: extractHighlights(dbProject.description || ""),
+    description: cleanDescription,
+    highlights: extractHighlights(cleanDescription),
     services: extractServices(dbProject.category || "Rénovation"),
     gallery,
   };
@@ -217,12 +230,14 @@ export function useProject(slug: string) {
           if (allDbProjects && !allError) {
             const currentIndex = allDbProjects.findIndex(p => p.slug === slug);
             if (currentIndex > 0) {
-              setPrevProject(allDbProjects[currentIndex - 1]);
+              const prev = allDbProjects[currentIndex - 1];
+              setPrevProject({ slug: prev.slug, title: cleanText(prev.title) });
             } else {
               setPrevProject(null);
             }
             if (currentIndex < allDbProjects.length - 1) {
-              setNextProject(allDbProjects[currentIndex + 1]);
+              const next = allDbProjects[currentIndex + 1];
+              setNextProject({ slug: next.slug, title: cleanText(next.title) });
             } else {
               setNextProject(null);
             }
