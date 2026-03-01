@@ -1,0 +1,1 @@
+UPDATE houzz_projects SET category = 'Chambre' WHERE category = 'chambre'
