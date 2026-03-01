@@ -15,7 +15,7 @@ const Footer = () => {
 
   const services = [
     { label: "Rénovation complète", href: "#services" },
-    { label: "Salle de bain", href: "/renover-salle-de-bain", title: "Rénovation salle de bain à Paris – Site spécialisé" },
+    { label: "Salle de bain", href: "/renover-salle-de-bain", title: "Rénovation salle de bain à Paris & Île-de-France" },
     { label: "Cuisine", href: "#services" },
     { label: "Ouverture mur porteur", href: "#services" },
     { label: "Parquet & Carrelage", href: "#services" },
