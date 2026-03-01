@@ -8,7 +8,7 @@ import FloatingCTA from "@/components/FloatingCTA";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import sdbImage from "@/assets/sdb-hero.png";
 
-const SITE_DEDIE_URL = "https://renovermasalledebain.com/partenaires/contact";
+const SITE_DEDIE_URL = "https://renovermasalledebain.com";
 
 const RenoverSalleDeBain = () => {
   const { ref, animationClasses } = useScrollAnimation();
