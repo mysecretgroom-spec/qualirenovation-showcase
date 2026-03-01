@@ -37,7 +37,7 @@ const Header = () => {
     { href: "#testimonials", label: "Avis" },
     { href: "/on-parle-de-nous", label: "Presse", isPage: true },
     { href: "/faq", label: "FAQ", isPage: true },
-    { href: "#contact", label: "Contact" },
+    { href: "/guide-travaux", label: "Guide Travaux", isPage: true },
   ];
 
   return (
@@ -93,8 +93,8 @@ const Header = () => {
               <span className="hidden xl:inline">Nous appeler</span>
             </a>
             <Button 
-              size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-5 py-2.5 shadow-lg"
+              size="lg"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-3 text-base font-semibold shadow-lg"
               onClick={() => setIsQuoteModalOpen(true)}
             >
               Devis gratuit
