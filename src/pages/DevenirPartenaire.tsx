@@ -118,11 +118,16 @@ const DevenirPartenaire = () => {
   return (
     <>
       <Helmet>
-        <title>Devenir partenaire | QUALIRENOVATION Paris</title>
+        <title>Devenir Partenaire | QualiRénovation Paris</title>
         <meta
           name="description"
-          content="Rejoignez le réseau de partenaires QUALIRENOVATION. Sous-traitants, installateurs, marques : collaborez avec nous sur des projets de rénovation de qualité."
+          content="Rejoignez le réseau de partenaires QualiRénovation. Sous-traitants, installateurs, marques : collaborez avec nous sur des projets de rénovation de qualité à Paris."
         />
+        <link rel="canonical" href="https://qualirenovation.fr/devenir-partenaire" />
+        <meta property="og:title" content="Devenir Partenaire | QualiRénovation" />
+        <meta property="og:description" content="Rejoignez notre réseau de partenaires et développez votre activité avec des projets de rénovation de qualité à Paris." />
+        <meta property="og:url" content="https://qualirenovation.fr/devenir-partenaire" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

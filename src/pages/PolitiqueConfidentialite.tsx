@@ -8,8 +8,10 @@ const PolitiqueConfidentialite = () => {
   return (
     <>
       <Helmet>
-        <title>Politique de Confidentialité | Qualirénovation</title>
-        <meta name="description" content="Politique de confidentialité et protection des données personnelles de Qualirénovation." />
+        <title>Politique de Confidentialité | QualiRénovation</title>
+        <meta name="description" content="Politique de confidentialité et protection des données personnelles de QualiRénovation – RGPD." />
+        <link rel="canonical" href="https://qualirenovation.fr/politique-confidentialite" />
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
 
       <div className="min-h-screen bg-background">

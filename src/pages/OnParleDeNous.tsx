@@ -96,12 +96,16 @@ const OnParleDeNous = () => {
   return (
     <>
       <Helmet>
-        <title>On parle de nous | QualiRénovation - Presse et médias</title>
+        <title>Presse et Médias | QualiRénovation Paris</title>
         <meta 
           name="description" 
-          content="Découvrez les articles de presse et publications mentionnant QualiRénovation : Houzz, Elle Déco, Marie Claire Maison, Huffington Post et plus." 
+          content="Découvrez les articles de presse mentionnant QualiRénovation : Houzz, Elle Déco, Marie Claire Maison, Huffington Post. 10+ ans de présence médiatique." 
         />
         <link rel="canonical" href="https://qualirenovation.fr/on-parle-de-nous" />
+        <meta property="og:title" content="Presse et Médias | QualiRénovation" />
+        <meta property="og:description" content="Nos réalisations mises en avant dans les plus grands médias déco : Houzz, Elle Déco, Marie Claire Maison." />
+        <meta property="og:url" content="https://qualirenovation.fr/on-parle-de-nous" />
+        <meta property="og:type" content="website" />
       </Helmet>
 
       <Header />
