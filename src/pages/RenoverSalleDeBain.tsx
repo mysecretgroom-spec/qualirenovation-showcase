@@ -61,6 +61,8 @@ const RenoverSalleDeBain = () => {
                 >
                   <a href="https://renovermasalledebain.com" target="_blank" rel="noopener noreferrer">
                     Découvrir le site dédié
+                    <br />
+                    <span className="text-sm opacity-80">renovermasalledebain.com</span>
                   </a>
                 </Button>
               </div>
