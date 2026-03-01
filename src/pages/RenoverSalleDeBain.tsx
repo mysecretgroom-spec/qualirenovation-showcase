@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, ExternalLink, Home, Lightbulb, Diamond } from "lucide-react";
+import { ExternalLink, Home, Lightbulb, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,7 +7,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
 import FloatingCTA from "@/components/FloatingCTA";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import sdbImage from "@/assets/project-bathroom.jpg";
+import sdbImage from "@/assets/sdb-hero.png";
 
 const SITE_DEDIE_URL = "https://renovermasalledebain.com/qualirenovation";
 
@@ -34,20 +34,22 @@ const RenoverSalleDeBain = () => {
         <Header />
 
         {/* Hero */}
-        <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-          <div className="container-tight relative px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-              <div className="animate-fade-in-up">
-                <span className="text-accent font-medium text-sm tracking-widest uppercase mb-4 block">
-                  Nouveau
-                </span>
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground leading-tight mb-6">
-                  Découvrez notre site dédié à la{" "}
-                  <span className="text-accent">salle de bain</span>
+        <section className="relative pt-20 md:pt-24 overflow-hidden">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] max-h-[70vh]">
+            <img
+              src={sdbImage}
+              alt="Rénovation salle de bain – Soisy-sous-Montmorency"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-primary/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
+              <div className="container-tight">
+                <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold text-background leading-tight mb-4">
+                  Un chantier heureux pour votre{" "}
+                  <span className="font-script text-[1.1em]">salle de bain</span>
                 </h1>
-                <p className="text-muted-foreground text-lg md:text-xl max-w-xl mb-8 leading-relaxed">
-                  Un espace entièrement consacré à votre projet de rénovation de salle de bain : simulateur, inspirations, matériaux et accompagnement sur mesure.
+                <p className="text-background/80 text-base md:text-lg max-w-xl mb-6">
+                  Découvrez notre site entièrement dédié à la rénovation de salle de bain : simulateur, inspirations et accompagnement sur mesure.
                 </p>
                 <Button
                   size="lg"
@@ -59,23 +61,6 @@ const RenoverSalleDeBain = () => {
                     <ExternalLink className="w-5 h-5" />
                   </a>
                 </Button>
-              </div>
-              <div className="animate-fade-in-up animation-delay-200">
-                <a href={SITE_DEDIE_URL} target="_blank" rel="noopener noreferrer" className="block">
-                  <div className="relative rounded-2xl overflow-hidden shadow-elegant aspect-[4/3] group cursor-pointer">
-                    <img
-                      src={sdbImage}
-                      alt="Rénovation salle de bain Paris"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-primary/30 group-hover:bg-primary/10 transition-colors flex items-center justify-center">
-                      <span className="bg-background/90 backdrop-blur-sm rounded-full px-6 py-3 text-foreground font-medium flex items-center gap-2 shadow-lg">
-                        Découvrir le site
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                  </div>
-                </a>
               </div>
             </div>
           </div>
