@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ArrowRight, ExternalLink, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -43,12 +44,13 @@ const bathroomProjects = [
     finition: "Terrazzo",
   },
   {
-    title: "Zellige blanc et sol Patrimony bleu",
-    location: "Paris 5ᵉ",
-    image: "https://renovermasalledebain.com/assets/stgermain-1-NTISpA4U.jpg",
-    photoCount: 8,
-    url: "https://renovermasalledebain.com/realisations/salle-de-bain-paris-5-renovation-baignoire-saint-germain",
-    finition: "Zellige",
+    title: "Une salle de bain raffinée dans moins de 4 m²",
+    location: "Paris",
+    image: "https://st.hzcdn.com/fimgs/728118f108a3f894_0917-w1920-h1440-b1-p0--.jpg",
+    photoCount: 7,
+    url: "/projet/une-salle-de-bain-raffinee-dans-moins-de-4-m-c2-b2",
+    finition: "Raffinée",
+    isInternal: true,
   },
 ];
 
@@ -70,63 +72,71 @@ const BathroomProjectsSection = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-          {bathroomProjects.map((project, index) => (
-            <a
-              key={index}
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative overflow-hidden rounded-sm shadow-elegant hover:shadow-hover transition-all duration-500 block"
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
-              <div className="aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-muted">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
+          {bathroomProjects.map((project, index) => {
+            const isInternal = 'isInternal' in project && project.isInternal;
+            const Wrapper = isInternal ? Link : 'a';
+            const wrapperProps = isInternal
+              ? { to: project.url }
+              : { href: project.url, target: "_blank", rel: "noopener noreferrer" };
 
-              {/* Photo count badge */}
-              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-charcoal/70 backdrop-blur-sm text-cream px-2 py-1 sm:px-3 sm:py-1.5 rounded-sm text-[10px] sm:text-xs font-medium flex items-center gap-1">
-                <Images className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-                {project.photoCount}
-              </div>
+            return (
+              <Wrapper
+                key={index}
+                {...(wrapperProps as any)}
+                className="group relative overflow-hidden rounded-sm shadow-elegant hover:shadow-hover transition-all duration-500 block"
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="aspect-[4/3] sm:aspect-[3/2] overflow-hidden bg-muted">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
 
-              {/* External link icon */}
-              <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-accent/80 backdrop-blur-sm text-accent-foreground p-1 sm:p-1.5 rounded-sm">
-                <ExternalLink className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-              </div>
+                {/* Photo count badge */}
+                <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-charcoal/70 backdrop-blur-sm text-cream px-2 py-1 sm:px-3 sm:py-1.5 rounded-sm text-[10px] sm:text-xs font-medium flex items-center gap-1">
+                  <Images className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                  {project.photoCount}
+                </div>
 
-              {/* Overlay - Desktop */}
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 hidden sm:block">
-                <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                  <span className="text-gold-light text-sm font-nunito font-semibold mb-2 block">
-                    Salle de Bain • {project.location}
+                {/* External link icon */}
+                {!isInternal && (
+                  <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-accent/80 backdrop-blur-sm text-accent-foreground p-1 sm:p-1.5 rounded-sm">
+                    <ExternalLink className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                )}
+
+                {/* Overlay - Desktop */}
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 hidden sm:block">
+                  <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <span className="text-gold-light text-sm font-nunito font-semibold mb-2 block">
+                      Salle de Bain • {project.location}
+                    </span>
+                    <h3 className="font-nunito text-xl text-cream font-bold mb-2 line-clamp-2">
+                      {project.title}
+                    </h3>
+                    <span className="text-xs text-cream/70 font-medium">{project.finition}</span>
+                    <span className="mt-3 inline-flex items-center gap-2 text-cream text-sm font-medium">
+                      {isInternal ? "Voir le projet" : "Voir sur renovermasalledebain.com"}
+                      {isInternal ? <ArrowRight className="w-4 h-4" /> : <ExternalLink className="w-4 h-4" />}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Static label - Mobile */}
+                <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-5 bg-gradient-to-t from-charcoal/90 to-transparent sm:from-charcoal/80 sm:group-hover:opacity-0 transition-opacity duration-500">
+                  <span className="text-gold-light text-[10px] sm:text-xs font-nunito font-semibold hidden sm:block">
+                    {project.location}
                   </span>
-                  <h3 className="font-nunito text-xl text-cream font-bold mb-2 line-clamp-2">
+                  <h3 className="font-nunito text-sm sm:text-lg text-cream font-bold line-clamp-2">
                     {project.title}
                   </h3>
-                  <span className="text-xs text-cream/70 font-medium">{project.finition}</span>
-                  <span className="mt-3 inline-flex items-center gap-2 text-cream text-sm font-medium">
-                    Voir sur renovermasalledebain.com
-                    <ExternalLink className="w-4 h-4" />
-                  </span>
                 </div>
-              </div>
-
-              {/* Static label - Mobile */}
-              <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-5 bg-gradient-to-t from-charcoal/90 to-transparent sm:from-charcoal/80 sm:group-hover:opacity-0 transition-opacity duration-500">
-                <span className="text-gold-light text-[10px] sm:text-xs font-nunito font-semibold hidden sm:block">
-                  {project.location}
-                </span>
-                <h3 className="font-nunito text-sm sm:text-lg text-cream font-bold line-clamp-2">
-                  {project.title}
-                </h3>
-              </div>
-            </a>
-          ))}
+              </Wrapper>
+            );
+          })}
         </div>
 
         <div className="flex justify-center mt-8 sm:mt-12">
