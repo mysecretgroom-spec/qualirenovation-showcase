@@ -251,9 +251,20 @@ const guideFaqSections = [
     title: "Rénovation Salle de Bain",
     icon: Bath,
     items: [
-      { question: "Combien coûte une rénovation de salle de bain à Paris ?", answer: "Le budget moyen se situe entre 8 000 € et 25 000 € selon la surface (4 à 10 m²), le niveau de gamme des matériaux et la complexité des travaux de plomberie." },
-      { question: "Faut-il un permis pour rénover sa salle de bain ?", answer: "Non, une rénovation intérieure de salle de bain ne nécessite pas de permis de construire. En revanche, en copropriété, une déclaration préalable auprès du syndic est généralement requise." },
-      { question: "Quelle durée pour rénover une salle de bain ?", answer: "Comptez 3 à 5 semaines en moyenne pour une rénovation complète, incluant dépose, plomberie, étanchéité, carrelage et pose des équipements." }
+      { question: "Qu'est-ce qu'une douche à l'italienne ?", answer: "Une douche de plain-pied, sans marche ni receveur surélevé. Elle s'intègre au sol pour un accès facile et un design épuré." },
+      { question: "Peut-on installer une douche à l'italienne dans un appartement ancien ?", answer: "Oui, dans la plupart des cas. Notre maître d'œuvre réalise une étude de faisabilité gratuite pour évaluer les contraintes techniques (hauteur de culotte, copropriété, structure du sol)." },
+      { question: "Combien coûte une rénovation de salle de bain à Paris ?", answer: "Entre 800 € et 1 500 €/m² pour une rénovation complète clé en main. Devis détaillé gratuit avec photos via Graneet." },
+      { question: "Combien de temps dure une rénovation de salle de bain ?", answer: "Généralement entre 3 semaines et 1 mois. Chaque artisan intervient au bon moment grâce à la coordination du maître d'œuvre." },
+      { question: "Proposez-vous une rénovation clé en main ?", answer: "Oui : de la conception à la livraison, nous gérons l'intégralité du projet. Un seul interlocuteur pour tous les corps de métier." },
+      { question: "Intervenez-vous pour les petites salles de bain ?", answer: "Absolument ! Nous sommes spécialistes de la rénovation en appartement parisien, souvent avec des contraintes d'espace." },
+      { question: "Comment garantissez-vous l'étanchéité ?", answer: "Système SEL/SPEC (Weber Aquastop) sur murs et sol avant carrelage, conformément au DTU 52.2. Bandes d'angles et traitement des points singuliers. Un joint seul ne fait jamais une étanchéité. Garantie étanchéité 10 ans + décennale." },
+      { question: "Faut-il refaire toute la plomberie ?", answer: "Oui, dans la grande majorité des cas. Le plomb est remplacé par du cuivre ou du multicouche. Des nourrices eau chaude / eau froide sont posées. Refaire à moitié, c'est prendre le risque de refaire deux fois." },
+      { question: "Quels types de pose carrelage proposez-vous ?", answer: "Pose droite (alignée), pose décalée (1/3 recommandé), pose chevron / en V. Le choix dépend du format, de la surface et de la planéité.\n\nTarifs indicatifs : Pose droite — 90 €/m² · Pose chevron — 120 €/m². Tarif incluant primaire, colle et joint." },
+      { question: "Quels types de receveurs de douche proposez-vous ?", answer: "Extra-plat (plain-pied), sur pieds (siphon accessible), à carreler (douche italienne). Matériaux : résine (durable), acrylique (léger), grès émaillé (résistant). En copropriété, la hauteur de la culotte détermine les possibilités." },
+      { question: "Comment choisir sa paroi de douche ?", answer: "3 critères : ouverture (fixe, coulissante, battante), couleur du profilé (noir mat, laiton, chromé) et type de verre (transparent, dépoli, sérigraphié). Toujours harmoniser avec la robinetterie. Épaisseur recommandée : 6 à 8 mm minimum." },
+      { question: "Quel WC choisir en rénovation ?", answer: "Le WC suspendu avec bâti-support Geberit est le standard en rénovation : Geberit Duofix standard 12 cm ou réduit 8 cm, autoportant ou portant. Plaques de commande disponibles en blanc, noir, laiton ou chrome." },
+      { question: "Qu'en est-il de la peinture et de la VMC ?", answer: "Peinture spéciale pièces humides obligatoire (lessivable, type Unikalo Aqualine Satin). Sans VMC : humidité, moisissures, dégradation. Éclairage et chauffage doivent respecter la norme NF C 15-100. Spots : 500 lm, 4000K, IP44/65. Sèche-serviette : 500-1000W avec ligne dédiée." },
+      { question: "Quelles garanties pour ma salle de bain ?", answer: "Garantie décennale 10 ans (assurés auprès de MIC Insurance). Étanchéité certifiée conforme DTU 52.2 avec procès-verbal de réception. Délais garantis par planning contractuel. SAV réactif avec interlocuteur unique. Budget encadré : devis exhaustifs, toute évolution formalisée et validée avant exécution." }
     ]
   },
   {
