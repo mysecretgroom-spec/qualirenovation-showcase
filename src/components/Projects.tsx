@@ -24,6 +24,26 @@ const projectTaglines: Record<string, string[]> = {
     "Convivialité & design",
     "L'art de recevoir",
   ],
+  "Salon": [
+    "Un espace de vie repensé",
+    "Confort & élégance",
+  ],
+  "Chambre": [
+    "Un cocon sur mesure",
+    "Repos & raffinement",
+  ],
+  "Menuiserie": [
+    "Savoir-faire artisanal",
+    "Bois & finitions nobles",
+  ],
+  "Parquet": [
+    "Le charme du bois",
+    "Un sol d'exception",
+  ],
+  "Boiseries murale": [
+    "Cachet & caractère",
+    "L'art du détail",
+  ],
   default: [
     "Un projet d'exception",
     "Savoir-faire artisanal",
@@ -51,7 +71,7 @@ const Projects = () => {
   const filteredProjects =
     activeCategory === "Tous"
       ? projects
-      : projects.filter((p) => p.category === activeCategory);
+      : projects.filter((p) => p.category === activeCategory || (p.tags && p.tags.includes(activeCategory)));
 
   const visibleProjects = filteredProjects.slice(0, visibleCount);
   const hasMore = visibleCount < filteredProjects.length;

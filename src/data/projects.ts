@@ -17,6 +17,7 @@ export interface Project {
   slug: string;
   title: string;
   category: string;
+  tags?: string[];
   location: string;
   image: string;
   photoCount: number;
@@ -449,7 +450,7 @@ Consultation gratuite, devis détaillé sous 48h, suivi quotidien de votre chant
   }
 ];
 
-export const categories = ["Tous", "Rénovation complète", "Salle de Bain", "Cuisine", "Salon", "Chambre"];
+export const categories = ["Tous", "Rénovation complète", "Salle de Bain", "Cuisine", "Salon", "Chambre", "Menuiserie", "Parquet", "Boiseries murale"];
 
 export const getProjectBySlug = (slug: string): Project | undefined => {
   return projects.find(p => p.slug === slug);
