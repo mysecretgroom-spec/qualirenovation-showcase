@@ -7,15 +7,6 @@ const FloatingCTA = () => {
 
   return (
     <>
-      {/* Mobile top sticky CTA */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 shadow-md sm:hidden"
-        aria-label="Devis gratuit"
-      >
-        <FileText className="w-4 h-4 flex-shrink-0" />
-        <span className="text-sm font-semibold">Devis gratuit</span>
-      </button>
 
       {/* Desktop floating CTA */}
       <button
