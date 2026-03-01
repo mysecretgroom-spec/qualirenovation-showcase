@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import logoFullNeg from "@/assets/logo-full-neg.svg";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -413,6 +414,10 @@ const GuideTravaux: React.FC = () => {
           <section className="bg-primary text-primary-foreground py-16 md:py-24">
             <div className="container-tight px-4 max-w-3xl mx-auto">
               <div className="space-y-6 text-center">
+                <h2 className="font-display text-2xl md:text-3xl font-semibold mb-2 tracking-wide uppercase">
+                  Notre Philosophie
+                </h2>
+                <div className="w-16 h-0.5 bg-accent mx-auto mb-4" />
                 <p className="text-primary-foreground/90 text-lg md:text-xl leading-relaxed italic">
                   Rénover un appartement ou une maison ne consiste pas seulement à transformer un espace.
                   <br />
@@ -436,10 +441,10 @@ const GuideTravaux: React.FC = () => {
                   Il se mesure dans le temps&nbsp;: qualité d'exécution, solidité des ouvrages et sérénité d'un espace pensé pour durer.
                 </p>
 
-                {/* Signature */}
-                <p className="font-script text-2xl md:text-3xl text-accent pt-4">
-                  L'Art de Rénover by QualiRénovation
-                </p>
+                {/* Signature – Logo SVG */}
+                <div className="pt-6 flex justify-center">
+                  <img src={logoFullNeg} alt="L'Art de Rénover by QualiRénovation" className="h-16 md:h-20 w-auto" />
+                </div>
               </div>
 
               {/* CTA buttons */}
