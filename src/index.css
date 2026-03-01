@@ -24,6 +24,14 @@
  * Loaded via index.html for optimal performance
  */
 
+@font-face {
+  font-family: 'Edwardian Script ITC';
+  src: url('/fonts/ITCEDSCR.TTF') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
