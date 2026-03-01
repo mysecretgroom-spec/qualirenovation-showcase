@@ -285,7 +285,18 @@ const guideFaqSections = [
     title: "Peinture & Finitions",
     icon: Paintbrush,
     items: [
-      { question: "Combien coûte la peinture d'un appartement ?", answer: "Comptez 25 à 45 €/m² de surface au sol pour un appartement complet (murs + plafonds), soit 2 500 à 6 000 € pour un 80 m². Les peintures haut de gamme et les effets décoratifs augmentent le budget." },
+      { question: "Combien coûte la peinture d'un appartement ?", answer: `Nos tarifs peinture au m² (surface de mur/plafond) :
+
+• Rattrapage (rebouchage, ponçage, sous-couche) : 20 €/m²
+• Entoilage + enduit général (préparation complète des murs) : 40 à 45 €/m²
+• Mise en peinture (2 couches, finition) : 25 €/m²
+
+Prestations complémentaires :
+• Peinture sur porte médium : 45 € par porte
+• Peinture de bibliothèque sur mesure : sur devis selon dimensions et complexité
+• Peinture sur boiseries (fenêtres, plinthes, moulures) : plus-value à prévoir selon l'état et la quantité
+
+Ces prix s'entendent hors fourniture de peinture haut de gamme. Un devis précis est établi après visite.` },
       { question: "Quelle peinture pour les pièces humides ?", answer: "Utilisez une peinture satinée spéciale pièces humides avec traitement anti-moisissures. Les marques professionnelles proposent des formulations spécifiques pour salles de bain et cuisines." },
       { question: "Faut-il peindre ou tapisser ?", answer: "La peinture offre plus de flexibilité et est plus facile à retoucher. Le papier peint apporte de la texture et du motif mais demande un support parfait. Les deux peuvent se combiner : un mur d'accent en papier peint et le reste en peinture." }
     ]
