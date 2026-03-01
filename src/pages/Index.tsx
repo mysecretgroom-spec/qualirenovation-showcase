@@ -8,10 +8,10 @@ import Testimonials from "@/components/Testimonials";
 import PressCarousel from "@/components/PressCarousel";
 import InstagramFeed from "@/components/InstagramFeed";
 import Contact from "@/components/Contact";
+import Awards from "@/components/Awards";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import CallButton from "@/components/CallButton";
 import FloatingCTA from "@/components/FloatingCTA";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,11 +125,10 @@ const Index = () => {
           <PressCarousel />
           <InstagramFeed />
           <Contact />
+          <Awards />
         </main>
         <Footer />
         <CookieConsent />
-        <WhatsAppButton />
-        <CallButton />
         <FloatingCTA />
       </div>
     </>
