@@ -101,18 +101,27 @@ const Header = () => {
             </Button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 -mr-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6 text-primary-foreground" />
-            ) : (
-              <Menu className="w-6 h-6 text-primary-foreground" />
-            )}
-          </button>
+          {/* Mobile CTA + Menu Button */}
+          <div className="lg:hidden flex items-center gap-2">
+            <Button
+              size="sm"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-4 py-2 text-xs font-semibold shadow-lg"
+              onClick={() => setIsQuoteModalOpen(true)}
+            >
+              Devis gratuit
+            </Button>
+            <button
+              className="p-2 -mr-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6 text-primary-foreground" />
+              ) : (
+                <Menu className="w-6 h-6 text-primary-foreground" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
