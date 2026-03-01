@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, ChevronDown } from "lucide-react";
+import { ArrowLeft, ExternalLink, ChevronDown, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { generateFaqPDF } from "@/utils/generateFaqPDF";
 import {
   Accordion,
   AccordionContent,
@@ -281,12 +282,21 @@ const FAQPage = () => {
 
       <div className="min-h-screen bg-background">
         <div className="container-tight py-12">
-          <Link to="/">
-            <Button variant="ghost" className="mb-8">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Retour à l'accueil
+          <div className="flex items-center gap-4 mb-8">
+            <Link to="/">
+              <Button variant="ghost">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour à l'accueil
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              onClick={() => generateFaqPDF(faqSections)}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Télécharger en PDF
             </Button>
-          </Link>
+          </div>
 
           <div className="text-center mb-12">
             <span className="text-gold font-medium text-sm uppercase tracking-wider">
