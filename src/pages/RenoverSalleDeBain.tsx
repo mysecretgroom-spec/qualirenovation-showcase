@@ -3,8 +3,6 @@ import { ExternalLink, Home, Lightbulb, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import CallButton from "@/components/CallButton";
 import FloatingCTA from "@/components/FloatingCTA";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import sdbImage from "@/assets/sdb-hero.png";
@@ -100,8 +98,6 @@ const RenoverSalleDeBain = () => {
         </section>
 
         <Footer />
-        <WhatsAppButton />
-        <CallButton />
         <FloatingCTA />
       </div>
     </>
