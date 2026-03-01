@@ -87,7 +87,7 @@ const Footer = () => {
                 { label: "Projets", href: "/#projects" },
                 { label: "Services", href: "/#services" },
                 { label: "Avis", href: "/#testimonials" },
-                { label: "Presse", href: "/on-parle-de-nous" },
+                { label: "On parle de nous", href: "/on-parle-de-nous" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Guide travaux", href: "/guide-travaux" },
                 { label: "Devenir partenaire", href: "/devenir-partenaire" },
