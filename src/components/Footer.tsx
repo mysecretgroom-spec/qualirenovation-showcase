@@ -13,6 +13,7 @@ const Footer = () => {
     { label: "Ouverture mur porteur", href: "/#services" },
     { label: "Parquet & Carrelage", href: "/#services" },
     { label: "Peinture & Finitions", href: "/#services" },
+    { label: "Guide travaux", href: "/guide-travaux" },
     { label: "FAQ", href: "/faq" },
   ];
 
