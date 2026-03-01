@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoNeg from "@/assets/logo-full-neg.svg";
 import houzzIcon from "@/assets/houzz-icon-white.svg";
@@ -129,17 +129,29 @@ const Footer = () => {
                   6 rue d'Armaillé<br />75017 Paris
                 </span>
               </li>
-              <li className="flex items-center gap-2 sm:gap-3">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
-                <span className="text-primary-foreground/70 text-xs sm:text-sm">
-                  Sur rendez-vous
-                </span>
+              <li>
+                <a href="tel:0659764685" className="flex items-center gap-2 sm:gap-3 group">
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
+                  <span className="text-primary-foreground/70 text-xs sm:text-sm group-hover:text-primary-foreground transition-colors">
+                    06 59 76 46 85
+                  </span>
+                </a>
               </li>
-              <li className="flex items-center gap-2 sm:gap-3">
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
-                <span className="text-primary-foreground/70 text-xs sm:text-sm">
-                  gestion@qualiconcept.fr
-                </span>
+              <li>
+                <a href="mailto:contact@qualiconcept.fr" className="flex items-center gap-2 sm:gap-3 group">
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
+                  <span className="text-primary-foreground/70 text-xs sm:text-sm group-hover:text-primary-foreground transition-colors">
+                    contact@qualiconcept.fr
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/33659764685" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 sm:gap-3 group">
+                  <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gold-light" />
+                  <span className="text-primary-foreground/70 text-xs sm:text-sm group-hover:text-primary-foreground transition-colors">
+                    WhatsApp
+                  </span>
+                </a>
               </li>
             </ul>
             <p className="text-primary-foreground/60 text-[10px] sm:text-xs mt-4 sm:mt-6">
