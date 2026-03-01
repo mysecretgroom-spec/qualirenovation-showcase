@@ -414,22 +414,31 @@ const GuideTravaux: React.FC = () => {
             <div className="container-tight px-4 max-w-3xl mx-auto">
               <div className="space-y-6 text-center">
                 <p className="text-primary-foreground/90 text-lg md:text-xl leading-relaxed italic">
-                  Rénover, ce n'est pas seulement transformer un espace.
+                  Rénover un appartement ou une maison ne consiste pas seulement à transformer un espace.
                   <br />
-                  C'est assumer des choix, une méthode et une responsabilité.
+                  C'est structurer un projet de rénovation avec méthode, expertise technique et responsabilité.
                 </p>
                 <p className="text-primary-foreground/80 text-base md:text-lg leading-relaxed">
-                  Si notre philosophie vous parle, prenez rendez-vous pour votre projet et échangeons ensemble.
+                  Chez QualiRénovation, chaque chantier de rénovation intérieure est anticipé, conçu et coordonné avec rigueur&nbsp;: étude des contraintes, optimisation des volumes, gestion des corps d'état et suivi précis des travaux.
+                </p>
+                <p className="text-primary-foreground/90 text-base md:text-lg leading-relaxed font-medium">
+                  Nous croyons au chantier heureux.
+                </p>
+                <p className="text-primary-foreground/80 text-sm md:text-base leading-relaxed">
+                  Parce qu'un projet de rénovation se construit sur plusieurs semaines, parfois plusieurs mois, la réussite passe aussi par la bonne humeur, le respect des engagements et la maîtrise du planning.
+                </p>
+                <p className="text-primary-foreground/80 text-base md:text-lg leading-relaxed">
+                  Si notre approche de la rénovation vous correspond, prenons rendez-vous pour étudier votre projet et définir ensemble une stratégie claire et durable.
                 </p>
                 <p className="text-primary-foreground/70 text-sm md:text-base leading-relaxed">
-                  Un chantier réussi n'est pas celui qui impressionne le jour J,
+                  Un chantier réussi ne se limite pas à l'esthétique le jour de la réception.
                   <br className="hidden sm:block" />
-                  mais celui qui reste juste, solide et serein dans le temps.
+                  Il se mesure dans le temps&nbsp;: qualité d'exécution, solidité des ouvrages et sérénité d'un espace pensé pour durer.
                 </p>
 
                 {/* Signature */}
                 <p className="font-script text-2xl md:text-3xl text-accent pt-4">
-                  Carina N.
+                  L'Art de Rénover by QualiRénovation
                 </p>
               </div>
 
