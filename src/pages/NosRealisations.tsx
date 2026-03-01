@@ -1,4 +1,6 @@
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import Projects from "@/components/Projects";
 import Footer from "@/components/Footer";
@@ -23,7 +25,14 @@ const NosRealisations = () => {
 
       <div className="min-h-screen">
         <Header />
-        <main className="pt-20">
+        <main className="pt-24">
+          <nav aria-label="Fil d'Ariane" className="container-tight px-4 sm:px-6 lg:px-8 mb-4">
+            <ol className="flex items-center gap-1.5 text-sm text-muted-foreground font-nunito">
+              <li><Link to="/" className="hover:text-accent transition-colors">Accueil</Link></li>
+              <li><ChevronRight className="w-3.5 h-3.5" /></li>
+              <li className="text-foreground font-semibold">Nos Réalisations</li>
+            </ol>
+          </nav>
           <Projects />
         </main>
         <Footer />
