@@ -24,6 +24,7 @@ import MentionsLegales from "./pages/MentionsLegales";
 import OnParleDeNous from "./pages/OnParleDeNous";
 import FAQPage from "./pages/FAQ";
 import RenovationComplete from "./pages/RenovationComplete";
+import RenoverSalleDeBain from "./pages/RenoverSalleDeBain";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/on-parle-de-nous" element={<OnParleDeNous />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/renovation-complete" element={<RenovationComplete />} />
+              <Route path="/renover-salle-de-bain" element={<RenoverSalleDeBain />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/install" element={<AdminInstall />} />
