@@ -175,6 +175,7 @@ export type Database = {
           image_count: number | null
           location: string | null
           slug: string
+          tags: string[] | null
           title: string
           updated_at: string
           year: string | null
@@ -189,6 +190,7 @@ export type Database = {
           image_count?: number | null
           location?: string | null
           slug: string
+          tags?: string[] | null
           title: string
           updated_at?: string
           year?: string | null
@@ -203,6 +205,7 @@ export type Database = {
           image_count?: number | null
           location?: string | null
           slug?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
           year?: string | null

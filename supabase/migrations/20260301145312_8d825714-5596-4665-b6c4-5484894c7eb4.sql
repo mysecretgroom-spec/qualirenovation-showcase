@@ -1,0 +1,1 @@
+ALTER TABLE public.houzz_projects ADD COLUMN tags text[] DEFAULT '{}'::text[];
