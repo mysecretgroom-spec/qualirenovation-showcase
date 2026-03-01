@@ -14,12 +14,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const services = [
-    "Rénovation complète",
-    "Salle de bain",
-    "Cuisine",
-    "Ouverture mur porteur",
-    "Parquet & Carrelage",
-    "Peinture & Finitions",
+    { label: "Rénovation complète", href: "#services" },
+    { label: "Salle de bain", href: "/renover-salle-de-bain", title: "Rénovation salle de bain à Paris – Site spécialisé" },
+    { label: "Cuisine", href: "#services" },
+    { label: "Ouverture mur porteur", href: "#services" },
+    { label: "Parquet & Carrelage", href: "#services" },
+    { label: "Peinture & Finitions", href: "#services" },
   ];
 
   const zones = [
@@ -78,13 +78,24 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Services</h4>
             <ul className="space-y-2 sm:space-y-3">
               {services.map((service) => (
-                <li key={service}>
-                  <a 
-                    href="#services" 
-                    className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
-                  >
-                    {service}
-                  </a>
+                <li key={service.label}>
+                  {service.href.startsWith("/") ? (
+                    <Link
+                      to={service.href}
+                      className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
+                      title={service.title}
+                      aria-label={service.title || service.label}
+                    >
+                      {service.label}
+                    </Link>
+                  ) : (
+                    <a 
+                      href={service.href} 
+                      className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
+                    >
+                      {service.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
