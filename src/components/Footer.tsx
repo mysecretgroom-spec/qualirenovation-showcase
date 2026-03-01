@@ -22,10 +22,10 @@ const Footer = () => {
   const services = [
     { label: "Rénovation complète", href: "/#services" },
     { label: "Salle de bain", href: "/renover-salle-de-bain", title: "Rénovation salle de bain à Paris – Site spécialisé" },
-    { label: "Cuisine", href: "/#services" },
-    { label: "Ouverture mur porteur", href: "/#services" },
-    { label: "Parquet & Carrelage", href: "/#services" },
-    { label: "Peinture & Finitions", href: "/#services" },
+    { label: "Cuisine", href: "/guide-travaux#cuisine" },
+    { label: "Ouverture mur porteur", href: "/guide-travaux#mur-porteur" },
+    { label: "Parquet & Carrelage", href: "/guide-travaux#parquet" },
+    { label: "Peinture & Finitions", href: "/guide-travaux#peinture" },
   ];
 
   const zones = [
