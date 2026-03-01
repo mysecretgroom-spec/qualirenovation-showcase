@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { ExternalLink, Home, Lightbulb, Diamond } from "lucide-react";
+import { ExternalLink, Home, Lightbulb, Diamond, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -93,9 +93,9 @@ const RenoverSalleDeBain = () => {
             </div>
             <div className="text-center mt-12">
               <Button size="lg" className="rounded-full px-8" asChild>
-                <a href={SITE_DEDIE_URL} target="_blank" rel="noopener noreferrer">
+                <a href="/#contact">
                   Demander mon étude personnalisée
-                  <ExternalLink className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                 </a>
               </Button>
             </div>
