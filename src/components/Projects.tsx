@@ -90,13 +90,13 @@ const Projects = () => {
       <div className="container-tight px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <span className="text-accent font-medium text-xs sm:text-sm tracking-widest uppercase mb-3 sm:mb-4 block">
-            Portfolio
+          <span className="text-accent font-nunito font-bold text-sm sm:text-base tracking-widest uppercase mb-3 sm:mb-4 block">
+            Nos Réalisations
           </span>
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-3 sm:mb-4">
+          <h2 className="font-nunito text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-3 sm:mb-4">
             Nos réalisations
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground font-nunito text-lg sm:text-xl max-w-2xl mx-auto">
             Découvrez nos {projects.length} projets de rénovation à Paris et en Île-de-France. 
             Plus de 115 réalisations sur Houzz.
           </p>
@@ -164,10 +164,10 @@ const Projects = () => {
                     {/* Overlay - Hidden on mobile */}
                     <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 hidden sm:block">
                       <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <span className="text-gold-light text-sm font-medium mb-2 block">
+                        <span className="text-gold-light text-sm font-nunito font-semibold mb-2 block">
                           {project.category} • {project.location}
                         </span>
-                        <h3 className="font-display text-lg text-cream font-semibold mb-3 line-clamp-2">
+                        <h3 className="font-nunito text-xl text-cream font-bold mb-3 line-clamp-2">
                           {project.title}
                         </h3>
                         <span className="inline-flex items-center gap-2 text-cream text-sm font-medium">
@@ -179,10 +179,10 @@ const Projects = () => {
 
                     {/* Static Label - Always visible on mobile, fade on hover desktop */}
                     <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-5 bg-gradient-to-t from-charcoal/90 to-transparent sm:from-charcoal/80 sm:group-hover:opacity-0 transition-opacity duration-500">
-                      <span className="text-gold-light text-[10px] sm:text-xs font-medium hidden sm:block">
+                      <span className="text-gold-light text-[10px] sm:text-xs font-nunito font-semibold hidden sm:block">
                         {project.location}
                       </span>
-                      <h3 className="font-display text-xs sm:text-base text-cream font-semibold line-clamp-2">
+                      <h3 className="font-nunito text-sm sm:text-lg text-cream font-bold line-clamp-2">
                         {project.title}
                       </h3>
                     </div>
@@ -193,7 +193,7 @@ const Projects = () => {
                     onClick={() => setIsQuoteModalOpen(true)}
                     className="bg-primary/5 border border-border rounded-b-sm px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between gap-2 hover:bg-primary/10 transition-colors duration-300 group/cta"
                   >
-                    <span className="text-[11px] sm:text-sm text-foreground/80 font-medium">
+                    <span className="text-xs sm:text-sm text-foreground/80 font-nunito font-semibold">
                       {getTagline(project.category, index)}
                     </span>
                     <span className="text-[10px] sm:text-xs text-accent font-semibold whitespace-nowrap flex items-center gap-1 group-hover/cta:gap-2 transition-all">

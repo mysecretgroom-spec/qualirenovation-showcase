@@ -18,6 +18,7 @@ export default {
         display: ["'Cormorant Garamond'", "serif"],
         script: ["'Imperial Script'", "cursive"],
         sans: ["'Inter'", "sans-serif"],
+        nunito: ["'Nunito'", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
