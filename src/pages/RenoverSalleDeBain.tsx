@@ -59,7 +59,7 @@ const RenoverSalleDeBain = () => {
                   className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg px-8"
                   asChild
                 >
-                  <a href="/#realisations">
+                  <a href="/#projects">
                     Découvrir nos rénovations de salle de bain à Paris
                   </a>
                 </Button>
