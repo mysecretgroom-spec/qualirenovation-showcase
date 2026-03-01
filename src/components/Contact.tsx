@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, Clock, ArrowRight } from "lucide-react";
+import { Phone, Mail, Clock, MapPin, ArrowRight } from "lucide-react";
 import QuoteModal from "./QuoteModal";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-
-
-
 
 const Contact = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
@@ -14,83 +11,83 @@ const Contact = () => {
   return (
     <>
       <section ref={ref} id="contact" className={`section-padding bg-background ${animationClasses}`}>
-        <div className="container-tight px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            {/* Left Column - Info */}
-            <div>
-              <span className="text-accent font-medium text-xs sm:text-sm tracking-widest uppercase mb-3 sm:mb-4 block">
-                Contact
-              </span>
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-4 sm:mb-6">
-                Parlons de votre
-                <br />
-                <span className="italic font-normal text-muted-foreground">projet</span>
-              </h2>
-              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-8 sm:mb-10">
-                Consultation gratuite, devis détaillé sous 48h. 
-                Décrivez-nous votre projet et nous vous recontacterons rapidement.
-              </p>
+        <div className="container-tight px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 sm:mb-10">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-2 sm:mb-3">
+              Parlons de votre
+              <br />
+              <span className="italic font-normal text-muted-foreground">projet</span>
+            </h2>
+            <p className="text-muted-foreground text-base sm:text-lg leading-relaxed max-w-xl">
+              Consultation gratuite, devis détaillé sous 48h. Décrivez-nous votre projet et nous vous recontacterons rapidement.
+            </p>
+          </div>
 
-              {/* Contact Info Block */}
-              <div className="flex flex-col gap-4">
-                <a href="tel:0659764685" className="flex items-center gap-4 group">
-                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
-                    <Phone className="w-5 h-5 text-accent" />
-                  </div>
-                  <span className="text-foreground font-medium text-sm sm:text-base group-hover:text-accent transition-colors">06 59 76 46 85</span>
-                </a>
-                <a href="mailto:gestion@qualiconcept.fr" className="flex items-center gap-4 group">
-                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-accent/10 transition-colors">
-                    <Mail className="w-5 h-5 text-accent" />
-                  </div>
-                  <span className="text-foreground font-medium text-sm sm:text-base group-hover:text-accent transition-colors">gestion@qualiconcept.fr</span>
-                </a>
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-foreground font-medium text-sm sm:text-base">Lun – Ven : 8h – 18h</p>
-                    <p className="text-muted-foreground text-sm">Sam : 9h – 12h</p>
-                  </div>
-                </div>
+          {/* Contact Grid 2x2 */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-6 sm:gap-y-8 mb-8 sm:mb-10">
+            {/* Adresse */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                <MapPin className="w-5 h-5 text-accent" />
               </div>
-
-              {/* Company Info */}
-              <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-border">
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  <strong className="text-foreground">QUALIRENOVATION BY QUALICONCEPT</strong>
-                  <br />
-                  SIRET : 85286728200034
-                  <br />
-                  Assuré par MIC Assurance
-                </p>
+              <div>
+                <h3 className="font-display font-semibold text-foreground text-sm sm:text-base mb-0.5">Adresse</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm">6 rue d'Armaillé<br />75017 Paris</p>
               </div>
             </div>
 
-            {/* Right Column - CTA Card */}
-            <div>
-              <div className="bg-card p-6 sm:p-8 md:p-12 rounded-sm shadow-card text-center">
-                <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-semibold text-foreground mb-3 sm:mb-4">
-                  Demande de devis gratuit
-                </h3>
-                <p className="text-muted-foreground mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-base">
-                  Obtenez une estimation personnalisée pour votre projet de rénovation. 
-                  Réponse garantie sous 48h.
-                </p>
-                <Button 
-                  size="lg" 
-                  className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6"
-                  onClick={() => setIsQuoteModalOpen(true)}
-                >
-                  Demander un devis
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Button>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-4 sm:mt-6">
-                  Consultation gratuite • Sans engagement
-                </p>
+            {/* Téléphone */}
+            <a href="tel:0659764685" className="flex items-start gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-accent/10 transition-colors">
+                <Phone className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground text-sm sm:text-base mb-0.5 group-hover:text-accent transition-colors">Téléphone</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm">Appelez-nous pour un<br />devis</p>
+              </div>
+            </a>
+
+            {/* Email */}
+            <a href="mailto:contact@qualiconcept.fr" className="flex items-start gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-accent/10 transition-colors">
+                <Mail className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground text-sm sm:text-base mb-0.5 group-hover:text-accent transition-colors">Email</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm">contact@qualiconcept.fr</p>
+              </div>
+            </a>
+
+            {/* Horaires */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Clock className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground text-sm sm:text-base mb-0.5">Horaires</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm">Lun – Ven : 9h00 – 18h00<br />Sam : Sur rendez-vous</p>
               </div>
             </div>
+          </div>
+
+          {/* CTA + Phone */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+            <Button 
+              size="lg" 
+              className="w-full sm:w-auto text-base px-8 py-5"
+              onClick={() => setIsQuoteModalOpen(true)}
+            >
+              Demander un devis
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+            <a 
+              href="tel:0659764685"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-border bg-background text-foreground px-8 py-3.5 rounded-sm font-medium hover:bg-secondary transition-colors text-base"
+            >
+              <Phone className="w-4 h-4 text-accent" />
+              06 59 76 46 85
+            </a>
           </div>
         </div>
       </section>
