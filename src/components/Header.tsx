@@ -33,6 +33,7 @@ const Header = () => {
   const navLinks = [
     { href: "#about", label: "À propos" },
     { href: "#projects", label: "Projets" },
+    { href: "/renover-salle-de-bain", label: "Salle de Bain", isPage: true },
     { href: "#services", label: "Services" },
     { href: "#testimonials", label: "Avis" },
     { href: "/on-parle-de-nous", label: "Presse", isPage: true },
