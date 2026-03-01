@@ -1,10 +1,23 @@
 import { MapPin, Phone, Mail, Instagram, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logoNeg from "@/assets/logo-full-neg.svg";
 import houzzIcon from "@/assets/houzz-icon-white.svg";
 
 const Footer = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
+
+  const handleAnchorClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    const hash = href.replace("/", "");
+    if (location.pathname !== "/") {
+      navigate("/" + hash);
+    } else {
+      const el = document.querySelector(hash);
+      el?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const services = [
     { label: "Rénovation complète", href: "/#services" },
@@ -78,16 +91,29 @@ const Footer = () => {
                 { label: "FAQ", href: "/faq" },
                 { label: "Guide travaux", href: "/guide-travaux" },
                 { label: "Devenir partenaire", href: "/devenir-partenaire" },
-              ].map((item) => (
-                <li key={item.label}>
-                  <Link
-                    to={item.href}
-                    className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+              ].map((item) => {
+                const isAnchor = item.href.includes("#");
+                return (
+                  <li key={item.label}>
+                    {isAnchor ? (
+                      <a
+                        href={item.href}
+                        onClick={(e) => handleAnchorClick(e, item.href)}
+                        className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors cursor-pointer"
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={item.href}
+                        className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -95,27 +121,32 @@ const Footer = () => {
           <div className="col-span-1">
             <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Services</h4>
             <ul className="space-y-2 sm:space-y-3">
-              {services.map((service) => (
-                <li key={service.label}>
-                  {service.href.startsWith("/") ? (
-                    <Link
-                      to={service.href}
-                      className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
-                      title={service.title}
-                      aria-label={service.title || service.label}
-                    >
-                      {service.label}
-                    </Link>
-                  ) : (
-                    <a 
-                      href={service.href} 
-                      className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
-                    >
-                      {service.label}
-                    </a>
-                  )}
-                </li>
-              ))}
+              {services.map((service) => {
+                const isAnchor = service.href.includes("#");
+                return (
+                  <li key={service.label}>
+                    {isAnchor ? (
+                      <a
+                        href={service.href}
+                        onClick={(e) => handleAnchorClick(e, service.href)}
+                        className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors cursor-pointer"
+                        title={service.title}
+                      >
+                        {service.label}
+                      </a>
+                    ) : (
+                      <Link
+                        to={service.href}
+                        className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
+                        title={service.title}
+                        aria-label={service.title || service.label}
+                      >
+                        {service.label}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
