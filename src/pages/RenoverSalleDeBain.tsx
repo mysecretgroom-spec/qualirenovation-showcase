@@ -59,7 +59,7 @@ const RenoverSalleDeBain = () => {
                   className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg px-8"
                   asChild
                 >
-                  <a href="https://renovermasalledebain.com" target="_blank" rel="noopener noreferrer">
+                  <a href={SITE_DEDIE_URL} target="_blank" rel="noopener noreferrer">
                     Découvrir le site dédié
                     <br />
                     <span className="text-sm opacity-80">renovermasalledebain.com</span>
