@@ -49,7 +49,7 @@ const RenoverSalleDeBain = () => {
               <div className="container-tight">
                 <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold text-background leading-tight mb-4">
                   Un chantier heureux pour votre{" "}
-                  <span className="font-script text-[1.1em]">salle de bain</span>
+                  <span className="font-script text-[1.1em]">Salle de Bain</span>
                 </h1>
                 <p className="text-background/80 text-base md:text-lg max-w-xl mb-6">
                   Découvrez notre site entièrement dédié à la rénovation de salle de bain : simulateur, inspirations et accompagnement sur mesure.
