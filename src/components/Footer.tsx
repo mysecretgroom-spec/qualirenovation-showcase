@@ -13,8 +13,6 @@ const Footer = () => {
     { label: "Ouverture mur porteur", href: "/#services" },
     { label: "Parquet & Carrelage", href: "/#services" },
     { label: "Peinture & Finitions", href: "/#services" },
-    { label: "Guide travaux", href: "/guide-travaux" },
-    { label: "FAQ", href: "/faq" },
   ];
 
   const zones = [
@@ -34,7 +32,7 @@ const Footer = () => {
     <footer className="bg-primary text-primary-foreground">
       {/* Main Footer */}
       <div className="container-tight py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-2 lg:col-span-1">
             <div className="mb-4 sm:mb-6">
@@ -66,6 +64,31 @@ const Footer = () => {
                 </a>
               ))}
             </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="col-span-1">
+            <h4 className="font-display font-semibold text-base sm:text-lg mb-3 sm:mb-5">Navigation</h4>
+            <ul className="space-y-2 sm:space-y-3">
+              {[
+                { label: "Projets", href: "/#projects" },
+                { label: "Services", href: "/#services" },
+                { label: "Avis", href: "/#testimonials" },
+                { label: "Presse", href: "/on-parle-de-nous" },
+                { label: "FAQ", href: "/faq" },
+                { label: "Guide travaux", href: "/guide-travaux" },
+                { label: "Devenir partenaire", href: "/devenir-partenaire" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link
+                    to={item.href}
+                    className="text-primary-foreground/70 text-xs sm:text-sm hover:text-primary-foreground transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Services */}
