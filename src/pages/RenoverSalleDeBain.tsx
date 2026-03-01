@@ -60,7 +60,7 @@ const RenoverSalleDeBain = () => {
                   asChild
                 >
                   <a href={SITE_DEDIE_URL} target="_blank" rel="noopener noreferrer">
-                    Visiter le site dédié
+                    Rénovation salle de bain à Paris – Site dédié
                     <ExternalLink className="w-5 h-5" />
                   </a>
                 </Button>
