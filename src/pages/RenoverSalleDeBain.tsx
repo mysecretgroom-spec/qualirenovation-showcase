@@ -9,7 +9,7 @@ import FloatingCTA from "@/components/FloatingCTA";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import sdbImage from "@/assets/project-bathroom.jpg";
 
-const SITE_DEDIE_URL = "https://renover-salle-de-bain.qualirenovation.fr";
+const SITE_DEDIE_URL = "https://renovermasalledebain.com/";
 
 const RenoverSalleDeBain = () => {
   const { ref, animationClasses } = useScrollAnimation();
