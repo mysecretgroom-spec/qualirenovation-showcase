@@ -53,7 +53,7 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-gold transition-colors"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-gold transition-colors"
                   aria-label={social.label}
                 >
                   {social.icon === "instagram" ? (
