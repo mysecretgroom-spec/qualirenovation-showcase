@@ -29,6 +29,7 @@ import RenoverSalleDeBain from "./pages/RenoverSalleDeBain";
 import DevenirPartenaire from "./pages/DevenirPartenaire";
 import AdminPartners from "./pages/AdminPartners";
 import GuideTravaux from "./pages/GuideTravaux";
+import NosRealisations from "./pages/NosRealisations";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/renover-salle-de-bain" element={<RenoverSalleDeBain />} />
               <Route path="/devenir-partenaire" element={<DevenirPartenaire />} />
               <Route path="/guide-travaux" element={<GuideTravaux />} />
+              <Route path="/nos-realisations" element={<NosRealisations />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/install" element={<AdminInstall />} />
