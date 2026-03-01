@@ -1,5 +1,5 @@
 import { Helmet } from "react-helmet-async";
-import { ArrowRight, ExternalLink, Bath, Droplets, ShowerHead, Paintbrush } from "lucide-react";
+import { ArrowRight, ExternalLink, Home, Lightbulb, Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -15,10 +15,9 @@ const RenoverSalleDeBain = () => {
   const { ref, animationClasses } = useScrollAnimation();
 
   const features = [
-    { icon: Bath, title: "Simulateur interactif", desc: "Configurez votre salle de bain idéale étape par étape" },
-    { icon: Droplets, title: "Inspirations & ambiances", desc: "Découvrez nos sélections de matériaux et finitions" },
-    { icon: ShowerHead, title: "Devis personnalisé", desc: "Obtenez une estimation adaptée à votre projet" },
-    { icon: Paintbrush, title: "Galerie de réalisations", desc: "Parcourez nos plus beaux projets salle de bain" },
+    { icon: Home, title: "Adapté à votre vie", desc: "Nous étudions vos habitudes quotidiennes pour créer un espace parfaitement adapté à votre rythme de vie." },
+    { icon: Lightbulb, title: "Solutions techniques", desc: "Notre expertise nous permet de proposer des solutions innovantes qui subliment votre projet initial." },
+    { icon: Diamond, title: "Confort optimal", desc: "Chaque détail est pensé pour maximiser votre confort et votre bien-être au quotidien." },
   ];
 
   return (
@@ -93,7 +92,7 @@ const RenoverSalleDeBain = () => {
                 Un site complet pour imaginer et préparer la rénovation de votre salle de bain.
               </p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {features.map((f, i) => (
                 <div key={i} className="text-center p-6 bg-background rounded-xl shadow-elegant hover:shadow-hover transition-shadow">
                   <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4">
