@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import Projects from "@/components/Projects";
+import BathroomProjectsSection from "@/components/BathroomProjectsSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import FloatingCTA from "@/components/FloatingCTA";
@@ -34,6 +35,7 @@ const NosRealisations = () => {
             </ol>
           </nav>
           <Projects />
+          <BathroomProjectsSection />
         </main>
         <Footer />
         <CookieConsent />
