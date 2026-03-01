@@ -1,14 +1,6 @@
-import { MapPin, Phone, Mail, Instagram } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import logoNeg from "@/assets/logo-hor-neg.svg";
-
-// Houzz icon component
-const HouzzIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12.01 2L5 5.5v13l7.01 3.5L19 18.5v-13L12.01 2zm0 2.25l5.01 2.5v10l-5.01 2.5-5.01-2.5v-10l5.01-2.5z"/>
-    <path d="M12.01 8.5v7l3.5-1.75v-3.5L12.01 8.5z"/>
-  </svg>
-);
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -31,8 +23,8 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: HouzzIcon, href: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618", label: "Houzz", isComponent: true },
-    { icon: Instagram, href: "https://www.instagram.com/qualirenovation__travaux/", label: "Instagram", isComponent: false },
+    { img: "/houzz-icon.png", href: "https://www.houzz.fr/professionnels/artisan-et-entreprise-generale-de-batiment/qualirenovation-by-qualiconcept-pfvwfr-pf~1259357618", label: "Houzz" },
+    { img: "/instagram-icon.png", href: "https://www.instagram.com/qualirenovation__travaux/", label: "Instagram" },
   ];
 
   return (
@@ -60,14 +52,10 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-sm bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-primary transition-colors"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-gold transition-colors"
                   aria-label={social.label}
                 >
-                  {social.isComponent ? (
-                    <social.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  ) : (
-                    <social.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  )}
+                  <img src={social.img} alt={social.label} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
                 </a>
               ))}
             </div>
