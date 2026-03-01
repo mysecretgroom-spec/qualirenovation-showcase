@@ -1,8 +1,10 @@
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
-import Projects from "@/components/Projects";
 import Services from "@/components/Services";
 import Testimonials from "@/components/Testimonials";
 import PressCarousel from "@/components/PressCarousel";
@@ -119,7 +121,25 @@ const Index = () => {
         <main>
           <Hero />
           <About />
-          <Projects />
+          <section id="projects" className="section-padding bg-secondary/30">
+            <div className="container-tight px-4 sm:px-6 lg:px-8 text-center">
+              <span className="text-accent font-nunito font-bold text-sm sm:text-base tracking-widest uppercase mb-3 sm:mb-4 block">
+                Nos Réalisations
+              </span>
+              <h2 className="font-nunito text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-4">
+                Découvrez nos projets
+              </h2>
+              <p className="text-muted-foreground font-nunito text-lg sm:text-xl max-w-2xl mx-auto mb-8">
+                Plus de 115 réalisations de rénovation à Paris et en Île-de-France.
+              </p>
+              <Button size="lg" asChild className="text-base">
+                <Link to="/nos-realisations">
+                  Voir toutes nos réalisations
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          </section>
           <Services />
           <Testimonials />
           <PressCarousel />
