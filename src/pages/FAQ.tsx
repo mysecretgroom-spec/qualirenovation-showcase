@@ -383,7 +383,7 @@ const FAQPage = () => {
               Vous avez une autre question ?
             </p>
             <Link to="/#contact">
-              <Button className="bg-gold hover:bg-gold-dark text-primary">
+              <Button className="bg-gold hover:bg-gold-dark text-white">
                 Contactez-nous
               </Button>
             </Link>
