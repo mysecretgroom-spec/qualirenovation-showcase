@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { motion } from "framer-motion";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -332,12 +333,24 @@ const ProjectDetail = () => {
         {project.beforeAfterPairs && project.beforeAfterPairs.length > 0 && (
           <section className="py-12">
             <div className="container-tight">
-              <h2 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-8 animate-fade-in-up">
+              <motion.h2
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-8"
+              >
                 Avant / Après
-              </h2>
+              </motion.h2>
               <div className={`grid gap-8 ${project.beforeAfterPairs.length > 1 ? 'md:grid-cols-2' : ''}`}>
                 {project.beforeAfterPairs.map((pair, index) => (
-                  <div key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 32, scale: 0.96 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.7, delay: index * 0.15, ease: "easeOut" }}
+                  >
                     <BeforeAfterSlider
                       beforeImage={pair.beforeImage}
                       afterImage={pair.afterImage}
@@ -345,7 +358,7 @@ const ProjectDetail = () => {
                       afterLabel={pair.afterLabel || "Après"}
                       className="aspect-[4/3] shadow-elegant"
                     />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
