@@ -3,6 +3,14 @@ import appartementTransforme from "@/assets/projects/appartement-transforme.jpg"
 import appartementGobelins from "@/assets/projects/appartement-gobelins.jpg";
 import f4Gobelins from "@/assets/projects/f4-gobelins.jpg";
 import murPorteur from "@/assets/projects/mur-porteur.jpg";
+import murPorteur1 from "@/assets/projects/mur-porteur-1.jpg";
+import murPorteur2 from "@/assets/projects/mur-porteur-2.jpg";
+import murPorteur3 from "@/assets/projects/mur-porteur-3.jpg";
+import murPorteur4 from "@/assets/projects/mur-porteur-4.jpg";
+import murPorteur5 from "@/assets/projects/mur-porteur-5.jpg";
+import murPorteur6 from "@/assets/projects/mur-porteur-6.jpg";
+import murPorteur7 from "@/assets/projects/mur-porteur-7.jpg";
+import murPorteur8 from "@/assets/projects/mur-porteur-8.jpg";
 import paris19 from "@/assets/projects/paris-19.jpg";
 import laMuette from "@/assets/projects/la-muette.jpg";
 import vueEnsemble from "@/assets/projects/vue-ensemble.jpg";
@@ -153,26 +161,48 @@ Une rénovation qui marie harmonieusement le cachet parisien traditionnel et les
     houzzUrl: "https://www.houzz.fr/hznb/projets/vous-voulez-ouvrir-deux-pieces-mais-zut-il-y-a-un-mur-porteur-pj-vj~7738106",
     year: "2024",
     budget: "10 001 - 20 000 €",
-    description: `Vous voulez ouvrir deux pièces… mais zut : il y a un mur porteur !
+    description: `Vous voulez ouvrir deux pièces… mais zut : il y a un mur porteur. Que faire ? On vous explique tout.
 
-Ce projet démontre notre expertise en matière d'ouverture de murs porteurs. En collaboration avec un ingénieur structure, nous avons réalisé cette ouverture en toute sécurité.
+Ouvrir un mur porteur dans l'haussmannien : tout sauf un détail. Créer une grande pièce de vie en ouvrant un salon sur une salle à manger est un rêve courant… mais dans l'ancien, rien ne s'improvise.
 
-Création d'une poutre IPN, étaiement professionnel, reprise des charges : chaque étape a été méticuleusement planifiée et exécutée.`,
+Avant le premier coup de marteau, tout se joue dans la préparation : étude de faisabilité par un BET structure, validation obligatoire en Assemblée Générale, état des lieux d'huissier chez les voisins et anticipation de la logistique des structures métalliques. Sans ces étapes, on ne fait tout simplement pas.
+
+Sur le chantier, la rigueur est absolue : pose des étais, sécurisation complète, ouverture maîtrisée, traitement anticorrosion des structures conformément aux règles de l'art, protection et nettoyage des parties communes, information régulière des copropriétaires (parce qu'un chantier, ça s'entend).
+
+Dans les immeubles haussmanniens, une ouverture implique souvent plusieurs postes complémentaires : raccords de parquet (ici avec des orientations différentes en pointe de Hongrie), choix de solutions adaptées comme des lames droites, du carrelage ou des carreaux de ciment, et reprise des moulures et corniches existantes, réalisées avec un travail très minutieux.
+
+Les assurances sont fournies à l'AG et au BET, et après travaux, le visa de conformité du BET vient valider l'ensemble et protéger aussi bien la copropriété que le client.
+
+Notre mission sur ce projet : ouvrir le salon sur la salle à manger pour créer une grande pièce de vie lumineuse intégrant la cuisine, tout en respectant la structure, l'esthétique et l'âme du lieu.
+
+Un projet technique, exigeant, mais passionnant. Découvrez le travail de nos équipes… et dites-nous ce que vous en pensez.`,
     highlights: [
-      "Étude structure par ingénieur",
-      "Pose de poutre IPN",
-      "Étaiement professionnel",
-      "Respect des normes de sécurité"
+      "Étude de faisabilité par BET structure",
+      "Validation en Assemblée Générale",
+      "Pose d'étais et sécurisation complète",
+      "Traitement anticorrosion des structures",
+      "Raccords de parquet en pointe de Hongrie",
+      "Reprise des moulures et corniches",
+      "Visa de conformité du BET"
     ],
     services: [
       "Étude structure",
       "Maçonnerie",
       "Métallerie",
+      "Parquet",
+      "Moulures",
       "Peinture",
       "Finitions"
     ],
     gallery: [
-      "https://st.hzcdn.com/fimgs/f5b1142009284b97_8477-w800-h600-b0-p0--.jpg"
+      murPorteur1,
+      murPorteur2,
+      murPorteur3,
+      murPorteur4,
+      murPorteur5,
+      murPorteur6,
+      murPorteur7,
+      murPorteur8
     ]
   },
   {
