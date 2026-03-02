@@ -34,7 +34,7 @@ const MentionsLegales = () => {
             <section className="bg-card rounded-lg p-6 border border-border">
               <h2 className="text-xl font-semibold text-foreground mb-4">Éditeur du site</h2>
               <p className="text-muted-foreground mb-2">
-                La société <strong className="text-foreground">QUALICONCEPT</strong> exploite la marque QR QualiRénovation®.
+                La société <strong className="text-foreground">QUALIRENOVATION by Qualiconcept</strong> exploite la marque QR QualiRénovation®.
               </p>
               <address className="text-muted-foreground not-italic">
                 6 rue d'Armaillé<br />
