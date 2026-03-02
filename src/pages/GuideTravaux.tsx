@@ -406,6 +406,20 @@ const GuideTravaux: React.FC = () => {
                     })}
                   </div>
                 </div>
+
+                {/* Lien vers FAQ pour la section Mur Porteur */}
+                {guide.id === "mur-porteur" && (
+                  <div className="mt-6">
+                    <Link
+                      to="/faq"
+                      className="inline-flex items-center gap-2 text-accent font-medium hover:underline transition-colors"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Consulter toutes nos FAQ et tarifs détaillés
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                )}
               </div>
             </section>
           ))}
