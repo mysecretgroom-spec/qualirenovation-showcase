@@ -2,74 +2,22 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
 import { useProject } from "@/hooks/use-projects";
-import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
+import { useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { project, relatedProjects, prevProject, nextProject, isLoading, isFromDB } = useProject(slug || "");
   const [selectedImage, setSelectedImage] = useState(0);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [totalSlides, setTotalSlides] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  
-  // Autoplay plugin with pause on hover
-  const autoplayPlugin = useRef(
-    Autoplay({ 
-      delay: 4000, 
-      stopOnInteraction: false,
-      stopOnMouseEnter: true,
-      stopOnFocusIn: true,
-    })
-  );
-
-  // Sync carousel with state
-  useEffect(() => {
-    if (!carouselApi) return;
-
-    setTotalSlides(carouselApi.scrollSnapList().length);
-    setCurrentSlide(carouselApi.selectedScrollSnap());
-
-    carouselApi.on("select", () => {
-      setCurrentSlide(carouselApi.selectedScrollSnap());
-      setSelectedImage(carouselApi.selectedScrollSnap());
-    });
-  }, [carouselApi]);
-
-  // Scroll to selected image when clicking thumbnails
-  const scrollToImage = useCallback((index: number) => {
-    setSelectedImage(index);
-    carouselApi?.scrollTo(index);
-  }, [carouselApi]);
-
-  // Toggle autoplay
-  const toggleAutoplay = useCallback(() => {
-    const autoplay = autoplayPlugin.current;
-    if (autoplay.isPlaying()) {
-      autoplay.stop();
-      setIsPlaying(false);
-    } else {
-      autoplay.play();
-      setIsPlaying(true);
-    }
-  }, []);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -202,132 +150,81 @@ const ProjectDetail = () => {
           </div>
         </section>
 
-        {/* Main Gallery Carousel */}
+        {/* Photo Gallery Grid */}
         <section className="py-12">
           <div className="container-tight">
-            {/* Main Carousel */}
-            <div className="animate-fade-in-up">
-              <Carousel
-                setApi={setCarouselApi}
-                className="w-full"
-                plugins={[autoplayPlugin.current]}
-                opts={{
-                  loop: true,
-                }}
-                onMouseEnter={() => setIsPlaying(false)}
-                onMouseLeave={() => {
-                  autoplayPlugin.current.play();
-                  setIsPlaying(true);
-                }}
-              >
-                <CarouselContent>
-                  {allImages.map((img, index) => (
-                    <CarouselItem key={index}>
-                      <div className="aspect-[16/9] md:aspect-[21/9] rounded-sm overflow-hidden shadow-card bg-muted">
-                        <img
-                          src={img}
-                          alt={`${project.title} - Photo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder.svg";
-                          }}
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                
-                {/* Navigation Arrows */}
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background"
-                  onClick={() => carouselApi?.scrollPrev()}
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background"
-                  onClick={() => carouselApi?.scrollNext()}
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </Button>
-
-                {/* Photo Counter & Autoplay Toggle */}
-                <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="h-8 w-8 rounded-full bg-charcoal/70 backdrop-blur-sm text-cream hover:bg-charcoal/90"
-                    onClick={toggleAutoplay}
-                    title={isPlaying ? "Pause" : "Lecture"}
-                  >
-                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                  </Button>
-                  <div className="bg-charcoal/70 backdrop-blur-sm text-cream px-4 py-2 rounded-sm text-sm font-medium flex items-center gap-2">
-                    <Images className="w-4 h-4" />
-                    {currentSlide + 1} / {allImages.length}
-                  </div>
-                </div>
-              </Carousel>
-            </div>
-
-            {/* Thumbnail Strip */}
-            <div className="mt-6 animate-fade-in-up animation-delay-200">
-              <Carousel
-                opts={{
-                  align: "start",
-                  dragFree: true,
-                }}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-2">
-                  {allImages.map((img, index) => (
-                    <CarouselItem key={index} className="pl-2 basis-1/4 md:basis-1/6 lg:basis-1/8">
-                      <button
-                        onClick={() => scrollToImage(index)}
-                        className={`aspect-square w-full rounded-sm overflow-hidden transition-all duration-300 bg-muted ${
-                          selectedImage === index 
-                            ? "ring-2 ring-accent ring-offset-2 scale-105" 
-                            : "opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img
-                          src={img}
-                          alt={`${project.title} - Miniature ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "/placeholder.svg";
-                          }}
-                        />
-                      </button>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            </div>
-
-            {/* Dots Indicator for Mobile */}
-            <div className="flex justify-center gap-1.5 mt-4 md:hidden">
-              {allImages.slice(0, Math.min(allImages.length, 10)).map((_, index) => (
-                <button
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+              {allImages.map((img, index) => (
+                <motion.button
                   key={index}
-                  onClick={() => scrollToImage(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    selectedImage === index 
-                      ? "bg-accent w-4" 
-                      : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                  onClick={() => {
+                    setSelectedImage(index);
+                    setLightboxOpen(true);
+                  }}
+                  className={`group relative overflow-hidden rounded-sm bg-muted ${
+                    index === 0 ? "col-span-2 row-span-2 aspect-[4/3]" : "aspect-square"
                   }`}
-                />
+                >
+                  <img
+                    src={img}
+                    alt={`${project.title} - Photo ${index + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-300" />
+                  <div className="absolute bottom-2 right-2 bg-charcoal/60 backdrop-blur-sm text-cream px-2 py-1 rounded-sm text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {index + 1}/{allImages.length}
+                  </div>
+                </motion.button>
               ))}
-              {allImages.length > 10 && (
-                <span className="text-xs text-muted-foreground ml-1">+{allImages.length - 10}</span>
-              )}
             </div>
           </div>
         </section>
+
+        {/* Lightbox */}
+        <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+          <DialogContent className="max-w-5xl w-[95vw] p-0 bg-charcoal border-none overflow-hidden">
+            <div className="relative">
+              <img
+                src={allImages[selectedImage]}
+                alt={`${project.title} - Photo ${selectedImage + 1}`}
+                className="w-full max-h-[85vh] object-contain"
+              />
+              {/* Navigation */}
+              {allImages.length > 1 && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background"
+                    onClick={() => setSelectedImage((prev) => (prev - 1 + allImages.length) % allImages.length)}
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background"
+                    onClick={() => setSelectedImage((prev) => (prev + 1) % allImages.length)}
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </Button>
+                </>
+              )}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-charcoal/70 backdrop-blur-sm text-cream px-4 py-2 rounded-sm text-sm font-medium flex items-center gap-2">
+                <Images className="w-4 h-4" />
+                {selectedImage + 1} / {allImages.length}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Before / After Section */}
         {project.beforeAfterPairs && project.beforeAfterPairs.length > 0 && (
