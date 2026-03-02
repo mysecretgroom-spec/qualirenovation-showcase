@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { projects as staticProjects, categories as staticCategories, Project } from "@/data/projects";
+import { projects as staticProjects, categories as staticCategories, Project, BeforeAfterPair } from "@/data/projects";
 
 export interface DBProject {
   id: string;
@@ -59,6 +59,23 @@ function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project
     .filter(img => isValidProjectImage(img.image_url) && img.image_url !== mainImage)
     .map(img => img.image_url);
 
+  // Extract before/after pairs from caption convention: "Avant travaux|<afterOrder>"
+  const beforeAfterPairs: BeforeAfterPair[] = [];
+  const imageByOrder = new Map(sortedImages.map(img => [img.image_order, img]));
+  
+  for (const img of sortedImages) {
+    if (img.caption?.startsWith('Avant travaux|')) {
+      const afterOrder = parseInt(img.caption.split('|')[1], 10);
+      const afterImg = imageByOrder.get(afterOrder);
+      if (afterImg) {
+        beforeAfterPairs.push({
+          beforeImage: img.image_url,
+          afterImage: afterImg.image_url,
+        });
+      }
+    }
+  }
+
   const cleanTitle = cleanText(dbProject.title);
   const cleanDescription = cleanText(dbProject.description || "Projet de rénovation réalisé par QualiRénovation.");
 
@@ -78,6 +95,7 @@ function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project
     highlights: extractHighlights(cleanDescription),
     services: extractServices(dbProject.category || "Rénovation"),
     gallery,
+    beforeAfterPairs: beforeAfterPairs.length > 0 ? beforeAfterPairs : undefined,
   };
 }
 

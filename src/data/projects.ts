@@ -18,6 +18,13 @@ import paris13 from "@/assets/projects/paris-13.jpg";
 import avantApresSdb from "@/assets/projects/avant-apres-sdb.jpg";
 import parlonsProjet from "@/assets/projects/parlons-projet.jpg";
 
+export interface BeforeAfterPair {
+  beforeImage: string;
+  afterImage: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+}
+
 export interface Project {
   id: number;
   slug: string;
@@ -34,6 +41,7 @@ export interface Project {
   highlights: string[];
   services: string[];
   gallery: string[];
+  beforeAfterPairs?: BeforeAfterPair[];
 }
 
 export const projects: Project[] = [

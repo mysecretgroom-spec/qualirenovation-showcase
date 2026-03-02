@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import { ArrowLeft, ArrowRight, MapPin, Calendar, Euro, ExternalLink, CheckCircle2, Loader2, Database, Images, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -326,6 +327,30 @@ const ProjectDetail = () => {
             </div>
           </div>
         </section>
+
+        {/* Before / After Section */}
+        {project.beforeAfterPairs && project.beforeAfterPairs.length > 0 && (
+          <section className="py-12">
+            <div className="container-tight">
+              <h2 className="font-display text-2xl md:text-3xl font-semibold text-foreground mb-8 animate-fade-in-up">
+                Avant / Après
+              </h2>
+              <div className={`grid gap-8 ${project.beforeAfterPairs.length > 1 ? 'md:grid-cols-2' : ''}`}>
+                {project.beforeAfterPairs.map((pair, index) => (
+                  <div key={index} className="animate-fade-in-up" style={{ animationDelay: `${index * 150}ms` }}>
+                    <BeforeAfterSlider
+                      beforeImage={pair.beforeImage}
+                      afterImage={pair.afterImage}
+                      beforeLabel={pair.beforeLabel || "Avant"}
+                      afterLabel={pair.afterLabel || "Après"}
+                      className="aspect-[4/3] shadow-elegant"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Project Details */}
         <section className="py-12 bg-secondary/30">
