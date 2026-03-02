@@ -50,6 +50,7 @@ const ProjectDetail = () => {
 
   const allImages = [project.image, ...project.gallery];
   const beforeImageUrls = new Set(project.beforeAfterPairs?.map(p => p.beforeImage) || []);
+  const afterImageUrls = new Set(project.beforeAfterPairs?.map(p => p.afterImage) || []);
 
   return (
     <>
@@ -181,6 +182,11 @@ const ProjectDetail = () => {
                   {beforeImageUrls.has(img) && (
                     <span className="absolute top-2 left-2 bg-accent text-accent-foreground px-2 py-1 rounded-sm text-xs font-semibold uppercase tracking-wider shadow-md">
                       Avant
+                    </span>
+                  )}
+                  {afterImageUrls.has(img) && (
+                    <span className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-sm text-xs font-semibold uppercase tracking-wider shadow-md">
+                      Après
                     </span>
                   )}
                   <div className="absolute bottom-2 right-2 bg-charcoal/60 backdrop-blur-sm text-cream px-2 py-1 rounded-sm text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
