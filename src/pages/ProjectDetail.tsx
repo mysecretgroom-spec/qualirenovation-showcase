@@ -165,9 +165,7 @@ const ProjectDetail = () => {
                     setSelectedImage(index);
                     setLightboxOpen(true);
                   }}
-                  className={`group relative overflow-hidden rounded-sm bg-muted ${
-                    index === 0 ? "col-span-2 row-span-2 aspect-[4/3]" : "aspect-square"
-                  }`}
+                  className="group relative overflow-hidden rounded-sm bg-muted aspect-[4/3]"
                 >
                   <img
                     src={img}
