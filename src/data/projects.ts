@@ -9,8 +9,6 @@ import murPorteur3 from "@/assets/projects/mur-porteur-3.jpg";
 import murPorteur4 from "@/assets/projects/mur-porteur-4.jpg";
 import murPorteur5 from "@/assets/projects/mur-porteur-5.jpg";
 import murPorteur6 from "@/assets/projects/mur-porteur-6.jpg";
-import murPorteur7 from "@/assets/projects/mur-porteur-7.jpg";
-import murPorteur8 from "@/assets/projects/mur-porteur-8.jpg";
 import paris19 from "@/assets/projects/paris-19.jpg";
 import laMuette from "@/assets/projects/la-muette.jpg";
 import vueEnsemble from "@/assets/projects/vue-ensemble.jpg";
@@ -200,9 +198,7 @@ Un projet technique, exigeant, mais passionnant. Découvrez le travail de nos é
       murPorteur3,
       murPorteur4,
       murPorteur5,
-      murPorteur6,
-      murPorteur7,
-      murPorteur8
+      murPorteur6
     ]
   },
   {
