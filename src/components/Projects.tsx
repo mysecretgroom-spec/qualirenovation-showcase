@@ -59,7 +59,7 @@ const getTagline = (category: string, index: number) => {
 const Projects = () => {
   const { projects, categories, isLoading, isFromDB } = useProjects();
   const [activeCategory, setActiveCategory] = useState("Tous");
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(10);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const { ref, animationClasses } = useScrollAnimation();
 
