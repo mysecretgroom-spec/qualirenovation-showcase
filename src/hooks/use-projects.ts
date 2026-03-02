@@ -59,18 +59,21 @@ function dbToAppProject(dbProject: DBProject, images: DBProjectImage[]): Project
     .filter(img => isValidProjectImage(img.image_url) && img.image_url !== mainImage)
     .map(img => img.image_url);
 
-  // Extract before/after pairs from caption convention: "Avant travaux|<afterOrder>"
+  // Extract before/after pairs from caption convention: "<label>|<afterOrder>"
   const beforeAfterPairs: BeforeAfterPair[] = [];
   const imageByOrder = new Map(sortedImages.map(img => [img.image_order, img]));
   
   for (const img of sortedImages) {
-    if (img.caption?.startsWith('Avant travaux|')) {
-      const afterOrder = parseInt(img.caption.split('|')[1], 10);
+    if (img.caption?.includes('|')) {
+      const [label, orderStr] = img.caption.split('|');
+      const afterOrder = parseInt(orderStr, 10);
       const afterImg = imageByOrder.get(afterOrder);
-      if (afterImg) {
+      if (afterImg && !isNaN(afterOrder)) {
         beforeAfterPairs.push({
           beforeImage: img.image_url,
           afterImage: afterImg.image_url,
+          beforeLabel: label.trim(),
+          afterLabel: "Après",
         });
       }
     }
