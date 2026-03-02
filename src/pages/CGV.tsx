@@ -29,7 +29,7 @@ const CGV = () => {
 
           <div className="prose prose-lg max-w-none text-muted-foreground">
             <p className="text-sm text-muted-foreground mb-8">
-              QUALICONCEPT - EURL au capital de 3 000,00 € | RCS PARIS - SIRET 85286728200034 - NAF 43.99C - TVA FR72852867282
+              QUALIRENOVATION by Qualiconcept - EURL au capital de 3 000,00 € | RCS PARIS - SIRET 85286728200034 - NAF 43.99C - TVA FR72852867282
             </p>
 
             {/* Article 1 - Objet */}
@@ -251,7 +251,7 @@ const CGV = () => {
                 Pour toute question relative aux présentes CGV, vous pouvez nous contacter :
               </p>
               <ul className="list-none mt-4 space-y-2">
-                <li><strong>Société :</strong> QUALICONCEPT (marque commerciale QUALIRÉNOVATION)</li>
+                <li><strong>Société :</strong> QUALIRENOVATION by Qualiconcept</li>
                 <li><strong>Adresse :</strong> 6 Rue d'Armaillé, 75017 Paris</li>
                 <li><strong>Email :</strong> <a href="mailto:gestion@qualiconcept.fr" className="text-primary hover:underline">gestion@qualiconcept.fr</a></li>
                 <li><strong>SIRET :</strong> 85286728200034</li>

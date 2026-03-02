@@ -37,7 +37,7 @@ const PolitiqueConfidentialite = () => {
                 1. Introduction
               </h2>
               <p>
-                QUALICONCEPT, opérant sous la marque commerciale QUALIRÉNOVATION, s'engage à protéger 
+                QUALIRENOVATION by Qualiconcept s'engage à protéger 
                 la vie privée des utilisateurs de son site internet et de ses services. La présente 
                 politique de confidentialité décrit comment nous collectons, utilisons et protégeons 
                 vos données personnelles conformément au Règlement Général sur la Protection des 
@@ -53,8 +53,7 @@ const PolitiqueConfidentialite = () => {
                 Le responsable du traitement des données personnelles est :
               </p>
               <ul className="list-none mt-4 space-y-2">
-                <li><strong>Société :</strong> QUALICONCEPT</li>
-                <li><strong>Marque commerciale :</strong> QUALIRÉNOVATION</li>
+                <li><strong>Société :</strong> QUALIRENOVATION by Qualiconcept</li>
                 <li><strong>Email :</strong> contact@qualirenovation.fr</li>
                 <li><strong>Zone d'activité :</strong> Paris et Île-de-France</li>
               </ul>
