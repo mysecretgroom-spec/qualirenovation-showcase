@@ -56,7 +56,7 @@ const MentionsLegales = () => {
             <section className="bg-card rounded-lg p-6 border border-border">
               <h2 className="text-xl font-semibold text-foreground mb-4">Assurances</h2>
               <p className="text-muted-foreground">
-                QUALICONCEPT est titulaire d'une <strong className="text-foreground">assurance responsabilité civile professionnelle et décennale</strong> souscrite auprès de MIC Insurance.
+                QUALIRENOVATION by Qualiconcept est titulaire d'une <strong className="text-foreground">assurance responsabilité civile professionnelle et décennale</strong> souscrite auprès de MIC Insurance.
               </p>
               <p className="text-muted-foreground mt-2">
                 Numéro de police : <strong className="text-foreground">LUN2401859</strong>
