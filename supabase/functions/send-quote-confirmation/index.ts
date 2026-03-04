@@ -157,8 +157,8 @@ const timelineLabels: Record<string, string> = {
   "undetermined": "Pas encore déterminé",
 };
 
-// Logo Qualirénovation - URL Houzz CDN
-const logoUrl = `https://st.hzcdn.com/fimgs/c2a344b60455efef_5281-w240-h240-b1-p0--.jpg`;
+// Logo Qualirénovation
+const logoUrl = `https://sktxyflbvfhxkaeaebnr.supabase.co/storage/v1/object/public/email-assets/logo-qualirenovation.png`;
 
 // Mapbox token for static map images
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwcHlxdWFsaXJlbm92IiwiYSI6ImNtanQ3aThpbzFxamozZHNkYWZ2Mmo3dnMifQ.91-sJuk41-nRTKs0OGYDfQ';
