@@ -158,7 +158,7 @@ const timelineLabels: Record<string, string> = {
 };
 
 // Logo Qualirénovation
-const logoUrl = `https://sktxyflbvfhxkaeaebnr.supabase.co/storage/v1/object/public/email-assets/logo-qualirenovation.png`;
+const logoUrl = `https://sktxyflbvfhxkaeaebnr.supabase.co/storage/v1/object/public/email-assets/logo-qualirenovation.svg`;
 
 // Mapbox token for static map images
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwcHlxdWFsaXJlbm92IiwiYSI6ImNtanQ3aThpbzFxamozZHNkYWZ2Mmo3dnMifQ.91-sJuk41-nRTKs0OGYDfQ';
