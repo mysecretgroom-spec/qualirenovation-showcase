@@ -77,6 +77,9 @@ const About = () => {
               <br className="hidden sm:block" />
               <span className="italic font-normal text-muted-foreground">avec simplicité et efficacité</span>
             </h2>
+            <p className="font-script text-2xl sm:text-3xl md:text-4xl text-muted-foreground/80 mb-4 sm:mb-6">
+              Paris & Île-de-France
+            </p>
             <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">
               Rénovation, décoration, aménagement... autant de solutions pour améliorer 
               l'habitat et le confort. Nous nous mettons à votre écoute pour trouver 
