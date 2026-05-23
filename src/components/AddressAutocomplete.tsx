@@ -40,7 +40,7 @@ const AddressAutocomplete = ({ value, onChange, error, className }: AddressAutoc
   const marker = useRef<mapboxgl.Marker | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Sync query with external value (for browser autofill)
   useEffect(() => {
