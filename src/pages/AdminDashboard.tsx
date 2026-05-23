@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   FileText, Upload, MessageSquare, Link2, Eye, 
-  Users, Newspaper, Download, ChevronRight, RefreshCw, Handshake
+  Users, Newspaper, Download, ChevronRight, RefreshCw, Handshake, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -212,6 +212,15 @@ const AdminDashboard = () => {
       color: "bg-amber-500/10 text-amber-600",
       badge: stats.totalPartners > 0 ? stats.totalPartners : null,
       badgeColor: "bg-amber-500 text-white",
+    },
+    {
+      title: "Conversions",
+      description: "Stats & export CSV",
+      href: "/admin/conversions",
+      icon: TrendingUp,
+      color: "bg-emerald-500/10 text-emerald-600",
+      badge: null,
+      badgeColor: "",
     },
     {
       title: "Liens",
