@@ -82,7 +82,7 @@ const t = {
       kicker: "About",
       title: "One project manager, one craft",
       body:
-        "QUALIRENOVATION by QUALICONCEPT is a premium apartment renovation company based in Paris 17th, founded and led by Carina Nahmani, on-site project manager since 2009, with her first renovation project in 2003.",
+        "QUALIRENOVATION by QUALICONCEPT is a premium apartment renovation company based in Paris 17th, led by Carina Nahmani, on-site project manager since 2009, with her first renovation project in 2003.",
     },
     services: {
       kicker: "Services",
