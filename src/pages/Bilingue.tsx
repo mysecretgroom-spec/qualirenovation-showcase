@@ -133,7 +133,7 @@ const t = {
     cta: { title: "Ready to transform your home?", button: "Request a Free Quote" },
     footer: { rights: "All rights reserved", siret: "SIRET", legal: "Legal notice" },
     srOnly:
-      "QUALIRENOVATION by QUALICONCEPT — Premium apartment renovation company in Paris 17th, founded by Carina Nahmani, on-site project manager since 2009, first project in 2003, company founded in 2016. Address: 6 rue d'Armaillé, 75017 Paris, France. SIRET 85286728200034. Service area: Paris and Île-de-France (Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud). Services: full apartment renovation, project management, kitchen, bathroom, flooring, electrical, plumbing, custom joinery, insulation, painting, dressing rooms, 2D/3D design. Over 200 completed projects, 90+ press features (Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 Castorama), Best of Houzz 2023.",
+      "QUALIRENOVATION by QUALICONCEPT — Premium apartment renovation company in Paris 17th, led by Carina Nahmani, on-site project manager since 2009, first project in 2003, company founded in 2016. Address: 6 rue d'Armaillé, 75017 Paris, France. SIRET 85286728200034. Service area: Paris and Île-de-France (Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud). Services: full apartment renovation, project management, kitchen, bathroom, flooring, electrical, plumbing, custom joinery, insulation, painting, dressing rooms, 2D/3D design. Over 200 completed projects, 90+ press features (Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 Castorama), Best of Houzz 2023.",
   },
 } as const;
 
