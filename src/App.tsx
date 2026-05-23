@@ -28,6 +28,7 @@ import RenovationComplete from "./pages/RenovationComplete";
 import RenoverSalleDeBain from "./pages/RenoverSalleDeBain";
 import DevenirPartenaire from "./pages/DevenirPartenaire";
 import AdminPartners from "./pages/AdminPartners";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import GuideTravaux from "./pages/GuideTravaux";
 import NosRealisations from "./pages/NosRealisations";
 import Bilingue from "./pages/Bilingue";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/admin/visual" element={<AdminVisualTesting />} />
               <Route path="/admin/presse" element={<AdminPress />} />
               <Route path="/admin/partenaires" element={<AdminPartners />} />
+              <Route path="/admin/conversions" element={<AdminAnalytics />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
