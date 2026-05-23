@@ -160,7 +160,7 @@ const AdminAnalytics = () => {
         return;
       }
       const stamp = new Date().toISOString().slice(0, 10);
-      downloadCSV(`${filename}_${range}_${stamp}.csv`, data as Record<string, unknown>[]);
+      downloadCSV(`${filename}_${range}_${stamp}.csv`, data as unknown as Record<string, unknown>[]);
       toast({ title: `Export CSV : ${data.length} ligne(s)` });
     } catch (e: any) {
       console.error(e);
