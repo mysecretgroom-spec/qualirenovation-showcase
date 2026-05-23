@@ -18,7 +18,7 @@ const t = {
       kicker: "À propos",
       title: "Une maître d'œuvre, un savoir-faire",
       body:
-        "QUALIRENOVATION by QUALICONCEPT est une entreprise de rénovation d'appartements haut de gamme basée à Paris 17e, fondée et dirigée par Carina Nahmani, maître d'œuvre terrain depuis 2009 et active dans la rénovation depuis 2003.",
+        "QUALIRENOVATION by QUALICONCEPT est une entreprise de rénovation d'appartements haut de gamme basée à Paris 17e, dirigée par Carina Nahmani, maître d'œuvre terrain depuis 2009 et active dans la rénovation depuis 2003.",
     },
     services: {
       kicker: "Services",
