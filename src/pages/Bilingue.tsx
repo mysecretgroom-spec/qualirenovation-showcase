@@ -145,7 +145,6 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: "QUALIRENOVATION by QUALICONCEPT",
-  
   foundingDate: "2016",
   address: {
     "@type": "PostalAddress",
