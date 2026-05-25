@@ -10,7 +10,7 @@ const features = [
   },
   {
     icon: Clock,
-    title: "+10 ans d'expérience",
+    title: "+20 ans d'expérience",
     description: "Une expertise reconnue dans la rénovation d'appartements parisiens et maisons en Île-de-France.",
   },
   {

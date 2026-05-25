@@ -57,7 +57,7 @@ const Footer = () => {
             </div>
             <p className="text-primary-foreground/70 text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
               Rénovation, décoration et aménagement d'intérieur à Paris et en Île-de-France. 
-              Plus de 10 ans d'expérience au service de votre habitat.
+              Plus de 20 ans d'expérience au service de votre habitat.
             </p>
             <div className="flex gap-2 sm:gap-3">
               {socialLinks.map((social) => (

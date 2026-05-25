@@ -70,7 +70,7 @@ const Hero = () => {
 
           {/* Subtitle */}
           <p className="text-base sm:text-lg md:text-xl text-background/80 max-w-2xl mx-auto mb-8 sm:mb-10 animate-fade-in-up animation-delay-200 px-2">
-            Une rénovation de qualité en toute sérénité. Depuis plus de 10 ans, 
+            Une rénovation de qualité en toute sérénité. Depuis plus de 20 ans, 
             nous transformons vos espaces avec passion et expertise.
           </p>
 
