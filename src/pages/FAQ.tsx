@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CarinIA from "@/components/CarinIA";
+import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
 import Footer from "@/components/Footer";
@@ -336,6 +337,13 @@ const allGuideFaqItems = guideFaqSections.flatMap(section => section.items);
 const FAQPage = () => {
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const guideSectionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [leadDialogOpen, setLeadDialogOpen] = useState(false);
+
+  const downloadFaqPdf = () =>
+    generateFaqPDF([
+      ...faqSections,
+      ...guideFaqSections.map((s) => ({ title: s.title, items: s.items })),
+    ]);
 
   const scrollToSection = (value: string) => {
     if (value.startsWith("guide-")) {
@@ -382,7 +390,7 @@ const FAQPage = () => {
             </Link>
             <Button
               variant="outline"
-              onClick={() => generateFaqPDF([...faqSections, ...guideFaqSections.map(s => ({ title: s.title, items: s.items }))])}
+              onClick={() => setLeadDialogOpen(true)}
             >
               <Download className="w-4 h-4 mr-2" />
               Télécharger en PDF
@@ -548,6 +556,12 @@ const FAQPage = () => {
         <WhatsAppButton />
         <CallButton />
       </div>
+      <LeadCaptureDialog
+        open={leadDialogOpen}
+        onOpenChange={setLeadDialogOpen}
+        resourceLabel="FAQ Rénovation Paris – Guide complet"
+        onSuccess={downloadFaqPdf}
+      />
     </>
   );
 };
