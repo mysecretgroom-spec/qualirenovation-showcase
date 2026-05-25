@@ -99,7 +99,7 @@ const OnParleDeNous = () => {
         <title>Presse et Médias | QualiRénovation Paris</title>
         <meta 
           name="description" 
-          content="Découvrez les articles de presse mentionnant QualiRénovation : Houzz, Elle Déco, Marie Claire Maison, Huffington Post. 10+ ans de présence médiatique." 
+          content="Découvrez les articles de presse mentionnant QualiRénovation : Houzz, Elle Déco, Marie Claire Maison, Huffington Post. 20 ans de présence médiatique." 
         />
         <link rel="canonical" href="https://qualirenovation.fr/on-parle-de-nous" />
         <meta property="og:title" content="Presse et Médias | QualiRénovation" />
@@ -124,7 +124,7 @@ const OnParleDeNous = () => {
                 On parle de nous
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Depuis plus de 10 ans, nos réalisations sont mises en avant dans les plus grands médias 
+                Depuis plus de 20 ans, nos réalisations sont mises en avant dans les plus grands médias 
                 de la décoration et de l'aménagement intérieur.
               </p>
             </div>
