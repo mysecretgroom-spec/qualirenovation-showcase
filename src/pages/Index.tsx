@@ -48,14 +48,14 @@ const Index = () => {
         <title>Rénovation Appartement Paris | Qualirénovation - Devis Gratuit</title>
         <meta 
           name="description" 
-          content="Entreprise de rénovation d'intérieur à Paris et Île-de-France. Salle de bain, cuisine, appartement complet. 20 ans d'expérience, Best of Houzz. Devis gratuit sous 48h." 
+          content="QUALIRENOVATION by QUALICONCEPT — Rénovation d'appartements haut de gamme à Paris depuis 2003. Maître d'œuvre : Carina Nahmani. Gérant : Rubens Mimouni. 90+ parutions presse. Devis gratuit." 
         />
         <meta name="keywords" content="rénovation appartement paris, rénovation salle de bain paris, rénovation cuisine paris, entreprise rénovation île-de-france, travaux rénovation paris, devis rénovation gratuit" />
         <link rel="canonical" href="https://qualirenovation.fr" />
         
         {/* Open Graph */}
         <meta property="og:title" content="Qualirénovation - Rénovation d'Appartement à Paris | Devis Gratuit" />
-        <meta property="og:description" content="Rénovation de qualité en toute sérénité. Plus de 20 ans d'expérience à Paris et Île-de-France. Lauréat Best of Houzz." />
+        <meta property="og:description" content="Rénovation d'appartements haut de gamme à Paris et Île-de-France. Plus de 20 ans d'expérience. Best of Houzz 2023. Devis gratuit." />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="fr_FR" />
         <meta property="og:url" content="https://qualirenovation.fr" />
