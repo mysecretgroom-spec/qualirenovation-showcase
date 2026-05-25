@@ -556,6 +556,12 @@ const FAQPage = () => {
         <WhatsAppButton />
         <CallButton />
       </div>
+      <LeadCaptureDialog
+        open={leadDialogOpen}
+        onOpenChange={setLeadDialogOpen}
+        resourceLabel="FAQ Rénovation Paris – Guide complet"
+        onSuccess={downloadFaqPdf}
+      />
     </>
   );
 };
