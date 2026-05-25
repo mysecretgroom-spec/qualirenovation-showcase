@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import CarinIA from "@/components/CarinIA";
+import LeadCaptureDialog from "@/components/LeadCaptureDialog";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CallButton from "@/components/CallButton";
 import Footer from "@/components/Footer";
@@ -382,7 +383,7 @@ const FAQPage = () => {
             </Link>
             <Button
               variant="outline"
-              onClick={() => generateFaqPDF([...faqSections, ...guideFaqSections.map(s => ({ title: s.title, items: s.items }))])}
+              onClick={() => setLeadDialogOpen(true)}
             >
               <Download className="w-4 h-4 mr-2" />
               Télécharger en PDF
