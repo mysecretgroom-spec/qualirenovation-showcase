@@ -10,7 +10,7 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-User-agent: GoogleBot
+User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
