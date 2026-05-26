@@ -246,11 +246,21 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
               />
             </div>
           )}
+          {!siteKey && (
+            <p className="text-xs text-muted-foreground text-center">
+              Chargement de la vérification anti-spam…
+            </p>
+          )}
+          {siteKey && !captchaToken && (
+            <p className="text-xs text-muted-foreground text-center">
+              Cochez la case de vérification ci-dessus pour activer le téléchargement.
+            </p>
+          )}
 
           <DialogFooter>
             <Button
               type="submit"
-              disabled={submitting || !rgpdConsent || !captchaToken || !siteKey}
+              disabled={submitting || !rgpdConsent}
               className="w-full"
             >
               {submitting ? (
