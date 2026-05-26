@@ -17,7 +17,9 @@ if (!existsSync(resolve(DIST, "index.html"))) {
 
 const baseHtml = readFileSync(resolve(DIST, "index.html"), "utf8");
 
-/** @typedef {{path:string,title:string,description:string,ogTitle?:string,ogDescription?:string,body:string,priority?:string}} Route */
+const LEGAL_FOOTER = `QUALIRENOVATION by QUALICONCEPT — 6 rue d'Armaillé, 75017 Paris — Gérant : Rubens Mimouni — Maître d'œuvre : Carina Nahmani — SIRET : 85286728200034`;
+
+/** @typedef {{path:string,title:string,description:string,ogTitle?:string,ogDescription?:string,body:string,jsonLd?:object,priority?:string}} Route */
 
 /** @type {Route[]} */
 const routes = [
@@ -25,137 +27,201 @@ const routes = [
     path: "/renovation-complete",
     title: "Rénovation complète d'appartement à Paris | QUALIRENOVATION",
     description:
-      "Configurez votre projet de rénovation complète d'appartement à Paris. Simulateur en ligne, devis détaillé, suivi par un maître d'œuvre depuis 2003.",
+      "Rénovation complète d'appartement à Paris et Île-de-France. Maîtrise d'œuvre terrain par Carina Nahmani depuis 2009. Devis gratuit.",
     ogTitle: "Rénovation complète d'appartement à Paris",
     ogDescription:
-      "Simulateur de rénovation, devis détaillé et maîtrise d'œuvre à Paris depuis 2003 — QUALIRENOVATION by QUALICONCEPT.",
+      "Rénovation complète clé en main à Paris et Île-de-France — maîtrise d'œuvre par Carina Nahmani depuis 2009.",
     body: `
       <h1>Rénovation complète d'appartement à Paris</h1>
-      <p>QUALIRENOVATION by QUALICONCEPT accompagne les particuliers dans la rénovation complète d'appartements haut de gamme à Paris et en Île-de-France depuis 2003. Notre simulateur en ligne vous permet de configurer pièce par pièce votre projet — cuisine, salle de bain, WC, séjour, chambres, parquet, peinture, électricité, plomberie, menuiseries.</p>
-      <h2>Un projet de rénovation sur-mesure</h2>
-      <p>Maître d'œuvre depuis 2003, Carina Nahmani pilote l'ensemble des corps d'état : démolition, maçonnerie, plomberie, électricité, plâtrerie, carrelage, parquet, menuiserie, cuisine équipée, peinture et finitions. Rubens Mimouni assure la gestion de l'entreprise et la relation client.</p>
-      <h2>Comment configurer votre projet</h2>
+      <p>QUALIRENOVATION by QUALICONCEPT prend en charge la rénovation complète de votre appartement à Paris, de la conception 2D/3D jusqu'à la livraison clé en main. Carina Nahmani, maître d'œuvre terrain depuis 2009, coordonne tous les corps de métier : électricité, plomberie, parquet, peinture, menuiseries sur mesure, isolation. Gérant : Rubens Mimouni. Zone : Paris intra-muros et Île-de-France.</p>
+      <h2>Notre périmètre</h2>
       <ul>
-        <li>Sélectionnez les pièces à rénover</li>
-        <li>Décrivez les travaux souhaités pour chaque pièce</li>
-        <li>Choisissez vos finitions parmi nos catalogues (EGGER, Planizia, Farrow &amp; Ball)</li>
-        <li>Téléchargez vos plans et photos d'inspiration</li>
-        <li>Recevez un récapitulatif PDF et un devis détaillé sous 48 h</li>
+        <li>Conception 2D / 3D et plans techniques</li>
+        <li>Coordination de tous les corps d'état</li>
+        <li>Suivi de chantier terrain par maître d'œuvre dédié</li>
+        <li>Livraison clé en main, PV de réception, garanties</li>
       </ul>
     `,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Rénovation complète d'appartement",
+      provider: {
+        "@type": "LocalBusiness",
+        name: "QUALIRENOVATION by QUALICONCEPT",
+      },
+      areaServed: "Paris, Île-de-France",
+      description:
+        "Rénovation complète d'appartement clé en main à Paris, maîtrise d'œuvre incluse.",
+    },
   },
   {
     path: "/renover-salle-de-bain",
-    title: "Rénovation de salle de bain à Paris | QUALIRENOVATION",
+    title: "Rénovation salle de bain Paris | QUALIRENOVATION",
     description:
-      "Spécialiste de la rénovation de salle de bain à Paris : douche italienne, baignoire, meubles vasques, robinetterie Châtelet. Devis gratuit sous 48 h.",
-    ogTitle: "Rénovation de salle de bain à Paris",
+      "Rénovation de salle de bain haut de gamme à Paris. Conception, coordination artisans, suivi chantier. Devis gratuit.",
+    ogTitle: "Rénovation salle de bain Paris",
     ogDescription:
-      "Douches à l'italienne, baignoires, meubles vasques sur-mesure, faïence et robinetterie haut de gamme. Maîtrise d'œuvre dédiée.",
+      "Rénovation de salle de bain haut de gamme à Paris. Conception, coordination artisans, suivi chantier.",
     body: `
       <h1>Rénovation de salle de bain à Paris</h1>
-      <p>QUALIRENOVATION conçoit et réalise des salles de bain haut de gamme à Paris et en Île-de-France. Douche à l'italienne, baignoire îlot, meuble vasque sur-mesure, robinetterie Châtelet (chrome, noir mat, laiton brossé), faïence grand format, receveurs extra-plats : nous orchestrons l'ensemble des corps d'état.</p>
-      <h2>Notre méthode</h2>
-      <ul>
-        <li>Visite technique sur place et relevé de cotes</li>
-        <li>Conception 2D / 3D de votre future salle de bain</li>
-        <li>Sourcing des matériaux : carrelage, sanitaires, robinetterie, meubles</li>
-        <li>Coordination plomberie, électricité, carrelage, peinture, menuiserie</li>
-        <li>Réception de chantier et garantie décennale</li>
-      </ul>
-      <p>Découvrez aussi notre site spécialisé : <a href="https://renovermasalledebain.com">renovermasalledebain.com</a>.</p>
+      <p>QUALIRENOVATION by QUALICONCEPT réalise la rénovation complète de votre salle de bain à Paris. Carrelage, plomberie, électricité, meubles sur mesure : tout est coordonné par Carina Nahmani, maître d'œuvre depuis 2009. Résultat haut de gamme, livraison clé en main.</p>
+      <p>Site spécialisé : <a href="https://renovermasalledebain.com">renovermasalledebain.com</a>.</p>
     `,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      name: "Rénovation salle de bain Paris",
+      provider: {
+        "@type": "LocalBusiness",
+        name: "QUALIRENOVATION by QUALICONCEPT",
+      },
+      areaServed: "Paris, Île-de-France",
+    },
   },
   {
     path: "/nos-realisations",
-    title: "Nos réalisations de rénovation à Paris | QUALIRENOVATION",
+    title: "Nos réalisations — Rénovation appartements Paris | QUALIRENOVATION",
     description:
-      "Découvrez plus de 115 réalisations de rénovation d'appartements à Paris et en Île-de-France : salles de bain, cuisines, rénovations complètes. Lauréat Best of Houzz.",
-    ogTitle: "Nos réalisations de rénovation à Paris",
+      "Découvrez +200 projets de rénovation d'appartements réalisés à Paris et Île-de-France par QUALIRENOVATION. Photos avant/après.",
+    ogTitle: "Nos réalisations — Rénovation appartements Paris",
     ogDescription:
-      "Plus de 115 projets de rénovation d'appartements à Paris. Salles de bain, cuisines, rénovations complètes. Best of Houzz 2023.",
+      "+200 projets de rénovation d'appartements à Paris et Île-de-France. Photos avant/après.",
     body: `
-      <h1>Nos réalisations de rénovation à Paris</h1>
-      <p>Plus de 115 projets de rénovation d'appartements à Paris et en Île-de-France livrés depuis 2003 par QUALIRENOVATION by QUALICONCEPT. Notre portfolio rassemble des rénovations complètes, des salles de bain haut de gamme, des cuisines sur-mesure, des ouvertures de murs porteurs et des restaurations d'appartements haussmanniens.</p>
-      <h2>Types de projets</h2>
+      <h1>Nos réalisations à Paris et Île-de-France</h1>
+      <p>Depuis 2003, QUALIRENOVATION by QUALICONCEPT a réalisé plus de 200 chantiers de rénovation d'appartements à Paris et en Île-de-France. Chaque projet est suivi par Carina Nahmani, maître d'œuvre terrain, de la conception jusqu'à la livraison.</p>
+      <h2>Exemples de projets</h2>
       <ul>
-        <li>Rénovations complètes d'appartements haussmanniens</li>
-        <li>Salles de bain et suites parentales</li>
-        <li>Cuisines équipées sur-mesure</li>
-        <li>Ouvertures de murs porteurs et démolitions</li>
-        <li>Pose et restauration de parquets anciens</li>
+        <li>Rénovation complète d'appartement haussmannien — Paris 17e</li>
+        <li>Salle de bain haut de gamme — Neuilly-sur-Seine</li>
+        <li>Cuisine sur mesure ouverte — Paris 8e</li>
       </ul>
-      <p>Lauréat Best of Houzz et référencé parmi les meilleurs artisans rénovateurs de Paris.</p>
     `,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Rénovation complète d'appartement haussmannien — Paris 17e" },
+        { "@type": "ListItem", position: 2, name: "Salle de bain haut de gamme — Neuilly-sur-Seine" },
+        { "@type": "ListItem", position: 3, name: "Cuisine sur mesure ouverte — Paris 8e" },
+      ],
+    },
   },
   {
     path: "/on-parle-de-nous",
-    title: "On parle de nous : presse et médias | QUALIRENOVATION",
+    title: "Presse — QUALIRENOVATION dans les médias | 90+ parutions",
     description:
-      "Retrouvez les articles de presse mentionnant QUALIRENOVATION : Houzz, Elle Déco, Marie Claire Maison, Huffington Post. Plus de 90 parutions depuis 2009.",
+      "QUALIRENOVATION by QUALICONCEPT cité dans Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, Castorama 18h39. 90+ parutions depuis 2016.",
     ogTitle: "QUALIRENOVATION dans la presse",
     ogDescription:
-      "Nos rénovations dans Houzz, Elle Déco, Marie Claire Maison, Huffington Post. Plus de 90 parutions presse depuis 2009.",
+      "90+ parutions presse : Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 by Castorama.",
     body: `
       <h1>QUALIRENOVATION dans la presse</h1>
-      <p>Depuis plus de 20 ans, nos réalisations de rénovation d'appartements à Paris sont mises en avant par les plus grands médias déco francophones et internationaux. Plus de 90 parutions presse référencent notre travail de maîtrise d'œuvre.</p>
-      <h2>Quelques médias qui nous ont cités</h2>
-      <ul>
-        <li>Houzz France — Best of Houzz Design &amp; Service</li>
-        <li>Elle Décoration</li>
-        <li>Marie Claire Maison</li>
-        <li>Huffington Post</li>
-        <li>Côté Maison</li>
-      </ul>
+      <p>Depuis 2016, QUALIRENOVATION by QUALICONCEPT a été citée dans plus de 90 articles de presse spécialisée et grand public : Elle Déco, Madame Figaro, Maisons &amp; Travaux, Huffington Post, 18h39 by Castorama. Best of Houzz 2023.</p>
     `,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      mentions: {
+        "@type": "Organization",
+        name: "QUALIRENOVATION by QUALICONCEPT",
+      },
+    },
   },
   {
     path: "/guide-travaux",
-    title: "Guide travaux rénovation Paris : conseils et prix | QUALIRENOVATION",
+    title: "Guide travaux rénovation appartement Paris | QUALIRENOVATION",
     description:
-      "Tout savoir sur la rénovation à Paris : salle de bain, cuisine, parquet, peinture, mur porteur, copropriété. Conseils d'experts et fourchettes de prix 2026.",
-    ogTitle: "Guide travaux rénovation à Paris",
+      "Tout savoir sur la rénovation d'appartement à Paris : budget, délais, artisans, maîtrise d'œuvre. Guide complet par QUALIRENOVATION.",
+    ogTitle: "Guide complet rénovation d'appartement à Paris",
     ogDescription:
-      "Conseils d'experts et prix indicatifs pour vos travaux de rénovation à Paris : salle de bain, cuisine, parquet, peinture, mur porteur, syndic.",
+      "Budget, délais, artisans, maîtrise d'œuvre : guide complet de la rénovation d'appartement à Paris.",
     body: `
-      <h1>Guide travaux rénovation à Paris</h1>
-      <p>QUALIRENOVATION partage son expertise de plus de 20 ans pour vous aider à comprendre les étapes, les contraintes et le budget d'un projet de rénovation à Paris. Sept guides thématiques rédigés par notre maître d'œuvre Carina Nahmani.</p>
-      <h2>Thèmes couverts</h2>
-      <ul>
-        <li>Rénovation de salle de bain : de la conception à la livraison</li>
-        <li>Rénovation de cuisine : aménagement et installation sur-mesure</li>
-        <li>Menuiserie intérieure : portes, placards, dressings</li>
-        <li>Parquet et revêtements de sol : pose, restauration, choix des essences</li>
-        <li>Peinture et finitions : préparation des supports, choix des teintes</li>
-        <li>Ouverture de mur porteur : études béton, IPN, démarches en copropriété</li>
-        <li>Travaux en copropriété : autorisations syndic, règlement et voisinage</li>
-      </ul>
+      <h1>Guide complet rénovation d'appartement à Paris</h1>
+      <p>Ce guide a été rédigé par Carina Nahmani, maître d'œuvre chez QUALIRENOVATION by QUALICONCEPT, forte de 20 ans d'expérience dans la rénovation d'appartements à Paris depuis 2003.</p>
+      <h2>Étapes clés d'une rénovation complète</h2>
+      <ol>
+        <li>Visite technique et relevé de cotes</li>
+        <li>Conception 2D / 3D et choix des matériaux</li>
+        <li>Devis détaillé et planning prévisionnel</li>
+        <li>Démolition et préparation des supports</li>
+        <li>Plomberie, électricité, isolation</li>
+        <li>Carrelage, parquet, peinture, menuiserie</li>
+        <li>Réception de chantier et livraison clé en main</li>
+      </ol>
     `,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: "Rénover un appartement à Paris",
+      step: [
+        { "@type": "HowToStep", position: 1, name: "Visite technique et relevé de cotes" },
+        { "@type": "HowToStep", position: 2, name: "Conception 2D/3D et choix des matériaux" },
+        { "@type": "HowToStep", position: 3, name: "Devis détaillé et planning prévisionnel" },
+        { "@type": "HowToStep", position: 4, name: "Démolition et préparation des supports" },
+        { "@type": "HowToStep", position: 5, name: "Plomberie, électricité, isolation" },
+        { "@type": "HowToStep", position: 6, name: "Carrelage, parquet, peinture, menuiserie" },
+        { "@type": "HowToStep", position: 7, name: "Réception de chantier et livraison clé en main" },
+      ],
+    },
   },
   {
     path: "/faq",
-    title: "FAQ rénovation à Paris : devis, maître d'œuvre, suivi | QUALIRENOVATION",
+    title: "FAQ Rénovation appartement Paris | QUALIRENOVATION",
     description:
-      "Questions fréquentes sur la rénovation à Paris : phase devis, rôle du maître d'œuvre, garanties, suivi de chantier, budget, réception, après-travaux.",
-    ogTitle: "FAQ rénovation à Paris",
+      "Questions fréquentes sur la rénovation d'appartement à Paris : budget, délais, maîtrise d'œuvre, devis. Réponses par QUALIRENOVATION.",
+    ogTitle: "FAQ Rénovation appartement Paris",
     ogDescription:
-      "Les réponses aux questions les plus posées sur la rénovation à Paris : devis, maître d'œuvre, garanties, suivi de chantier, budget.",
+      "Budget, délais, maîtrise d'œuvre, devis : réponses aux questions fréquentes sur la rénovation d'appartement à Paris.",
     body: `
-      <h1>FAQ rénovation à Paris</h1>
-      <p>Vous préparez un projet de rénovation à Paris ? QUALIRENOVATION répond aux questions les plus posées par ses clients depuis plus de 20 ans : phase devis, rôle du maître d'œuvre, garanties (décennale, biennale, parfait achèvement), suivi de chantier, modalités de paiement, démarches en copropriété, réception de chantier et après-travaux.</p>
-      <h2>Catégories abordées</h2>
-      <ul>
-        <li>Pourquoi choisir QualiRénovation</li>
-        <li>Déroulement de la phase devis</li>
-        <li>Nos prestations et corps d'état couverts</li>
-        <li>Rôle du maître d'œuvre</li>
-        <li>Suivi de chantier et reporting</li>
-        <li>Budget, paiements et commandes</li>
-        <li>Syndic et voisinage</li>
-        <li>Réception de chantier</li>
-        <li>Après travaux et litiges</li>
-      </ul>
+      <h1>Questions fréquentes</h1>
+      <h2>Qu'est-ce que la maîtrise d'œuvre ?</h2>
+      <p>La maîtrise d'œuvre consiste à coordonner tous les artisans de votre chantier. Chez QUALIRENOVATION, c'est Carina Nahmani qui assure ce rôle depuis 2009.</p>
+      <h2>Quelle est la zone d'intervention de QUALIRENOVATION ?</h2>
+      <p>Paris intra-muros et Île-de-France : Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud.</p>
+      <h2>Depuis quand QUALIRENOVATION existe-t-elle ?</h2>
+      <p>Premier chantier en 2003, maîtrise d'œuvre terrain depuis 2009, société créée en 2016 par Rubens Mimouni.</p>
+      <h2>Quel est le budget moyen d'une rénovation complète à Paris ?</h2>
+      <p>Entre 800 € et 1800 €/m² selon le niveau de prestation et les matériaux choisis.</p>
     `,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Qu'est-ce que la maîtrise d'œuvre ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "La maîtrise d'œuvre consiste à coordonner tous les artisans de votre chantier. Chez QUALIRENOVATION, c'est Carina Nahmani qui assure ce rôle depuis 2009.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quelle est la zone d'intervention de QUALIRENOVATION ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Paris intra-muros et Île-de-France : Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Depuis quand QUALIRENOVATION existe-t-elle ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Premier chantier en 2003, maîtrise d'œuvre terrain depuis 2009, société créée en 2016 par Rubens Mimouni.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quel est le budget moyen d'une rénovation complète à Paris ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Entre 800 € et 1800 €/m² selon le niveau de prestation et les matériaux choisis.",
+          },
+        },
+      ],
+    },
   },
 ];
 
@@ -197,8 +263,15 @@ function buildPage(route) {
     );
   }
 
+  // Inject per-route JSON-LD into <head>.
+  if (route.jsonLd) {
+    const jsonLdTag = `<script type="application/ld+json">${JSON.stringify(route.jsonLd)}</script>`;
+    html = html.replace(/<\/head>/i, `  ${jsonLdTag}\n  </head>`);
+  }
+
   // Inject static content into #root for crawlers. React replaces it on mount.
-  const staticBlock = `<div id="root"><div data-prerender="${route.path}" style="max-width:760px;margin:0 auto;padding:2rem 1.25rem;font-family:system-ui,-apple-system,sans-serif;color:#114a67;line-height:1.6">${route.body.trim()}</div></div>`;
+  const srOnly = `<div style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">${route.body.trim()}<p>${LEGAL_FOOTER}</p></div>`;
+  const staticBlock = `<div id="root"><div data-prerender="${route.path}" style="max-width:760px;margin:0 auto;padding:2rem 1.25rem;font-family:system-ui,-apple-system,sans-serif;color:#114a67;line-height:1.6">${route.body.trim()}<footer style="margin-top:3rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;font-size:0.85rem;color:#475569">${LEGAL_FOOTER}</footer></div>${srOnly}</div>`;
   html = html.replace(/<div\s+id="root"\s*>\s*<\/div>/i, staticBlock);
 
   return html;
