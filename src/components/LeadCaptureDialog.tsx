@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Loader2 } from "lucide-react";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const leadSchema = z.object({
   name: z.string().trim().min(2, "Nom trop court").max(100, "Nom trop long"),
@@ -42,6 +43,24 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<"name" | "email" | "phone" | "rgpdConsent", string>>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [siteKey, setSiteKey] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<HCaptcha | null>(null);
+
+  // Fetch hCaptcha site key when dialog opens (once)
+  useEffect(() => {
+    if (!open || siteKey) return;
+    supabase.functions
+      .invoke("lead-public-config")
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("lead-public-config:", error);
+          return;
+        }
+        if (data?.siteKey) setSiteKey(data.siteKey);
+      })
+      .catch((err) => console.error("lead-public-config failed:", err));
+  }, [open, siteKey]);
 
   const reset = () => {
     setName("");
@@ -50,6 +69,8 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
     setRgpdConsent(false);
     setMarketingConsent(false);
     setErrors({});
+    setCaptchaToken(null);
+    captchaRef.current?.resetCaptcha();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,40 +86,37 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
       });
       return;
     }
+    if (!captchaToken) {
+      toast({
+        title: "Vérification anti-spam",
+        description: "Merci de valider le captcha avant de continuer.",
+        variant: "destructive",
+      });
+      return;
+    }
     setErrors({});
     setSubmitting(true);
     try {
-      const { data: inserted, error } = await supabase
-        .from("quote_requests")
-        .insert({
-        name: parsed.data.name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        message: `Téléchargement de la ressource : ${resourceLabel}`,
-        surface: "Non renseigné",
-        budget: "Non renseigné",
-        timeline: "Non renseigné",
-        status: "lead_pdf",
-        rgpd_consent: parsed.data.rgpdConsent,
-        marketing_consent: parsed.data.marketingConsent ?? false,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-      const leadId: string = inserted?.id;
-      // Fire-and-forget confirmation email (do not block the download on this)
-      supabase.functions
-        .invoke("send-lead-confirmation", {
-          body: {
-            leadId,
-            name: parsed.data.name,
-            email: parsed.data.email,
-            phone: parsed.data.phone,
-            resourceLabel,
-            marketingConsent: parsed.data.marketingConsent ?? false,
-          },
-        })
-        .catch((err) => console.error("send-lead-confirmation failed:", err));
+      const { data, error } = await supabase.functions.invoke("submit-lead", {
+        body: {
+          name: parsed.data.name,
+          email: parsed.data.email,
+          phone: parsed.data.phone,
+          resourceLabel,
+          rgpdConsent: parsed.data.rgpdConsent,
+          marketingConsent: parsed.data.marketingConsent ?? false,
+          captchaToken,
+        },
+      });
+      if (error || !data?.leadId) {
+        const msg = (data as any)?.error || error?.message || "Enregistrement impossible.";
+        toast({ title: "Erreur", description: msg, variant: "destructive" });
+        captchaRef.current?.resetCaptcha();
+        setCaptchaToken(null);
+        setSubmitting(false);
+        return;
+      }
+      const leadId: string = data.leadId;
       toast({
         title: "Merci !",
         description:
@@ -114,6 +132,8 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
         description: "Impossible d'enregistrer vos informations. Réessayez.",
         variant: "destructive",
       });
+      captchaRef.current?.resetCaptcha();
+      setCaptchaToken(null);
     } finally {
       setSubmitting(false);
     }
@@ -215,8 +235,24 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
             </div>
           </div>
 
+          {siteKey && (
+            <div className="flex justify-center pt-1">
+              <HCaptcha
+                ref={captchaRef}
+                sitekey={siteKey}
+                onVerify={(token) => setCaptchaToken(token)}
+                onExpire={() => setCaptchaToken(null)}
+                onError={() => setCaptchaToken(null)}
+              />
+            </div>
+          )}
+
           <DialogFooter>
-            <Button type="submit" disabled={submitting || !rgpdConsent} className="w-full">
+            <Button
+              type="submit"
+              disabled={submitting || !rgpdConsent || !captchaToken || !siteKey}
+              className="w-full"
+            >
               {submitting ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</>
               ) : (

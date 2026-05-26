@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.send-lead-confirmation]
 verify_jwt = false
+
+[functions.submit-lead]
+verify_jwt = false
+
+[functions.lead-public-config]
+verify_jwt = false
