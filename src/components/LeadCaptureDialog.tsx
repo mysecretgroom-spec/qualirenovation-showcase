@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Loader2 } from "lucide-react";
@@ -17,6 +18,10 @@ const leadSchema = z.object({
     .min(8, "Téléphone invalide")
     .max(25, "Téléphone trop long")
     .regex(/^[+0-9\s().-]+$/, "Format de téléphone invalide"),
+  rgpdConsent: z.literal(true, {
+    errorMap: () => ({ message: "Vous devez accepter la collecte de vos données pour continuer." }),
+  }),
+  marketingConsent: z.boolean().optional(),
 });
 
 interface LeadCaptureDialogProps {
@@ -33,25 +38,30 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [errors, setErrors] = useState<Partial<Record<"name" | "email" | "phone", string>>>({});
+  const [rgpdConsent, setRgpdConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<"name" | "email" | "phone" | "rgpdConsent", string>>>({});
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
     setName("");
     setEmail("");
     setPhone("");
+    setRgpdConsent(false);
+    setMarketingConsent(false);
     setErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = leadSchema.safeParse({ name, email, phone });
+    const parsed = leadSchema.safeParse({ name, email, phone, rgpdConsent, marketingConsent });
     if (!parsed.success) {
       const flat = parsed.error.flatten().fieldErrors;
       setErrors({
         name: flat.name?.[0],
         email: flat.email?.[0],
         phone: flat.phone?.[0],
+        rgpdConsent: flat.rgpdConsent?.[0],
       });
       return;
     }
@@ -67,6 +77,8 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
         budget: "Non renseigné",
         timeline: "Non renseigné",
         status: "lead_pdf",
+        rgpd_consent: parsed.data.rgpdConsent,
+        marketing_consent: parsed.data.marketingConsent ?? false,
       });
       if (error) throw error;
       toast({
@@ -138,12 +150,54 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
             />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
           </div>
-          <p className="text-xs text-muted-foreground">
-            En soumettant ce formulaire, vous acceptez d'être recontacté par
-            QUALIRENOVATION. Vos données ne sont jamais cédées à des tiers.
-          </p>
+
+          <div className="space-y-3 pt-1">
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                id="rgpd-consent"
+                checked={rgpdConsent}
+                onCheckedChange={(checked) => setRgpdConsent(checked === true)}
+                aria-describedby="rgpd-consent-error"
+              />
+              <div className="grid gap-1 leading-none">
+                <label
+                  htmlFor="rgpd-consent"
+                  className="text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  J'accepte que mes données personnelles soient collectées pour être recontacté par QUALIRENOVATION{" "}
+                  <span className="text-destructive">*</span>
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  Vos données ne sont jamais cédées à des tiers. Vous pouvez demander leur suppression à tout moment.
+                </p>
+                {errors.rgpdConsent && (
+                  <p id="rgpd-consent-error" className="text-xs text-destructive">{errors.rgpdConsent}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2.5">
+              <Checkbox
+                id="marketing-consent"
+                checked={marketingConsent}
+                onCheckedChange={(checked) => setMarketingConsent(checked === true)}
+              />
+              <div className="grid gap-1 leading-none">
+                <label
+                  htmlFor="marketing-consent"
+                  className="text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  J'accepte de recevoir des communications marketing (offres, inspirations, conseils rénovation)
+                </label>
+                <p className="text-xs text-muted-foreground">
+                  Optionnel — vous pouvez vous désinscrire à tout moment.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <DialogFooter>
-            <Button type="submit" disabled={submitting} className="w-full">
+            <Button type="submit" disabled={submitting || !rgpdConsent} className="w-full">
               {submitting ? (
                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Envoi…</>
               ) : (
