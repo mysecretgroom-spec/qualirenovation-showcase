@@ -29,8 +29,8 @@ interface LeadCaptureDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Label of the resource being downloaded — stored on the lead for context. */
   resourceLabel: string;
-  /** Triggered after the lead is saved. Should perform the actual download. */
-  onSuccess: () => void;
+  /** Triggered after the lead is saved. Receives the generated lead id for traceability. */
+  onSuccess: (leadId: string) => void;
 }
 
 const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: LeadCaptureDialogProps) => {
@@ -68,7 +68,9 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
     setErrors({});
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("quote_requests").insert({
+      const { data: inserted, error } = await supabase
+        .from("quote_requests")
+        .insert({
         name: parsed.data.name,
         email: parsed.data.email,
         phone: parsed.data.phone,
@@ -79,12 +81,16 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
         status: "lead_pdf",
         rgpd_consent: parsed.data.rgpdConsent,
         marketing_consent: parsed.data.marketingConsent ?? false,
-      });
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      const leadId: string = inserted?.id;
       // Fire-and-forget confirmation email (do not block the download on this)
       supabase.functions
         .invoke("send-lead-confirmation", {
           body: {
+            leadId,
             name: parsed.data.name,
             email: parsed.data.email,
             phone: parsed.data.phone,
@@ -98,7 +104,7 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
         description:
           "Votre téléchargement démarre. Un email de confirmation vous a été envoyé. Nous vous recontactons sous 48 h ouvrées.",
       });
-      onSuccess();
+      onSuccess(leadId);
       reset();
       onOpenChange(false);
     } catch (err) {

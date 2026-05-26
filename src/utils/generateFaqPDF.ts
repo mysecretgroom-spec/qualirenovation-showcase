@@ -11,7 +11,13 @@ interface FaqSection {
   items: FaqItem[];
 }
 
-export const generateFaqPDF = (sections: FaqSection[]) => {
+interface FaqPdfOptions {
+  leadId?: string;
+  resourceLabel?: string;
+}
+
+export const generateFaqPDF = (sections: FaqSection[], options: FaqPdfOptions = {}) => {
+  const { leadId, resourceLabel } = options;
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
@@ -121,5 +127,26 @@ export const generateFaqPDF = (sections: FaqSection[]) => {
     y += 5;
   });
 
-  doc.save("FAQ-QualiRenovation.pdf");
+  // Lead tracking footer (traçabilité ressource téléchargée)
+  if (leadId) {
+    checkPageBreak(15);
+    y += 4;
+    doc.setFontSize(8);
+    doc.setTextColor("#999999");
+    doc.setFont("helvetica", "normal");
+    const generatedAt = new Date().toLocaleString("fr-FR");
+    const trackingLine = `Réf. téléchargement : ${leadId}${resourceLabel ? ` — ${resourceLabel}` : ""} — ${generatedAt}`;
+    doc.text(trackingLine, pageWidth / 2, y, { align: "center" });
+  }
+
+  // Embed lead id in PDF metadata for traceability
+  doc.setProperties({
+    title: "FAQ – QualiRénovation",
+    subject: resourceLabel || "FAQ Rénovation",
+    keywords: leadId ? `lead:${leadId}` : "",
+    creator: "QUALIRENOVATION",
+  });
+
+  const fileSuffix = leadId ? `-${leadId.slice(0, 8)}` : "";
+  doc.save(`FAQ-QualiRenovation${fileSuffix}.pdf`);
 };
