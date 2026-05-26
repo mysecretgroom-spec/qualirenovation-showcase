@@ -339,11 +339,14 @@ const FAQPage = () => {
   const guideSectionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [leadDialogOpen, setLeadDialogOpen] = useState(false);
 
-  const downloadFaqPdf = () =>
-    generateFaqPDF([
-      ...faqSections,
-      ...guideFaqSections.map((s) => ({ title: s.title, items: s.items })),
-    ]);
+  const downloadFaqPdf = (leadId?: string) =>
+    generateFaqPDF(
+      [
+        ...faqSections,
+        ...guideFaqSections.map((s) => ({ title: s.title, items: s.items })),
+      ],
+      { leadId, resourceLabel: "FAQ Rénovation Paris – Guide complet" },
+    );
 
   const scrollToSection = (value: string) => {
     if (value.startsWith("guide-")) {
