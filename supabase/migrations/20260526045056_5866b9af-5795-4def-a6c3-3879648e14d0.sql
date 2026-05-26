@@ -1,0 +1,2 @@
+ALTER TABLE public.quote_requests ADD COLUMN IF NOT EXISTS rgpd_consent boolean NOT NULL DEFAULT false;
+ALTER TABLE public.quote_requests ADD COLUMN IF NOT EXISTS marketing_consent boolean DEFAULT false;
