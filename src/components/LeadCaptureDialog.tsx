@@ -81,9 +81,22 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
         marketing_consent: parsed.data.marketingConsent ?? false,
       });
       if (error) throw error;
+      // Fire-and-forget confirmation email (do not block the download on this)
+      supabase.functions
+        .invoke("send-lead-confirmation", {
+          body: {
+            name: parsed.data.name,
+            email: parsed.data.email,
+            phone: parsed.data.phone,
+            resourceLabel,
+            marketingConsent: parsed.data.marketingConsent ?? false,
+          },
+        })
+        .catch((err) => console.error("send-lead-confirmation failed:", err));
       toast({
         title: "Merci !",
-        description: "Votre téléchargement démarre. Nous vous recontactons rapidement.",
+        description:
+          "Votre téléchargement démarre. Un email de confirmation vous a été envoyé. Nous vous recontactons sous 48 h ouvrées.",
       });
       onSuccess();
       reset();
