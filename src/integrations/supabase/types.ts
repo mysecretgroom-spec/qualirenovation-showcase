@@ -417,10 +417,12 @@ export type Database = {
           id: string
           latitude: number | null
           longitude: number | null
+          marketing_consent: boolean | null
           message: string
           name: string
           phone: string
           postal_code: string | null
+          rgpd_consent: boolean
           status: string
           surface: string
           timeline: string
@@ -435,10 +437,12 @@ export type Database = {
           id?: string
           latitude?: number | null
           longitude?: number | null
+          marketing_consent?: boolean | null
           message: string
           name: string
           phone: string
           postal_code?: string | null
+          rgpd_consent?: boolean
           status?: string
           surface: string
           timeline: string
@@ -453,10 +457,12 @@ export type Database = {
           id?: string
           latitude?: number | null
           longitude?: number | null
+          marketing_consent?: boolean | null
           message?: string
           name?: string
           phone?: string
           postal_code?: string | null
+          rgpd_consent?: boolean
           status?: string
           surface?: string
           timeline?: string
