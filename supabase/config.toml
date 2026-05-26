@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.scrape-planizia]
 verify_jwt = false
+
+[functions.send-lead-confirmation]
+verify_jwt = false
