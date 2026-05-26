@@ -82,19 +82,10 @@ Deno.serve(async (req: Request) => {
       )
     }
 
-    const sinceHour = new Date(Date.now() - 3600 * 1000).toISOString()
-    const { count: hourlyByIp } = await admin
-      .from('quote_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('message', `__ip:${ip}`) // not used; placeholder query disabled
-      .gte('created_at', sinceHour)
-    // hourlyByIp by message is intentionally a no-op (we don't store IP); kept for future extension.
-    if ((hourlyByIp ?? 0) > HOURLY_MAX_PER_IP) {
-      return new Response(
-        JSON.stringify({ error: 'Quota horaire atteint depuis votre réseau.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
-    }
+    // Note: IP-based rate-limiting would require a dedicated table to persist counters.
+    // For now we limit by email within the short window above.
+    void HOURLY_MAX_PER_IP // referenced to avoid unused-const warnings; future use
+    void ip
 
     // ----- 3. Insert lead -----
     const { data: inserted, error: insErr } = await admin
