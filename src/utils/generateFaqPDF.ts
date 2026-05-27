@@ -44,7 +44,7 @@ export const generateFaqPDF = (sections: FaqSection[], options: FaqPdfOptions = 
   doc.setFontSize(11);
   doc.setTextColor("#666666");
   doc.setFont("helvetica", "normal");
-  doc.text("Entreprise de rénovation – Maître d'œuvre – Suivi de chantier", pageWidth / 2, y, { align: "center" });
+  doc.text("Maître d'œuvre — Coordination des corps de métier — Qualité d'exécution", pageWidth / 2, y, { align: "center" });
   y += 15;
 
   sections.forEach((section) => {

@@ -408,7 +408,7 @@ const FAQPage = () => {
               QualiRénovation by QualiConcept
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Entreprise de rénovation – Maître d'œuvre – Suivi de chantier
+              Maître d'œuvre — Coordination des corps de métier — Qualité d'exécution
             </p>
           </div>
 
