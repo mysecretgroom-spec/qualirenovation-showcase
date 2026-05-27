@@ -18,7 +18,7 @@ const t = {
       kicker: "À propos",
       title: "Une maître d'œuvre, un savoir-faire",
       body:
-        "QUALIRENOVATION by QUALICONCEPT est une entreprise de rénovation d'appartements haut de gamme basée à Paris 17e, dirigée par Carina Nahmani, maître d'œuvre terrain depuis 2009 et active dans la rénovation depuis 2003.",
+        "Maître d'œuvre depuis 2009, Carina Nahmani a mis son savoir-faire au service de la marque QUALIRENOVATION by QUALICONCEPT. Elle assure la maîtrise d'œuvre de vos chantiers pour en garantir la réussite sur le plan technique et esthétique. QUALIRENOVATION n'exécute pas les travaux — nous coordonnons l'ensemble des corps de métier et veillons à la qualité d'exécution à chaque étape de votre projet.",
     },
     services: {
       kicker: "Services",
@@ -69,7 +69,7 @@ const t = {
     cta: { title: "Prêt à transformer votre intérieur ?", button: "Demander un devis gratuit" },
     footer: { rights: "Tous droits réservés", siret: "SIRET", legal: "Mentions légales" },
     srOnly:
-      "QUALIRENOVATION by QUALICONCEPT — Entreprise de rénovation d'appartements haut de gamme à Paris 17e, dirigée par Carina Nahmani, maître d'œuvre terrain depuis 2009, premier chantier en 2003, société créée en 2016. Adresse : 6 rue d'Armaillé, 75017 Paris. SIRET 85286728200034. Zone d'intervention : Paris intra-muros et Île-de-France (Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud). Services : rénovation complète, maîtrise d'œuvre, cuisine, salle de bain, parquet, électricité, plomberie, menuiseries sur mesure, isolation, peinture, dressing, conception 2D/3D. Plus de 200 chantiers réalisés, 90+ parutions presse (Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 Castorama), Best of Houzz 2023.",
+      "QUALIRENOVATION by QUALICONCEPT — Carina Nahmani, maître d'œuvre depuis 2009, met son savoir-faire au service de la réussite technique et esthétique de vos chantiers à Paris et Île-de-France. QUALIRENOVATION n'exécute pas les travaux — nous coordonnons l'ensemble des corps de métier et veillons à la qualité d'exécution à chaque étape de votre projet. Adresse : 6 rue d'Armaillé, 75017 Paris. SIRET 85286728200034. Zone d'intervention : Paris intra-muros et Île-de-France (Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud). Services : rénovation complète, maîtrise d'œuvre, cuisine, salle de bain, parquet, électricité, plomberie, menuiseries sur mesure, isolation, peinture, dressing, conception 2D/3D. Plus de 200 chantiers réalisés, 90+ parutions presse (Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 Castorama), Best of Houzz 2023.",
   },
   en: {
     nav: { about: "About", services: "Services", figures: "Figures", areas: "Areas", press: "Press", reviews: "Reviews", contact: "Contact" },
@@ -82,7 +82,7 @@ const t = {
       kicker: "About",
       title: "One project manager, one craft",
       body:
-        "QUALIRENOVATION by QUALICONCEPT is a premium apartment renovation company based in Paris 17th, led by Carina Nahmani, on-site project manager since 2009, with her first renovation project in 2003.",
+        "A project manager since 2009, Carina Nahmani has brought her expertise to the QUALIRENOVATION by QUALICONCEPT brand. She ensures full project management to guarantee the success of your renovation, both technically and aesthetically. QUALIRENOVATION does not execute the works — we coordinate all trades and oversee quality at every stage of your project.",
     },
     services: {
       kicker: "Services",
@@ -133,7 +133,7 @@ const t = {
     cta: { title: "Ready to transform your home?", button: "Request a Free Quote" },
     footer: { rights: "All rights reserved", siret: "SIRET", legal: "Legal notice" },
     srOnly:
-      "QUALIRENOVATION by QUALICONCEPT — Premium apartment renovation company in Paris 17th, led by Carina Nahmani, on-site project manager since 2009, first project in 2003, company founded in 2016. Address: 6 rue d'Armaillé, 75017 Paris, France. SIRET 85286728200034. Service area: Paris and Île-de-France (Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud). Services: full apartment renovation, project management, kitchen, bathroom, flooring, electrical, plumbing, custom joinery, insulation, painting, dressing rooms, 2D/3D design. Over 200 completed projects, 90+ press features (Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 Castorama), Best of Houzz 2023.",
+      "QUALIRENOVATION by QUALICONCEPT — Carina Nahmani, project manager since 2009, brings her expertise to the technical and aesthetic success of your renovation projects in Paris and Île-de-France. QUALIRENOVATION does not execute the works — we coordinate all trades and oversee quality at every stage of your project. Address: 6 rue d'Armaillé, 75017 Paris, France. SIRET 85286728200034. Service area: Paris and Île-de-France (Neuilly, Boulogne, Levallois, Issy, Clichy, Courbevoie, Créteil, Ivry, Saint-Cloud). Services: full apartment renovation, project management, kitchen, bathroom, flooring, electrical, plumbing, custom joinery, insulation, painting, dressing rooms, 2D/3D design. Over 200 completed projects, 90+ press features (Elle Déco, Madame Figaro, Maisons & Travaux, Huffington Post, 18h39 Castorama), Best of Houzz 2023.",
   },
 } as const;
 
@@ -155,7 +155,7 @@ const jsonLd = {
   },
   areaServed: "Paris, Île-de-France",
   description:
-    "Premium apartment renovation company in Paris, led by Carina Nahmani, project manager since 2009, first project 2003.",
+    "Premium apartment renovation in Paris, led by Carina Nahmani, project manager since 2009. We coordinate all trades and oversee quality at every stage.",
   url: "https://www.qualirenovation.fr",
 };
 
@@ -193,8 +193,8 @@ const Bilingue = () => {
           name="description"
           content={
             lang === "fr"
-              ? "Rénovation d'appartements haut de gamme à Paris et Île-de-France. Maîtrise d'œuvre par Carina Nahmani depuis 2009. Devis gratuit."
-              : "Premium apartment renovation in Paris and Île-de-France. Project management by Carina Nahmani since 2009. Free quote."
+              ? "QUALIRENOVATION by QUALICONCEPT — Carina Nahmani, maître d'œuvre depuis 2009, met son savoir-faire au service de la réussite technique et esthétique de vos chantiers à Paris et Île-de-France. Devis gratuit."
+              : "QUALIRENOVATION by QUALICONCEPT — Carina Nahmani, project manager since 2009, brings her expertise to the technical and aesthetic success of your projects in Paris and Île-de-France. Free quote."
           }
         />
         <link rel="alternate" hrefLang="fr" href="https://www.qualirenovation.fr/bilingue?lang=fr" />
