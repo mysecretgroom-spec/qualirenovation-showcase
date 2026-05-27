@@ -141,7 +141,7 @@ const LeadCaptureDialog = ({ open, onOpenChange, resourceLabel, onSuccess }: Lea
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!submitting) onOpenChange(o); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="font-display">Recevez votre guide PDF</DialogTitle>
           <DialogDescription>
