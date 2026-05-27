@@ -172,8 +172,8 @@ const CarinIA = () => {
             className="w-10 h-10 rounded-full object-cover border-2 border-background/20"
           />
           <div>
-            <h3 className="font-semibold font-display">Carina</h3>
-            <p className="text-xs opacity-80">Votre conseillère rénovation</p>
+            <h3 className="font-semibold font-display">Carina Nahmani</h3>
+            <p className="text-xs opacity-80">Maître d'œuvre depuis 2009</p>
           </div>
         </div>
 

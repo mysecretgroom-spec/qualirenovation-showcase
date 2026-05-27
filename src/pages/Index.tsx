@@ -48,7 +48,7 @@ const Index = () => {
         <title>Rénovation Appartement Paris | Qualirénovation - Devis Gratuit</title>
         <meta 
           name="description" 
-          content="QUALIRENOVATION by QUALICONCEPT — Rénovation d'appartements haut de gamme à Paris depuis 2003. Maître d'œuvre : Carina Nahmani. Gérant : Rubens Mimouni. 90+ parutions presse. Devis gratuit." 
+          content="QUALIRENOVATION by QUALICONCEPT — Carina Nahmani, maître d'œuvre depuis 2009, met son savoir-faire au service de la réussite technique et esthétique de vos chantiers à Paris et Île-de-France. Devis gratuit." 
         />
         <meta name="keywords" content="rénovation appartement paris, rénovation salle de bain paris, rénovation cuisine paris, entreprise rénovation île-de-france, travaux rénovation paris, devis rénovation gratuit" />
         <link rel="canonical" href="https://qualirenovation.fr" />

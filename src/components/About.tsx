@@ -81,22 +81,22 @@ const About = () => {
               Paris & Île-de-France
             </p>
             <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">
-              Rénovation, décoration, aménagement... autant de solutions pour améliorer 
-              l'habitat et le confort. Nous nous mettons à votre écoute pour trouver 
-              les solutions techniques adaptées, sourcer les produits correspondants, 
-              avec l'attention toujours portée sur l'ergonomie et l'esthétique du projet.
+              Maître d'œuvre depuis 2009, Carina Nahmani a mis son savoir-faire au service de la marque
+              QUALIRENOVATION by QUALICONCEPT. Elle assure la maîtrise d'œuvre de vos chantiers pour en
+              garantir la réussite sur le plan technique et esthétique. QUALIRENOVATION n'exécute pas les travaux —
+              nous coordonnons l'ensemble des corps de métier et veillons à la qualité d'exécution à chaque étape de votre projet.
             </p>
 
             {/* Signature */}
             <div className="flex items-center gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-border">
               <img 
                 src={carinaPhoto} 
-                alt="Carina - Maître d'œuvre" 
+                alt="Carina Nahmani — Maître d'œuvre" 
                 className="w-14 h-14 sm:w-20 sm:h-20 rounded-full object-cover"
               />
               <div>
-                <p className="font-display font-semibold text-foreground text-sm sm:text-base">Carina</p>
-                <p className="text-muted-foreground text-xs sm:text-sm">Maître d'œuvre</p>
+                <p className="font-display font-semibold text-foreground text-sm sm:text-base">Carina Nahmani</p>
+                <p className="text-muted-foreground text-xs sm:text-sm">Maître d'œuvre depuis 2009</p>
               </div>
             </div>
           </div>
