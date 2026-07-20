@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          ai_generated: boolean | null
+          author_id: string | null
+          author_name: string | null
+          category_id: string | null
+          content_html: string | null
+          content_markdown: string | null
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          scheduled_for: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          author_id?: string | null
+          author_name?: string | null
+          category_id?: string | null
+          content_html?: string | null
+          content_markdown?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          author_id?: string | null
+          author_name?: string | null
+          category_id?: string | null
+          content_html?: string | null
+          content_markdown?: string | null
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_files: {
         Row: {
           client_id: string
@@ -556,6 +660,310 @@ export type Database = {
             columns: ["quote_request_id"]
             isOneToOne: false
             referencedRelation: "quote_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_actions: {
+        Row: {
+          action_type: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          metadata: Json | null
+          plan_id: string | null
+          priority: string | null
+          result: string | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_type?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          plan_id?: string | null
+          priority?: string | null
+          result?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_type?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          metadata?: Json | null
+          plan_id?: string | null
+          priority?: string | null
+          result?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_actions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "seo_monthly_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_ai_citations: {
+        Row: {
+          ai_source: string
+          cited_url: string | null
+          created_at: string
+          detected_at: string
+          excerpt: string | null
+          id: string
+          metadata: Json | null
+          query: string | null
+          sentiment: string | null
+        }
+        Insert: {
+          ai_source: string
+          cited_url?: string | null
+          created_at?: string
+          detected_at?: string
+          excerpt?: string | null
+          id?: string
+          metadata?: Json | null
+          query?: string | null
+          sentiment?: string | null
+        }
+        Update: {
+          ai_source?: string
+          cited_url?: string | null
+          created_at?: string
+          detected_at?: string
+          excerpt?: string | null
+          id?: string
+          metadata?: Json | null
+          query?: string | null
+          sentiment?: string | null
+        }
+        Relationships: []
+      }
+      seo_keywords: {
+        Row: {
+          category: string | null
+          created_at: string
+          difficulty: number | null
+          id: string
+          intent: string | null
+          keyword: string
+          notes: string | null
+          priority: string | null
+          search_volume: number | null
+          status: string | null
+          target_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          intent?: string | null
+          keyword: string
+          notes?: string | null
+          priority?: string | null
+          search_volume?: number | null
+          status?: string | null
+          target_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          difficulty?: number | null
+          id?: string
+          intent?: string | null
+          keyword?: string
+          notes?: string | null
+          priority?: string | null
+          search_volume?: number | null
+          status?: string | null
+          target_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_monthly_plans: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          id: string
+          month: number
+          objectives: string | null
+          status: string | null
+          title: string | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          id?: string
+          month: number
+          objectives?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          id?: string
+          month?: number
+          objectives?: string | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      seo_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          message: string | null
+          metadata: Json | null
+          read: boolean | null
+          severity: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          metadata?: Json | null
+          read?: boolean | null
+          severity?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          message?: string | null
+          metadata?: Json | null
+          read?: boolean | null
+          severity?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      seo_opportunities: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          keyword: string | null
+          metadata: Json | null
+          page_url: string | null
+          recommended_action: string | null
+          score: number | null
+          status: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          keyword?: string | null
+          metadata?: Json | null
+          page_url?: string | null
+          recommended_action?: string | null
+          score?: number | null
+          status?: string | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          keyword?: string | null
+          metadata?: Json | null
+          page_url?: string | null
+          recommended_action?: string | null
+          score?: number | null
+          status?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seo_rankings: {
+        Row: {
+          clicks: number | null
+          country: string | null
+          created_at: string
+          ctr: number | null
+          date: string
+          device: string | null
+          id: string
+          impressions: number | null
+          keyword: string
+          keyword_id: string | null
+          page_url: string | null
+          position: number | null
+        }
+        Insert: {
+          clicks?: number | null
+          country?: string | null
+          created_at?: string
+          ctr?: number | null
+          date: string
+          device?: string | null
+          id?: string
+          impressions?: number | null
+          keyword: string
+          keyword_id?: string | null
+          page_url?: string | null
+          position?: number | null
+        }
+        Update: {
+          clicks?: number | null
+          country?: string | null
+          created_at?: string
+          ctr?: number | null
+          date?: string
+          device?: string | null
+          id?: string
+          impressions?: number | null
+          keyword?: string
+          keyword_id?: string | null
+          page_url?: string | null
+          position?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_rankings_keyword_id_fkey"
+            columns: ["keyword_id"]
+            isOneToOne: false
+            referencedRelation: "seo_keywords"
             referencedColumns: ["id"]
           },
         ]
